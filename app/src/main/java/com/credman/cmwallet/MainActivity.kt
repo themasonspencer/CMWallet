@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.credman.cmwallet.ui.CmWalletApp
 import com.credman.cmwallet.ui.theme.CMWalletTheme
 
 class MainActivity : ComponentActivity() {
@@ -19,12 +20,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CMWalletTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Text (
-                        modifier = Modifier.padding(innerPadding),
-                        text = "hello"
-                    )
-                }
+                CmWalletApp()
             }
         }
     }
