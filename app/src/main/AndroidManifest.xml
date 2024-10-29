@@ -25,7 +25,7 @@
         <activity
             android:name=".GetCredentialActivity"
             android:exported="true"
-            android:theme="@style/Theme.CMWallet">
+            android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
                 <action android:name="androidx.credentials.registry.provider.action.GET_CREDENTIAL" />
                 <action android:name="androidx.identitycredentials.action.GET_CREDENTIALS" />

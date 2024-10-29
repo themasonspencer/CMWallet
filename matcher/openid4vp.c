@@ -61,6 +61,7 @@ int main() {
             cJSON_ArrayForEach(c, matched_cred) {
                 //printf("cred %s\n", cJSON_Print(c));
                 char* id = cJSON_GetStringValue(cJSON_GetObjectItem(c, "id"));
+                //char* id = cJSON_PrintUnformatted(c);
                 char* title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
                 char* subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
                 AddStringIdEntry(id, NULL, 0, title, subtitle, NULL, NULL);
