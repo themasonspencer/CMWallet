@@ -10,8 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.credman.cmwallet"
-        minSdk = 34
-        targetSdk = 34
+        minSdk = 28
         versionCode = 1
         versionName = "1.0"
 
