@@ -37,15 +37,10 @@
             "docType": "com.emvco.payment_card",
             "nameSpaces": {
                 "com.emvco.payment_card.1": {
-                    "holder_family_name": {
-                        "value": "Smith",
-                        "display": "Family Name",
-                        "display_value": "Smith"
-                    },
-                    "holder_given_name": {
-                        "value": "Jon",
-                        "display": "Given Name",
-                        "display_value": "Jon"
+                    "holder_name": {
+                        "value": "Jon Smith",
+                        "display": "Holder Name",
+                        "display_value": "Jon Smith"
                     },
                     "card_number": {
                         "value": 5466000055552312,
@@ -89,15 +84,10 @@
             "docType": "com.emvco.payment_card",
             "nameSpaces": {
                 "com.emvco.payment_card.1": {
-                    "holder_family_name": {
-                        "value": "Smith",
-                        "display": "Family Name",
-                        "display_value": "Smith"
-                    },
-                    "holder_given_name": {
-                        "value": "Jon",
-                        "display": "Given Name",
-                        "display_value": "Jon"
+                    "holder_name": {
+                        "value": "Jon Smith",
+                        "display": "Holder Name",
+                        "display_value": "Jon Smith"
                     },
                     "card_number": {
                         "value": 4000123456789012,

@@ -42,7 +42,8 @@ class GetCredentialActivity : ComponentActivity() {
                             DigitalCredential(response)
                         ))
 
-                    } catch(_: Exception) {
+                    } catch(e: Exception) {
+                        Log.e("GetCredentialActivity", "exception", e)
                         PendingIntentHandler.setGetCredentialException(result, GetCredentialUnknownException())
                     }
                     setResult(RESULT_OK, result)
@@ -94,7 +95,7 @@ class GetCredentialActivity : ComponentActivity() {
     }
 
     private fun loadTestCreds(): ByteArray {
-        val stream = assets.open("testcreds.json");
+        val stream = assets.open("paymentcreds.json");
         val creds = ByteArray(stream.available())
         stream.read(creds)
         stream.close()

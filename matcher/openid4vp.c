@@ -26,12 +26,21 @@ cJSON* GetCredsJson() {
 }
 
 int main() {
-    cJSON* creds = GetCredsJson();
+    uint32_t credentials_size;
+    GetCredentialsSize(&credentials_size);
+
+    char* creds_blob = malloc(credentials_size);
+    ReadCredentialsBuffer(creds_blob, 0, credentials_size);
+
+    int json_offset = *((int*)creds_blob);
+    printf("Creds JSON offset %d\n", json_offset);
+
+    cJSON* creds = cJSON_Parse(creds_blob + json_offset);
     cJSON* credential_store = cJSON_GetObjectItem(creds, "credentials");
-    //printf("Creds JSON %s\n", cJSON_Print(credential_store));
+    printf("Creds JSON %s\n", cJSON_Print(credential_store));
 
     cJSON* dc_request = GetDCRequestJson();
-    //printf("Request JSON %s\n", cJSON_Print(dc_request));
+    printf("Request JSON %s\n", cJSON_Print(dc_request));
 
     // Parse each top level request looking for OpenID4VP requests
     cJSON* requests = cJSON_GetObjectItem(dc_request, "providers"); // TODO: This has changed in the latest spec
@@ -51,28 +60,64 @@ int main() {
             cJSON* data_json = cJSON_Parse(data_json_string);
             cJSON* query = cJSON_GetObjectItem(data_json, "dcql_query");
 
-            cJSON* matched_creds = dcql_query(query, credential_store);
+            cJSON* transaction_data = cJSON_GetObjectItem(data_json, "transaction_data");
+            cJSON* transaction_credential_ids = NULL;
+            if (transaction_data != NULL) {
+                transaction_credential_ids = cJSON_GetObjectItem(transaction_data, "credential_ids");
+            }
+
+            cJSON* matched_docs = dcql_query(query, credential_store);
             //printf("matched_creds %d\n", cJSON_GetArraySize(matched_creds));
-            //printf("matched_creds %s\n", cJSON_Print(cJSON_GetArrayItem(matched_creds,0)));
+//            printf("matched_creds %s\n", cJSON_Print(cJSON_GetArrayItem(matched_creds,0)));
 
             // Only support one doc
-            cJSON* matched_cred = cJSON_GetArrayItem(matched_creds,0);
+
+            cJSON* matched_doc = cJSON_GetArrayItem(matched_docs,0);
+            cJSON* matched_cred = cJSON_GetObjectItem(matched_doc, "matched");
+            cJSON* doc_id = cJSON_GetObjectItem(matched_doc, "id");
             cJSON* c;
             cJSON_ArrayForEach(c, matched_cred) {
-                //printf("cred %s\n", cJSON_Print(c));
+//                printf("cred %s\n", cJSON_Print(c));
                 cJSON* id_obj = cJSON_CreateObject();
                 cJSON* matched_id = cJSON_GetObjectItem(c, "id");
+
                 cJSON_AddItemReferenceToObject(id_obj, "id", matched_id);
                 cJSON_AddItemReferenceToObject(id_obj, "provider_idx", cJSON_CreateNumber(i));
-
                 char* id = cJSON_PrintUnformatted(id_obj);
-                char* title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
-                char* subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
-                AddStringIdEntry(id, NULL, 0, title, subtitle, NULL, NULL);
-                cJSON* matched_claim_names = cJSON_GetObjectItem(c, "matched_claim_names");
-                cJSON* claim;
-                cJSON_ArrayForEach(claim, matched_claim_names) {
-                    AddFieldForStringIdEntry(id, cJSON_GetStringValue(claim), NULL);
+
+                if (transaction_credential_ids != NULL) {
+                    printf("transaction cred ids %s\n", cJSON_Print(transaction_credential_ids));
+                    cJSON* transaction_credential_id;
+                    cJSON_ArrayForEach(transaction_credential_id, transaction_credential_ids) {
+                        printf("comparing cred id %s with transaction cred id %s.\n", cJSON_Print(doc_id), cJSON_Print(transaction_credential_id));
+                        if (cJSON_Compare(transaction_credential_id, doc_id, cJSON_True)) {
+                            char* merchant_name = cJSON_GetStringValue(cJSON_GetObjectItem(transaction_data, "merchant_name"));
+                            char* transaction_amount = cJSON_GetStringValue(cJSON_GetObjectItem(transaction_data, "amount"));
+
+                            char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
+                            char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
+                            cJSON* icon = cJSON_GetObjectItem(c, "icon");
+                            printf("transaction cred ids %s\n", cJSON_Print(transaction_credential_ids));
+
+                            double icon_start = (cJSON_GetNumberValue(cJSON_GetObjectItem(icon, "start")));
+                            int icon_start_int = icon_start;
+                            printf("icon_start int %d, double %f\n", icon_start_int, icon_start);
+                            int icon_len = (int)(cJSON_GetNumberValue(cJSON_GetObjectItem(icon, "length")));
+
+                            AddPaymentEntry(id, merchant_name, title, subtitle, creds_blob + icon_start_int, icon_len, transaction_amount, NULL, 0, NULL, 0);
+
+                            break;
+                        }
+                    }
+                } else {
+                    char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
+                    char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
+                    AddStringIdEntry(id, NULL, 0, title, subtitle, NULL, NULL);
+                    cJSON *matched_claim_names = cJSON_GetObjectItem(c, "matched_claim_names");
+                    cJSON *claim;
+                    cJSON_ArrayForEach(claim, matched_claim_names) {
+                        AddFieldForStringIdEntry(id, cJSON_GetStringValue(claim), NULL);
+                    }
                 }
             }
 

@@ -1,0 +1,94 @@
+{
+    "credentials": {
+        "mso_mdoc": {
+            "com.emvco.payment_card": [
+                {
+                    "id": "card1",
+                    "title": "**** **** **** 2312",
+                    "subtitle": "Mastercard | Card Holder: Jon Smith",
+                    "icon": {
+                        "start": 4,
+                        "length": 17355
+                    },
+                    "namespaces": {
+                        "com.emvco.payment_card.1": {
+                            "holder_name": {
+                                "value": "Jon Smith",
+                                "display": "Holder Name",
+                                "display_value": "Jon Smith"
+                            },
+                            "card_number": {
+                                "value": 5466000055552312,
+                                "display": "Card Number",
+                                "display_value": "**** **** **** 2312"
+                            },
+                            "expiry_month": {
+                                "value": 7,
+                                "display": "Month of Expiry",
+                                "display_value": "July"
+                            },
+                            "expiry_year": {
+                                "value": 2027,
+                                "display": "Year of Expiry",
+                                "display_value": "27"
+                            },
+                            "card_network": {
+                                "value": "Mastercard",
+                                "display": "Card Network",
+                                "display_value": "Mastercard"
+                            },
+                            "card_issuer": {
+                                "value": "Tribank",
+                                "display": "Card issuer",
+                                "display_value": "Tribank"
+                            }
+                        }
+                    }
+                },
+                {
+                    "id": "card2",
+                    "title": "**** **** **** 9012",
+                    "subtitle": "Visa | Card Holder: Jon Smith",
+                    "icon": {
+                        "start": 17359,
+                        "length": 12387
+                    },
+                    "namespaces": {
+                        "com.emvco.payment_card.1": {
+                            "holder_name": {
+                                "value": "Jon Smith",
+                                "display": "Holder Name",
+                                "display_value": "Jon Smith"
+                            },
+                            "card_number": {
+                                "value": 4000123456789012,
+                                "display": "Card Number",
+                                "display_value": "**** **** **** 9012"
+                            },
+                            "expiry_month": {
+                                "value": 7,
+                                "display": "Month of Expiry",
+                                "display_value": "July"
+                            },
+                            "expiry_year": {
+                                "value": 2028,
+                                "display": "Year of Expiry",
+                                "display_value": "28"
+                            },
+                            "card_network": {
+                                "value": "Visa",
+                                "display": "Card Network",
+                                "display_value": "Visa"
+                            },
+                            "card_issuer": {
+                                "value": "Tribank",
+                                "display": "Card issuer",
+                                "display_value": "Tribank"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

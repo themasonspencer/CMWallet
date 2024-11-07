@@ -47,6 +47,7 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
             cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItem(candidate, "id"));
             cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItem(candidate, "title"));
             cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItem(candidate, "subtitle"));
+            cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItem(candidate, "icon"));
             cJSON* matched_claim_names = cJSON_CreateArray();
             //printf("candidate %s\n", cJSON_Print(candidate));
             if (strcmp(format, "mso_mdoc") == 0) {
@@ -71,6 +72,7 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                 cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItem(candidate, "id"));
                 cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItem(candidate, "title"));
                 cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItem(candidate, "subtitle"));
+                cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItem(candidate, "icon"));
                 cJSON* matched_claim_names = cJSON_CreateArray();
 
                 cJSON* claim;
@@ -108,6 +110,7 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                 cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItem(candidate, "id"));
                 cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItem(candidate, "title"));
                 cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItem(candidate, "subtitle"));
+                cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItem(candidate, "icon"));
                 cJSON* matched_claim_ids = cJSON_CreateObject();
 
                 cJSON* claim;
@@ -166,7 +169,10 @@ cJSON* dcql_query(cJSON* query, cJSON* credential_store) {
         char* id = cJSON_GetStringValue(cJSON_GetObjectItem(credential, "id"));
         cJSON* matched = MatchCredential(credential, credential_store);
         if (cJSON_GetArraySize(matched) > 0) {
-            cJSON_AddItemReferenceToObject(candidate_matched_credentials, id, matched);
+            cJSON* m = cJSON_CreateObject();
+            cJSON_AddItemReferenceToObject(m, "id", cJSON_GetObjectItem(credential, "id"));
+            cJSON_AddItemReferenceToObject(m, "matched", matched);
+            cJSON_AddItemReferenceToObject(candidate_matched_credentials, id, m);
         }
 
         if (cJSON_GetArraySize(credentials) == cJSON_GetArraySize(candidate_matched_credentials)) {
