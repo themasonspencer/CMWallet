@@ -1,6 +1,8 @@
 package com.credman.cmwallet.data.model
 
 import android.graphics.Bitmap
+import androidx.credentials.internal.getFinalCreateCredentialData
+import androidx.credentials.webauthn.Cbor
 import org.json.JSONObject
 
 class CredentialItem(
@@ -24,7 +26,7 @@ sealed class Credential(
 ) {
     companion object {
         fun fromJson(json: JSONObject): Credential = when (json.getString(FORMAT)) {
-            MSO_MDOC -> MdocCredential(json.getJSONObject(CREDENTIAL))
+            MSO_MDOC -> MdocCredential(json)
             else -> throw IllegalArgumentException("Credential format ${json.getString(FORMAT)} is not supported")
         }
     }
@@ -33,10 +35,12 @@ sealed class Credential(
 data class MdocCredential(
     val docType: String,
     val nameSpaces: Map<String, MdocNameSpace>,
+    val deviceKey: String,
+    val issuerSigned: String,
 ) : Credential(format = MSO_MDOC) {
     constructor(json: JSONObject): this(
-        docType = json.getString(DOCTYPE),
-        nameSpaces = json.getJSONObject(NAMESPACES).let let1@{
+        docType = json.getJSONObject(CREDENTIAL).getString(DOCTYPE),
+        nameSpaces = json.getJSONObject(CREDENTIAL).getJSONObject(NAMESPACES).let let1@{
             val nameSpaceKeys = it.keys()
             val result = mutableMapOf<String, MdocNameSpace>()
             while (nameSpaceKeys.hasNext()) {
@@ -57,7 +61,9 @@ data class MdocCredential(
                 }
             }
             return@let1 result
-        }
+        },
+        deviceKey = json.getString(DEVICE_KEY),
+        issuerSigned = json.getString(ISSUER_SIGNED),
     )
 }
 
@@ -77,11 +83,14 @@ sealed class CredentialMetadata {
             return when (type) {
                 VERIFICATION -> VerificationMetadata(
                     title = json.getString(TITLE),
-                    subtitle = json.optString(SUBTITLE)
+                    subtitle = json.optString(SUBTITLE),
+                    cardIcon = json.optString(CARD_ICON),
                 )
                 PAYMENT -> PaymentMetadata(
-                    cardArt = json.getString(CARD_ART),
-                    cardNetworkArt = json.getString(CARD_NETWORK_ART),
+                    cardArt = json.optString(CARD_ART),
+                    cardNetworkArt = json.optString(CARD_NETWORK_ART),
+                    title = json.getString(TITLE),
+                    subtitle = json.optString(SUBTITLE),
                 )
                 else -> throw IllegalArgumentException("$type of credential metadata is not supproted")
             }
@@ -90,16 +99,21 @@ sealed class CredentialMetadata {
 }
 
 data class PaymentMetadata(
-    val cardArt: String, // b64 encoding
-    val cardNetworkArt: String, // b64 encoding
+    val cardArt: String?, // b64 encoding
+    val cardNetworkArt: String?, // b64 encoding
+    val title: String,
+    val subtitle: String?,
 ): CredentialMetadata()
 
 data class VerificationMetadata(
     val title: String,
     val subtitle: String?,
+    val cardIcon: String?,
 ): CredentialMetadata()
 
-private const val MSO_MDOC = "mso_mdoc"
+const val MSO_MDOC = "mso_mdoc"
+private const val DEVICE_KEY = "deviceKey"
+private const val ISSUER_SIGNED = "issuerSigned"
 private const val METADATA = "metadata"
 private const val FORMAT = "format"
 private const val CREDENTIAL = "credential"
@@ -113,4 +127,5 @@ private const val PAYMENT = "payment"
 private const val TITLE = "title"
 private const val SUBTITLE = "subtitle"
 private const val CARD_ART = "card_art"
+private const val CARD_ICON = "cardIcon"
 private const val CARD_NETWORK_ART = "card_network_art"
