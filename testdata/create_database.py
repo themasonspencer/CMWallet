@@ -30,11 +30,12 @@ for cred_id, cred in database.items():
         ).decode("utf-8")
         cred["deviceKey"] = base64.urlsafe_b64encode(
             device_private_key.private_bytes(
-                encoding=serialization.Encoding.PEM,
-                format=serialization.PrivateFormat.TraditionalOpenSSL,
+                encoding=serialization.Encoding.DER,
+                format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption(),
             )
         ).decode("utf-8")
+        print(cred["deviceKey"])
 
 with open("testdata/database.json", "w") as f:
     json.dump(database, f, indent=4)
