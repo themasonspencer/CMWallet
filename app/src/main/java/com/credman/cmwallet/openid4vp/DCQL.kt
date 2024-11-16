@@ -8,26 +8,30 @@ abstract class MatchedClaim()
 
 class MatchedMDocClaim(val namespace: String, val claimName: String) : MatchedClaim()
 
-data class MatchedCredential (
+data class MatchedCredential(
     val id: String,
     val matchedClaims: MutableList<MatchedClaim> = mutableListOf()
 )
 
-fun DCQLQuery(query: JSONObject, credentialStore: JSONObject): Map<String, List<MatchedCredential>> {
-    require(query.has("credentials")) {"dcql_query must contain a credentials"}
+fun DCQLQuery(
+    query: JSONObject,
+    credentialStore: JSONObject
+): Map<String, List<MatchedCredential>> {
+    require(query.has("credentials")) { "dcql_query must contain a credentials" }
     val credentials = query.getJSONArray("credentials")
-    require(credentials.length() == 1) {"Only support returning a single document"}
+    require(credentials.length() == 1) { "Only support returning a single document" }
     val credential = credentials.getJSONObject(0)!!
 
-    require(credential.has("id")) {"dcql_query credential must contain an id"}
+    require(credential.has("id")) { "dcql_query credential must contain an id" }
     val id = credential.getString(("id"))
-    val matchedCredentials = matchCredential(credential, credentialStore.getJSONObject("credentials"))
+    val matchedCredentials =
+        matchCredential(credential, credentialStore.getJSONObject("credentials"))
     Log.i("DCQL", "matchedCredentials $matchedCredentials")
     return mapOf(Pair(id, matchedCredentials))
 }
 
 fun matchCredential(credential: JSONObject, credentialStore: JSONObject): List<MatchedCredential> {
-    require(credential.has("format")) {"dcql_query credential must contain a format"}
+    require(credential.has("format")) { "dcql_query credential must contain a format" }
 
     val matchedCredentials = mutableListOf<MatchedCredential>()
 
@@ -38,7 +42,7 @@ fun matchCredential(credential: JSONObject, credentialStore: JSONObject): List<M
     val claims = credential.opt("claims") as JSONArray?
     val claimSets = credential.opt("claim_sets") as JSONArray?
 
-    require(!(claims == null && claimSets != null )) {"dcql_query credential must contains claim_sets without claims"}
+    require(!(claims == null && claimSets != null)) { "dcql_query credential must contains claim_sets without claims" }
 
     // Filter by format
     val candidatesByFormat = credentialStore.opt(format) as JSONObject? ?: return matchedCredentials
@@ -59,6 +63,7 @@ fun matchCredential(credential: JSONObject, credentialStore: JSONObject): List<M
                 }
 
             }
+
             else -> return matchedCredentials
         }
     } else {
@@ -83,13 +88,20 @@ fun matchCredential(credential: JSONObject, credentialStore: JSONObject): List<M
                     val claimValues = claim.opt("values") as JSONArray?
                     when (format) {
                         "mso_mdoc" -> {
-                            require(claim.has("namespace")) {"mdoc claim credential must contain namespace"}
-                            require(claim.has("claim_name")) {"mdoc claim credential must contain claim_name"}
+                            require(claim.has("namespace")) { "mdoc claim credential must contain namespace" }
+                            require(claim.has("claim_name")) { "mdoc claim credential must contain claim_name" }
                             val namespace = claim.getString("namespace")
                             val claimName = claim.getString("claim_name")
                             if (candidate.getJSONObject("namespaces").has(namespace)) {
-                                if (candidate.getJSONObject("namespaces").getJSONObject(namespace).has(claimName)) {
-                                    matchedCredential.matchedClaims.add(MatchedMDocClaim(namespace, claimName))
+                                if (candidate.getJSONObject("namespaces").getJSONObject(namespace)
+                                        .has(claimName)
+                                ) {
+                                    matchedCredential.matchedClaims.add(
+                                        MatchedMDocClaim(
+                                            namespace,
+                                            claimName
+                                        )
+                                    )
                                 }
                             }
                         }

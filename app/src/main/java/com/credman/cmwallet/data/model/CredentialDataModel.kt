@@ -1,8 +1,5 @@
 package com.credman.cmwallet.data.model
 
-import android.graphics.Bitmap
-import androidx.credentials.internal.getFinalCreateCredentialData
-import androidx.credentials.webauthn.Cbor
 import org.json.JSONObject
 
 class CredentialItem(
@@ -18,7 +15,6 @@ class CredentialItem(
             CredentialMetadata.fromJson(metadataKey, it.getJSONObject(metadataKey))
         }
     )
-
 }
 
 sealed class Credential(
@@ -38,7 +34,7 @@ data class MdocCredential(
     val deviceKey: String,
     val issuerSigned: String,
 ) : Credential(format = MSO_MDOC) {
-    constructor(json: JSONObject): this(
+    constructor(json: JSONObject) : this(
         docType = json.getJSONObject(CREDENTIAL).getString(DOCTYPE),
         nameSpaces = json.getJSONObject(CREDENTIAL).getJSONObject(NAMESPACES).let let1@{
             val nameSpaceKeys = it.keys()
@@ -77,39 +73,45 @@ data class MdocField(
     val displayValue: String?,
 )
 
-sealed class CredentialMetadata {
+sealed class CredentialMetadata(
+    val title: String,
+    val subtitle: String?,
+    val icon: String?
+) {
     companion object {
         fun fromJson(type: String, json: JSONObject): CredentialMetadata {
             return when (type) {
                 VERIFICATION -> VerificationMetadata(
                     title = json.getString(TITLE),
                     subtitle = json.optString(SUBTITLE),
-                    cardIcon = json.optString(CARD_ICON),
+                    icon = json.optString(CARD_ICON),
                 )
+
                 PAYMENT -> PaymentMetadata(
-                    cardArt = json.optString(CARD_ART),
-                    cardNetworkArt = json.optString(CARD_NETWORK_ART),
                     title = json.getString(TITLE),
                     subtitle = json.optString(SUBTITLE),
+                    icon = json.optString(CARD_ART),
+                    cardNetworkArt = json.optString(CARD_NETWORK_ART),
                 )
-                else -> throw IllegalArgumentException("$type of credential metadata is not supproted")
+
+                else -> throw IllegalArgumentException("$type of credential metadata is not supported")
             }
         }
     }
 }
 
-data class PaymentMetadata(
-    val cardArt: String?, // b64 encoding
+class PaymentMetadata(
+    title: String,
+    subtitle: String?,
+    icon: String?,
     val cardNetworkArt: String?, // b64 encoding
-    val title: String,
-    val subtitle: String?,
-): CredentialMetadata()
+) : CredentialMetadata(title, subtitle, icon)
 
-data class VerificationMetadata(
-    val title: String,
-    val subtitle: String?,
-    val cardIcon: String?,
-): CredentialMetadata()
+class VerificationMetadata(
+    title: String,
+    subtitle: String?,
+    icon: String?,
+) : CredentialMetadata(title, subtitle, icon)
 
 const val MSO_MDOC = "mso_mdoc"
 private const val DEVICE_KEY = "deviceKey"

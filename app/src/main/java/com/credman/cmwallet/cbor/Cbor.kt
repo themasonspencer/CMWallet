@@ -1,23 +1,21 @@
 package com.credman.cmwallet.cbor
 
-import java.lang.IllegalArgumentException
-
 data class CborTag(
     val tag: Long,
     val item: Any?
 )
 
-fun cborDecode(data: ByteArray) : Any? {
+fun cborDecode(data: ByteArray): Any? {
     return Cbor().decode(data)
 }
 
-fun cborEncode(data: Any?) : ByteArray {
+fun cborEncode(data: Any?): ByteArray {
     return Cbor().encode(data)
 }
 
 class Cbor {
-    data class Item (val item: Any?, val len: Int, val type: Int)
-    data class Arg (val arg: Long, val len: Int)
+    data class Item(val item: Any?, val len: Int, val type: Int)
+    data class Arg(val arg: Long, val len: Int)
 
     val TYPE_UNSIGNED_INT = 0x00
     val TYPE_NEGATIVE_INT = 0x01
@@ -28,12 +26,12 @@ class Cbor {
     val TYPE_TAG = 0x06
     val TYPE_FLOAT = 0x07
 
-    fun decode(data: ByteArray) : Any? {
+    fun decode(data: ByteArray): Any? {
         val ret = parseItem(data, 0)
         return ret.item
     }
 
-    fun encode(data: Any?) : ByteArray {
+    fun encode(data: Any?): ByteArray {
         if (data == null) {
             return createArg(TYPE_FLOAT, 22)
         }
@@ -62,9 +60,7 @@ class Cbor {
             }
             return ret
         }
-        if (data is Map<*,*>) {
-            // TODO: maps must be sorted.
-            // See: https://fidoalliance.org/specs/fido-v2.1-ps-20210615/fido-client-to-authenticator-protocol-v2.1-ps-20210615.html#ctap2-canonical-cbor-encoding-form
+        if (data is Map<*, *>) {
             var ret = createArg(TYPE_MAP, data.size.toLong())
             for (i in data) {
                 ret += encode(i.key!!)
@@ -80,35 +76,35 @@ class Cbor {
         throw IllegalArgumentException("Bad type")
     }
 
-    private fun getType(data: ByteArray, offset: Int) : Int {
+    private fun getType(data: ByteArray, offset: Int): Int {
         val d = data[offset].toInt()
         return (d and 0xFF) shr 5
     }
 
-    private fun getArg(data: ByteArray, offset: Int) : Arg {
+    private fun getArg(data: ByteArray, offset: Int): Arg {
         val arg = data[offset].toLong() and 0x1F
         if (arg < 24) {
             return Arg(arg, 1)
         }
         if (arg == 24L) {
-            return Arg(data[offset+1].toLong() and 0xFF, 2)
+            return Arg(data[offset + 1].toLong() and 0xFF, 2)
         }
         if (arg == 25L) {
-            var ret = (data[offset+1].toLong() and 0xFF) shl 8
-            ret = ret or (data[offset+2].toLong() and 0xFF)
+            var ret = (data[offset + 1].toLong() and 0xFF) shl 8
+            ret = ret or (data[offset + 2].toLong() and 0xFF)
             return Arg(ret, 3)
         }
         if (arg == 26L) {
-            var ret = (data[offset+1].toLong() and 0xFF) shl 24
-            ret = ret or ((data[offset+2].toLong() and 0xFF) shl 16)
-            ret = ret or ((data[offset+3].toLong() and 0xFF) shl 8)
-            ret = ret or (data[offset+4].toLong() and 0xFF)
+            var ret = (data[offset + 1].toLong() and 0xFF) shl 24
+            ret = ret or ((data[offset + 2].toLong() and 0xFF) shl 16)
+            ret = ret or ((data[offset + 3].toLong() and 0xFF) shl 8)
+            ret = ret or (data[offset + 4].toLong() and 0xFF)
             return Arg(ret, 5)
         }
         throw IllegalArgumentException("Bad arg")
     }
 
-    private fun parseItem(data: ByteArray, offset: Int) : Item {
+    private fun parseItem(data: ByteArray, offset: Int): Item {
         val itemType = getType(data, offset)
         val arg = getArg(data, offset)
         //println("Type $itemType ${arg.arg} ${arg.len}")
@@ -117,62 +113,74 @@ class Cbor {
             TYPE_UNSIGNED_INT -> {
                 return Item(arg.arg, arg.len, TYPE_UNSIGNED_INT)
             }
+
             TYPE_NEGATIVE_INT -> {
                 return Item(-1 - arg.arg, arg.len, TYPE_NEGATIVE_INT)
             }
+
             TYPE_BYTE_STRING -> {
-                val ret = data.sliceArray(offset+arg.len.toInt() until offset+arg.len.toInt()+arg.arg.toInt())
-                return Item(ret, arg.len+arg.arg.toInt(), TYPE_BYTE_STRING)
+                val ret =
+                    data.sliceArray(offset + arg.len.toInt() until offset + arg.len.toInt() + arg.arg.toInt())
+                return Item(ret, arg.len + arg.arg.toInt(), TYPE_BYTE_STRING)
             }
+
             TYPE_TEXT_STRING -> {
-                val ret = data.sliceArray(offset+arg.len.toInt() until offset+arg.len.toInt()+arg.arg.toInt())
-                return Item(ret.toString(Charsets.UTF_8), arg.len+arg.arg.toInt(),
-                    TYPE_TEXT_STRING)
+                val ret =
+                    data.sliceArray(offset + arg.len.toInt() until offset + arg.len.toInt() + arg.arg.toInt())
+                return Item(
+                    ret.toString(Charsets.UTF_8), arg.len + arg.arg.toInt(),
+                    TYPE_TEXT_STRING
+                )
             }
+
             TYPE_ARRAY -> {
                 val ret = mutableListOf<Any?>()
                 var consumed = arg.len
                 for (i in 0 until arg.arg.toInt()) {
-                    val item = parseItem(data, offset+consumed)
+                    val item = parseItem(data, offset + consumed)
                     ret.add(item.item)
                     consumed += item.len
                 }
                 return Item(ret.toList(), consumed, TYPE_ARRAY)
             }
+
             TYPE_MAP -> {
                 val ret = mutableMapOf<Any?, Any?>()
                 var consumed = arg.len
                 for (i in 0 until arg.arg.toInt()) {
-                    val key = parseItem(data, offset+consumed)
+                    val key = parseItem(data, offset + consumed)
                     consumed += key.len
-                    val value = parseItem(data, offset+consumed)
+                    val value = parseItem(data, offset + consumed)
                     consumed += value.len
                     ret[key.item] = value.item
                 }
                 return Item(ret.toMap(), consumed, TYPE_MAP)
             }
+
             TYPE_TAG -> {
-                val tagItem = parseItem(data, offset+arg.len)
-                return Item(CborTag(arg.arg, tagItem.item), arg.len+tagItem.len, TYPE_TAG)
+                val tagItem = parseItem(data, offset + arg.len)
+                return Item(CborTag(arg.arg, tagItem.item), arg.len + tagItem.len, TYPE_TAG)
             }
+
             TYPE_FLOAT -> {
                 if (arg.arg.toInt() == 22) {
                     return Item(null, arg.len, TYPE_FLOAT)
-                } else if(arg.arg.toInt() == 20) {
+                } else if (arg.arg.toInt() == 20) {
                     return Item(false, arg.len, TYPE_FLOAT)
-                } else if(arg.arg.toInt() == 21) {
+                } else if (arg.arg.toInt() == 21) {
                     return Item(true, arg.len, TYPE_FLOAT)
                 } else {
                     throw IllegalArgumentException("Bad float $arg")
                 }
             }
+
             else -> {
                 throw IllegalArgumentException("Bad type")
             }
         }
     }
 
-    private fun createArg(type: Int, arg: Long) : ByteArray {
+    private fun createArg(type: Int, arg: Long): ByteArray {
         val t = type shl 5
         val a = arg.toInt()
         if (arg < 24) {

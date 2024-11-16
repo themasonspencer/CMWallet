@@ -6,7 +6,10 @@ import com.credman.cmwallet.cbor.cborEncode
 import java.security.PrivateKey
 import java.security.Signature
 
-fun filterIssuerSigned(issuerSigned: ByteArray, requiredElements: Map<String, List<String>>): ByteArray {
+fun filterIssuerSigned(
+    issuerSigned: ByteArray,
+    requiredElements: Map<String, List<String>>
+): ByteArray {
     val issuerSignedDict = cborDecode(issuerSigned) as Map<*, *>
     val ret = issuerSignedDict.toMutableMap()
     val namespaces = ret["nameSpaces"] as Map<*, *>
@@ -42,7 +45,7 @@ fun generateDeviceResponse(
     sessionTranscript: ByteArray
 ): ByteArray {
     val deviceNamespaces = emptyMap<String, Any>()
-    val deviceNamespacesTag = CborTag(24, cborEncode( deviceNamespaces))
+    val deviceNamespacesTag = CborTag(24, cborEncode(deviceNamespaces))
 
     val deviceAuthentication = listOf<Any>(
         "DeviceAuthentication",
@@ -100,7 +103,7 @@ fun convertDerToRaw(signature: ByteArray): ByteArray {
         rOffset += signature[1].toInt() and 0x7f
     }
 
-    var rLen = signature[rOffset-1].toInt() and 0xFF
+    var rLen = signature[rOffset - 1].toInt() and 0xFF
     var rPad = 0
 
     if (rLen > 32) {
@@ -109,10 +112,10 @@ fun convertDerToRaw(signature: ByteArray): ByteArray {
     } else {
         rPad = 32 - rLen
     }
-    signature.copyInto(ret, rPad, rOffset, rOffset+rLen)
+    signature.copyInto(ret, rPad, rOffset, rOffset + rLen)
 
     var sOffset = rOffset + rLen + 2
-    var sLen = signature[sOffset-1].toInt() and 0xFF
+    var sLen = signature[sOffset - 1].toInt() and 0xFF
     var sPad = 0
 
     if (sLen > 32) {
@@ -121,7 +124,7 @@ fun convertDerToRaw(signature: ByteArray): ByteArray {
     } else {
         sPad = 32 - sLen
     }
-    signature.copyInto(ret, 32+sPad, sOffset, sOffset+sLen)
+    signature.copyInto(ret, 32 + sPad, sOffset, sOffset + sLen)
 
     return ret
 }
