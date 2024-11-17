@@ -1,21 +1,14 @@
 package com.credman.cmwallet
 
 import android.app.Application
-import android.util.Base64
 import android.util.Log
 import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegistryManager
-import com.credman.cmwallet.cbor.cborDecode
-import com.credman.cmwallet.cbor.cborEncode
 import com.credman.cmwallet.data.repository.CredentialRepository
-import com.credman.cmwallet.mdoc.filterIssuerSigned
-import com.credman.cmwallet.mdoc.generateDeviceResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.security.KeyFactory
-import java.security.spec.PKCS8EncodedKeySpec
 
 class CmWalletApplication : Application() {
     private val registryManager = RegistryManager.create(this)

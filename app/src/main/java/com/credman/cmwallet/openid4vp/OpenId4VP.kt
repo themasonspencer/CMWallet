@@ -1,5 +1,6 @@
 package com.credman.cmwallet.openid4vp
 
+import com.credman.cmwallet.data.model.CredentialItem
 import org.json.JSONObject
 
 class OpenId4VP(val request: String) {
@@ -22,5 +23,9 @@ class OpenId4VP(val request: String) {
 
     fun matchCredentials(credentialStore: JSONObject): Map<String, List<MatchedCredential>> {
         return DCQLQuery(dcqlQuery, credentialStore)
+    }
+
+    fun performQueryOnCredential(selectedCredential: CredentialItem): OpenId4VPMatchedCredential {
+        return performQueryOnCredential(dcqlQuery, selectedCredential)
     }
 }

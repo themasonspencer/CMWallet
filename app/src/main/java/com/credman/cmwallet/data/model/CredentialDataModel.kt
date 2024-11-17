@@ -1,6 +1,9 @@
 package com.credman.cmwallet.data.model
 
+import android.util.Base64
+import com.credman.cmwallet.loadECPrivateKey
 import org.json.JSONObject
+import java.security.PrivateKey
 
 class CredentialItem(
     val id: String,
@@ -31,8 +34,8 @@ sealed class Credential(
 data class MdocCredential(
     val docType: String,
     val nameSpaces: Map<String, MdocNameSpace>,
-    val deviceKey: String,
-    val issuerSigned: String,
+    val deviceKey: PrivateKey,
+    val issuerSigned: ByteArray,
 ) : Credential(format = MSO_MDOC) {
     constructor(json: JSONObject) : this(
         docType = json.getJSONObject(CREDENTIAL).getString(DOCTYPE),
@@ -58,8 +61,8 @@ data class MdocCredential(
             }
             return@let1 result
         },
-        deviceKey = json.getString(DEVICE_KEY),
-        issuerSigned = json.getString(ISSUER_SIGNED),
+        deviceKey = loadECPrivateKey(Base64.decode(json.getString(DEVICE_KEY), Base64.URL_SAFE)),
+        issuerSigned = Base64.decode(json.getString(ISSUER_SIGNED), Base64.URL_SAFE)
     )
 }
 

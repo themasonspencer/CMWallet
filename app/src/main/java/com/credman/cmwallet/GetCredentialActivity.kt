@@ -2,6 +2,7 @@ package com.credman.cmwallet
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.credentials.DigitalCredential
@@ -11,7 +12,12 @@ import androidx.credentials.GetDigitalCredentialOption
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.registry.provider.selectedEntryId
+import com.credman.cmwallet.data.model.MdocCredential
+import com.credman.cmwallet.data.repository.CredentialRepository
+import com.credman.cmwallet.mdoc.filterIssuerSigned
+import com.credman.cmwallet.mdoc.generateDeviceResponse
 import com.credman.cmwallet.openid4vp.OpenId4VP
+import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
 import org.json.JSONObject
 
 class GetCredentialActivity : ComponentActivity() {
@@ -52,11 +58,14 @@ class GetCredentialActivity : ComponentActivity() {
         finish()
     }
 
-    fun processDigitalCredentialOption(
+    private fun processDigitalCredentialOption(
         requestJson: String,
         providerIdx: Int,
         selectedID: String
     ): String {
+        val selectedCredential = CredentialRepository.getCredential(selectedID)
+            ?: throw RuntimeException("Selected credential not found")
+
         val request = JSONObject(requestJson)
         require(request.has("providers")) { "DigitalCredentialOption requires providers" }
         val providers = request.getJSONArray("providers")
@@ -69,27 +78,38 @@ class GetCredentialActivity : ComponentActivity() {
         val protocol = provider.getString("protocol")
         val dcRequest = provider.getString("request")
 
+        Log.i("GetCredentialActivity", "processDigitalCredentialOption protocol $protocol")
         when (protocol) {
             "openid4vp1.0" -> {
                 val openId4VPRequest = OpenId4VP(dcRequest)
-                val credentialStore = JSONObject(loadTestCreds().toString(Charsets.UTF_8))
-                val matchedDocuments = openId4VPRequest.matchCredentials(credentialStore)
-                Log.i("GetCredentialActivity", "matchedDocuments $matchedDocuments")
 
-                // We only support one matched document today
-                val dcqlCredentialId = matchedDocuments.keys.iterator().next()
-                val matchedCredentials = matchedDocuments.get(dcqlCredentialId)!!
-                val matchedCredentialsFiltered = matchedCredentials.filter { it.id == selectedID }
-                require(matchedCredentialsFiltered.size == 1) { "matchedCredentialsFiltered isn't 1" }
-                val matchedCredential = matchedCredentialsFiltered[0]
+                val matchedCredential =
+                    openId4VPRequest.performQueryOnCredential(selectedCredential)
                 Log.i("GetCredentialActivity", "matchedCredential $matchedCredential")
 
-                // Get the credential
+                // Create the response
                 val vpToken = JSONObject()
+                when (selectedCredential.credential) {
+                    is MdocCredential -> {
+                        val matchedClaims =
+                            matchedCredential.matchedClaims as OpenId4VPMatchedMDocClaims
+                        val filteredIssuerSigned = filterIssuerSigned(
+                            selectedCredential.credential.issuerSigned,
+                            matchedClaims.claims
+                        )
+                        val deviceResponse = generateDeviceResponse(
+                            doctype = selectedCredential.credential.docType,
+                            issuerSigned = filteredIssuerSigned,
+                            devicePrivateKey = selectedCredential.credential.deviceKey,
+                            sessionTranscript = byteArrayOf(0)
+                        )
+                        val encodedDeviceResponse =
+                            Base64.encodeToString(deviceResponse, Base64.URL_SAFE or Base64.NO_WRAP)
+                        vpToken.put(matchedCredential.dcqlId, encodedDeviceResponse)
+                    }
+                }
 
-                vpToken.put(dcqlCredentialId, "XXXXXX")
                 // Create the openid4vp result
-
                 val responseJson = JSONObject()
                 responseJson.put("vp_token", vpToken)
                 return responseJson.toString()
@@ -98,14 +118,6 @@ class GetCredentialActivity : ComponentActivity() {
 
             else -> throw IllegalArgumentException()
         }
-    }
-
-    private fun loadTestCreds(): ByteArray {
-        val stream = assets.open("paymentcreds.json");
-        val creds = ByteArray(stream.available())
-        stream.read(creds)
-        stream.close()
-        return creds
     }
 }
 

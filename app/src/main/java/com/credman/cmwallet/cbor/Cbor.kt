@@ -101,7 +101,18 @@ class Cbor {
             ret = ret or (data[offset + 4].toLong() and 0xFF)
             return Arg(ret, 5)
         }
-        throw IllegalArgumentException("Bad arg")
+        if (arg == 27L) {
+            var ret = (data[offset + 1].toLong() and 0xFF) shl 56
+            ret = ret or ((data[offset + 2].toLong() and 0xFF) shl 48)
+            ret = ret or ((data[offset + 3].toLong() and 0xFF) shl 40)
+            ret = ret or ((data[offset + 4].toLong() and 0xFF) shl 32)
+            ret = ret or ((data[offset + 5].toLong() and 0xFF) shl 24)
+            ret = ret or ((data[offset + 6].toLong() and 0xFF) shl 16)
+            ret = ret or ((data[offset + 7].toLong() and 0xFF) shl 8)
+            ret = ret or (data[offset + 8].toLong() and 0xFF)
+            return Arg(ret, 9)
+        }
+        throw IllegalArgumentException("Bad arg $arg")
     }
 
     private fun parseItem(data: ByteArray, offset: Int): Item {
