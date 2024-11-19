@@ -1,13 +1,28 @@
 package com.credman.cmwallet.data.source
 
+import android.util.Log
+import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.data.model.CredentialItem
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.transform
 
 class CredentialDatabaseDataSource {
+    val credentialDao = CmWalletApplication
+        .database
+        .credentialDao()
 
-    // TODO: Make this a Room database, for now just return an empty list
-    private val _credentials = MutableStateFlow(emptyList<CredentialItem>())
-    val credentials: StateFlow<List<CredentialItem>> = _credentials.asStateFlow()
+    val credentials: Flow<List<CredentialItem>> = credentialDao
+        .getAll()
+        .transform { list ->
+            emit(list.map { it.toCredentialItem() })
+        }
+
+    fun getCredential(id: String): CredentialItem? {
+        return try {
+            credentialDao.loadCredById(id.toLong())?.toCredentialItem()
+        } catch (e: Exception) {
+            Log.e(CmWalletApplication.TAG, "database retrieval error", e)
+            null
+        }
+    }
 }

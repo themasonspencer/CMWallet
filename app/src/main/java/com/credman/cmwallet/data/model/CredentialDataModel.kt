@@ -18,11 +18,20 @@ class CredentialItem(
             CredentialMetadata.fromJson(metadataKey, it.getJSONObject(metadataKey))
         }
     )
+
+    // Returns the credential that should be persisted in the app database, i.e.
+    // [com.credman.cmwallet.data.room.Credential.credJson]
+    fun toJson(): String = JSONObject()
+        .put(CREDENTIAL, credential.toJson())
+        .put(METADATA, metadata.toJson())
+        .toString()
 }
 
 sealed class Credential(
     val format: String
 ) {
+    internal abstract fun toJson(): JSONObject
+
     companion object {
         fun fromJson(json: JSONObject): Credential = when (json.getString(FORMAT)) {
             MSO_MDOC -> MdocCredential(json)
@@ -64,6 +73,30 @@ data class MdocCredential(
         deviceKey = loadECPrivateKey(Base64.decode(json.getString(DEVICE_KEY), Base64.URL_SAFE)),
         issuerSigned = Base64.decode(json.getString(ISSUER_SIGNED), Base64.URL_SAFE)
     )
+
+    override fun toJson(): JSONObject {
+        val result = JSONObject()
+        result.put(FORMAT, format)
+        val credential = JSONObject()
+        credential.put(DOCTYPE, docType)
+        val namespacesJson = JSONObject()
+        for ((namespace, namespacedData) in nameSpaces) {
+            val namespacedDataJson = JSONObject()
+            for ((fieldKey, field) in namespacedData.data) {
+                val fieldJson = JSONObject()
+                fieldJson.putOpt(VALUE, field.value)
+                fieldJson.put(DISPLAY, field.display)
+                fieldJson.putOpt(DISPLAY_VALUE, field.displayValue)
+                namespacedDataJson.put(fieldKey, fieldJson)
+            }
+            namespacesJson.put(namespace, namespacedDataJson)
+        }
+        credential.put(NAMESPACES, namespacesJson)
+        result.put(CREDENTIAL, credential)
+        result.put(DEVICE_KEY, Base64.encodeToString(deviceKey.encoded, Base64.URL_SAFE or Base64.NO_WRAP))
+        result.put(ISSUER_SIGNED, Base64.encodeToString(issuerSigned, Base64.URL_SAFE or Base64.NO_WRAP))
+        return result
+    }
 }
 
 data class MdocNameSpace(
@@ -81,6 +114,7 @@ sealed class CredentialMetadata(
     val subtitle: String?,
     val icon: String?
 ) {
+    internal abstract fun toJson(): JSONObject
     companion object {
         fun fromJson(type: String, json: JSONObject): CredentialMetadata {
             return when (type) {
@@ -108,13 +142,24 @@ class PaymentMetadata(
     subtitle: String?,
     icon: String?,
     val cardNetworkArt: String?, // b64 encoding
-) : CredentialMetadata(title, subtitle, icon)
+) : CredentialMetadata(title, subtitle, icon) {
+    override fun toJson(): JSONObject = JSONObject()
+        .put(TITLE, title)
+        .putOpt(SUBTITLE, subtitle)
+        .putOpt(CARD_ART, icon)
+        .putOpt(CARD_NETWORK_ART, cardNetworkArt)
+}
 
 class VerificationMetadata(
     title: String,
     subtitle: String?,
     icon: String?,
-) : CredentialMetadata(title, subtitle, icon)
+) : CredentialMetadata(title, subtitle, icon) {
+    override fun toJson(): JSONObject = JSONObject()
+        .put(TITLE, title)
+        .putOpt(SUBTITLE, subtitle)
+        .putOpt(CARD_ICON, icon)
+}
 
 const val MSO_MDOC = "mso_mdoc"
 private const val DEVICE_KEY = "deviceKey"
