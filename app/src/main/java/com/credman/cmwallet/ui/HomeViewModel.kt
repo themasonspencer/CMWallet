@@ -2,6 +2,7 @@ package com.credman.cmwallet.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.repository.CredentialRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,7 @@ class HomeViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            CredentialRepository.credentials.collect { credentials ->
+            CmWalletApplication.credentialRepo.credentials.collect { credentials ->
                 _uiState.update { currentState ->
                     currentState.copy(
                         credentials = credentials

@@ -19,7 +19,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
-object CredentialRepository {
+class CredentialRepository {
     var privAppsJson = "{}"
         private set
 
@@ -50,8 +50,8 @@ object CredentialRepository {
     }
 
     fun getCredential(id: String): CredentialItem? {
-        // TODO: check credentialDatabaseDataSource too
         return testCredentialsDataSource.getCredential(id)
+            ?: credentialDatabaseDataSource.getCredential(id)
     }
 
     fun setPrivAppsJson(appsJson: String) {
@@ -150,20 +150,24 @@ object CredentialRepository {
         registryCredentials.put(MSO_MDOC, mdocCredentials)
         val registryJson = JSONObject()
         registryJson.put(CREDENTIALS, registryCredentials)
+        Log.d(TAG, "Credential to be registered: ${registryJson.toString(2)}")
         out.write(registryJson.toString().toByteArray())
         return out.toByteArray()
     }
 
-    // Wasm database json keys
-    const val CREDENTIALS = "credentials"
-    const val ID = "id"
-    const val TITLE = "title"
-    const val SUBTITLE = "subtitle"
-    const val ICON = "icon"
-    const val START = "start"
-    const val LENGTH = "length"
-    const val NAMESPACES = "namespaces"
-    const val VALUE = "value"
-    const val DISPLAY = "display"
-    const val DISPLAY_VALUE = "display_value"
+    companion object {
+        const val TAG = "CredentialRepository"
+        // Wasm database json keys
+        const val CREDENTIALS = "credentials"
+        const val ID = "id"
+        const val TITLE = "title"
+        const val SUBTITLE = "subtitle"
+        const val ICON = "icon"
+        const val START = "start"
+        const val LENGTH = "length"
+        const val NAMESPACES = "namespaces"
+        const val VALUE = "value"
+        const val DISPLAY = "display"
+        const val DISPLAY_VALUE = "display_value"
+    }
 }

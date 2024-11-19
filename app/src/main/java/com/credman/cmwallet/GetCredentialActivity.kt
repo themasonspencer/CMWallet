@@ -13,7 +13,6 @@ import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.registry.provider.selectedEntryId
 import com.credman.cmwallet.data.model.MdocCredential
-import com.credman.cmwallet.data.repository.CredentialRepository
 import com.credman.cmwallet.mdoc.createSessionTranscript
 import com.credman.cmwallet.mdoc.filterIssuerSigned
 import com.credman.cmwallet.mdoc.generateDeviceResponse
@@ -29,7 +28,9 @@ class GetCredentialActivity : ComponentActivity() {
         if (request != null) {
             Log.i("GetCredentialActivity", "selectedEntryId ${request.selectedEntryId}")
             val selectedEntryId = JSONObject(request.selectedEntryId)
-            val origin = request.callingAppInfo.getOrigin(CredentialRepository.privAppsJson) ?: ""
+            val origin = request.callingAppInfo.getOrigin(
+                CmWalletApplication.credentialRepo.privAppsJson
+            ) ?: ""
             Log.i("GetCredentialActivity", "origin $origin")
 
             request.credentialOptions.forEach {
@@ -72,7 +73,7 @@ class GetCredentialActivity : ComponentActivity() {
         selectedID: String,
         origin: String
     ): String {
-        val selectedCredential = CredentialRepository.getCredential(selectedID)
+        val selectedCredential = CmWalletApplication.credentialRepo.getCredential(selectedID)
             ?: throw RuntimeException("Selected credential not found")
 
         val request = JSONObject(requestJson)
