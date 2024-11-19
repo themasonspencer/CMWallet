@@ -21,6 +21,7 @@ class CmWalletApplication : Application() {
 
         // Add the test credentials from the included json
         CredentialRepository.addCredentialsFromJson(testCredentialsJson)
+        CredentialRepository.setPrivAppsJson(loadAppsJson().toString(Charsets.UTF_8))
 
         // Listen for new credentials and update the registry.
         applicationScope.launch {
@@ -52,5 +53,9 @@ class CmWalletApplication : Application() {
 
     private fun loadTestCredentials(): ByteArray {
         return readAsset("database.json");
+    }
+
+    private fun loadAppsJson(): ByteArray {
+        return readAsset("apps.json");
     }
 }

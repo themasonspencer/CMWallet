@@ -14,6 +14,7 @@ import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.registry.provider.selectedEntryId
 import com.credman.cmwallet.data.model.MdocCredential
 import com.credman.cmwallet.data.repository.CredentialRepository
+import com.credman.cmwallet.mdoc.createSessionTranscript
 import com.credman.cmwallet.mdoc.filterIssuerSigned
 import com.credman.cmwallet.mdoc.generateDeviceResponse
 import com.credman.cmwallet.openid4vp.OpenId4VP
@@ -28,6 +29,8 @@ class GetCredentialActivity : ComponentActivity() {
         if (request != null) {
             Log.i("GetCredentialActivity", "selectedEntryId ${request.selectedEntryId}")
             val selectedEntryId = JSONObject(request.selectedEntryId)
+            val origin = request.callingAppInfo.getOrigin(CredentialRepository.privAppsJson) ?: ""
+            Log.i("GetCredentialActivity", "origin $origin")
 
             request.credentialOptions.forEach {
                 if (it is GetDigitalCredentialOption) {
@@ -36,8 +39,13 @@ class GetCredentialActivity : ComponentActivity() {
                     val selectedId = selectedEntryId.getString("id")
                     val result = Intent()
                     try {
-                        val response =
-                            processDigitalCredentialOption(it.requestJson, providerIdx, selectedId)
+                        val response = processDigitalCredentialOption(
+                            it.requestJson,
+                            providerIdx,
+                            selectedId,
+                            origin
+                        )
+
                         PendingIntentHandler.setGetCredentialResponse(
                             result, GetCredentialResponse(
                                 DigitalCredential(response)
@@ -61,7 +69,8 @@ class GetCredentialActivity : ComponentActivity() {
     private fun processDigitalCredentialOption(
         requestJson: String,
         providerIdx: Int,
-        selectedID: String
+        selectedID: String,
+        origin: String
     ): String {
         val selectedCredential = CredentialRepository.getCredential(selectedID)
             ?: throw RuntimeException("Selected credential not found")
@@ -101,7 +110,7 @@ class GetCredentialActivity : ComponentActivity() {
                             doctype = selectedCredential.credential.docType,
                             issuerSigned = filteredIssuerSigned,
                             devicePrivateKey = selectedCredential.credential.deviceKey,
-                            sessionTranscript = byteArrayOf(0)
+                            sessionTranscript = createSessionTranscript(openId4VPRequest.getHandover(origin))
                         )
                         val encodedDeviceResponse =
                             Base64.encodeToString(deviceResponse, Base64.URL_SAFE or Base64.NO_WRAP)

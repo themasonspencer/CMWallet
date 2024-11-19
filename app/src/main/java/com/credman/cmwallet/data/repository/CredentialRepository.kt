@@ -20,6 +20,9 @@ import java.nio.ByteBuffer
 import java.nio.ByteOrder
 
 object CredentialRepository {
+    var privAppsJson = "{}"
+        private set
+
     private val testCredentialsDataSource = TestCredentialsDataSource()
     private val credentialDatabaseDataSource = CredentialDatabaseDataSource()
 
@@ -49,6 +52,10 @@ object CredentialRepository {
     fun getCredential(id: String): CredentialItem? {
         // TODO: check credentialDatabaseDataSource too
         return testCredentialsDataSource.getCredential(id)
+    }
+
+    fun setPrivAppsJson(appsJson: String) {
+        privAppsJson = appsJson
     }
 
     class RegistryIcon(
