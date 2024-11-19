@@ -1,5 +1,6 @@
 package com.credman.cmwallet.data.repository
 
+import android.os.Build
 import android.util.Base64
 import android.util.Log
 import com.credman.cmwallet.data.model.CredentialItem
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
@@ -120,7 +122,20 @@ object CredentialRepository {
                         }
                         credJson.put(NAMESPACES, namespacesJson)
                     }
-                    mdocCredentials.accumulate(item.credential.docType, credJson)
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        mdocCredentials.append(item.credential.docType, credJson)
+                    } else {
+                        when (val current = mdocCredentials.opt(item.credential.docType)) {
+                            is JSONArray -> {
+                                mdocCredentials.put(item.credential.docType, current.put(credJson))
+                            }
+                            null -> {
+                                mdocCredentials.put(item.credential.docType, JSONArray().put(credJson))
+                            }
+                            else -> throw IllegalStateException("Unexpected namespaced data that's" +
+                                    " not a JSONArray. Instead it is ${current::class.java}")
+                        }
+                    }
                 }
             }
         }
