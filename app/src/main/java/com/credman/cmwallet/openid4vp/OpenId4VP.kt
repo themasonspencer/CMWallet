@@ -1,7 +1,10 @@
 package com.credman.cmwallet.openid4vp
 
+import com.credman.cmwallet.cbor.CborTag
+import com.credman.cmwallet.cbor.cborEncode
 import com.credman.cmwallet.data.model.CredentialItem
 import org.json.JSONObject
+import java.security.MessageDigest
 
 class OpenId4VP(val request: String) {
     val requestJson: JSONObject = JSONObject(request)
@@ -27,5 +30,19 @@ class OpenId4VP(val request: String) {
 
     fun performQueryOnCredential(selectedCredential: CredentialItem): OpenId4VPMatchedCredential {
         return performQueryOnCredential(dcqlQuery, selectedCredential)
+    }
+
+    fun getHandover(origin: String): List<Any> {
+        val handoverData = listOf(
+            clientId,
+            nonce,
+            origin
+        )
+
+        val md = MessageDigest.getInstance("SHA-256")
+        return listOf(
+            "OID4VPDCAPIHandover",
+            md.digest(cborEncode(CborTag(24, cborEncode(handoverData))))
+        )
     }
 }

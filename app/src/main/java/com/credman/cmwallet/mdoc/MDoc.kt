@@ -6,6 +6,15 @@ import com.credman.cmwallet.cbor.cborEncode
 import java.security.PrivateKey
 import java.security.Signature
 
+fun createSessionTranscript(handover: Any): ByteArray {
+    val sessionTranscript = listOf(
+        null,
+        null,
+        handover
+    )
+    return cborEncode(CborTag(24, cborEncode(sessionTranscript)))
+}
+
 fun filterIssuerSigned(
     issuerSigned: ByteArray,
     requiredElements: Map<String, List<String>>
