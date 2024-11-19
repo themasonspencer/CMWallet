@@ -91,7 +91,7 @@ class GetCredentialActivity : ComponentActivity() {
         when (protocol) {
             "openid4vp1.0" -> {
                 val openId4VPRequest = OpenId4VP(dcRequest)
-
+                Log.i("GetCredentialActivity", "nonce ${openId4VPRequest.nonce}")
                 val matchedCredential =
                     openId4VPRequest.performQueryOnCredential(selectedCredential)
                 Log.i("GetCredentialActivity", "matchedCredential $matchedCredential")
