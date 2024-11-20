@@ -19,6 +19,7 @@ import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import org.json.JSONObject
 
 @OptIn(ExperimentalDigitalCredentialApi::class)
+@Suppress("RestrictedApi")
 class CreateCredentialActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
