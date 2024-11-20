@@ -1,5 +1,6 @@
 package com.credman.cmwallet
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
@@ -92,10 +93,12 @@ class GetCredentialActivity : FragmentActivity() {
                             BiometricPrompt.PromptInfo.Builder()
                                 .setTitle(response.authenticationTitle)
                                 .setSubtitle(response.authenticationSubtitle)
+                                .setConfirmationRequired(false)
                                 .setAllowedAuthenticators(
                                     BiometricManager.Authenticators.BIOMETRIC_STRONG
-                                            or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+//                                            or BiometricManager.Authenticators.DEVICE_CREDENTIAL
                                 )
+                                .setNegativeButtonText("Cancel")
                                 .build()
                         )
 

@@ -1,0 +1,97 @@
+{
+    "credential_issuer": "https://credential-issuer.example.com",
+    "credential_configuration_ids": [
+        "com.emvco.payment_card"
+      ],
+    "issuer_metadata": {
+        "credential_issuer": "https://credential-issuer.example.com",
+        "credential_configurations_supported": {
+            "com.emvco.payment_card": {
+                "format": "mso_mdoc",
+                "doctype": "com.emvco.payment_card",
+                "cryptographic_binding_methods_supported": [
+                    "cose_key"
+                ],
+                "credential_signing_alg_values_supported": [
+                    "ES256",
+                    "ES384",
+                    "ES512"
+                ],
+                "display": [
+                    {
+                        "name": "Payment Card",
+                        "locale": "en-US",
+                        "logo": {
+                            "uri": "https://state.example.org/public/mdl.png",
+                            "alt_text": "Visa Payment Card"
+                        },
+                        "background_color": "#12107c",
+                        "text_color": "#FFFFFF"
+                        },
+                    {
+                        "name": "付款凭证",
+                        "locale": "zh-CN",
+                        "logo": {
+                            "uri": "https://state.example.org/public/mdl.png",
+                            "alt_text": "Visa付款凭证"
+                        },
+                        "background_color": "#12107c",
+                        "text_color": "#FFFFFF"
+                    }
+                ],
+                "claims": {
+                    "com.emvco.payment_card.1": {
+                        "holder_name": {
+                            "display": [
+                                {
+                                    "name": "Holder Name",
+                                    "locale": "en-US"
+                                }
+                            ]
+                        },
+                        "card_number": {
+                            "display": [
+                                {
+                                    "name": "Card Number",
+                                    "locale": "en-US"
+                                }
+                            ]
+                        },
+                        "expiry_month": {
+                            "display": [
+                                {
+                                    "name": "Month of Expiry",
+                                    "locale": "en-US"
+                                }
+                            ]
+                        },
+                        "expiry_year": {
+                            "display": [
+                                {
+                                    "name": "Year of Expiry",
+                                    "locale": "en-US"
+                                }
+                            ]
+                        },
+                        "card_network": {
+                            "display": [
+                                {
+                                    "name": "Card Network",
+                                    "locale": "en-US"
+                                }
+                            ]
+                        },
+                        "card_issuer": {
+                            "display": [
+                                {
+                                    "name": "Card issuer",
+                                    "locale": "en-US"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    }   
+}
