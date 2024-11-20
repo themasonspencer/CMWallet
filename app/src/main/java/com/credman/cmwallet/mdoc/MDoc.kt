@@ -51,9 +51,9 @@ fun generateDeviceResponse(
     doctype: String,
     issuerSigned: ByteArray,
     devicePrivateKey: PrivateKey,
-    sessionTranscript: ByteArray
+    sessionTranscript: ByteArray,
+    deviceNamespaces: Map<String, Any> = emptyMap()
 ): ByteArray {
-    val deviceNamespaces = emptyMap<String, Any>()
     val deviceNamespacesTag = CborTag(24, cborEncode(deviceNamespaces))
 
     val deviceAuthentication = listOf<Any>(

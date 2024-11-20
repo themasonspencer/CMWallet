@@ -5,6 +5,7 @@
 #include "cJSON/cJSON.h"
 #include "credentialmanager.h"
 
+#include "base64.h"
 #include "dcql.h"
 
 #define PROTOCOL_OPENID4VP_1_0 "openid4vp1.0"
@@ -60,10 +61,23 @@ int main() {
             cJSON* data_json = cJSON_Parse(data_json_string);
             cJSON* query = cJSON_GetObjectItem(data_json, "dcql_query");
 
-            cJSON* transaction_data = cJSON_GetObjectItem(data_json, "transaction_data");
+
+            // For now we only support one transaction data item
+
+            cJSON* transaction_data_list = cJSON_GetObjectItem(data_json, "transaction_data");
+
+            cJSON* transaction_data = NULL;
             cJSON* transaction_credential_ids = NULL;
-            if (transaction_data != NULL) {
-                transaction_credential_ids = cJSON_GetObjectItem(transaction_data, "credential_ids");
+            if (transaction_data_list != NULL) {
+                if(cJSON_GetArraySize(transaction_data_list) == 1) {
+                    cJSON* transaction_data_encoded = cJSON_GetArrayItem(transaction_data_list, 0);
+                    char* transaction_data_encoded_str = cJSON_GetStringValue(transaction_data_encoded);
+                    char* transaction_data_json;
+                    int transaction_data_json_len = B64DecodeURL(transaction_data_encoded_str, &transaction_data_json);
+                    transaction_data = cJSON_Parse(transaction_data_json);
+                    transaction_credential_ids = cJSON_GetObjectItem(transaction_data, "credential_ids");
+                }
+                
             }
 
             cJSON* matched_docs = dcql_query(query, credential_store);

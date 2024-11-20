@@ -107,11 +107,29 @@ class GetCredentialActivity : ComponentActivity() {
                             selectedCredential.credential.issuerSigned,
                             matchedClaims.claims
                         )
+                        val deviceNamespaces = if (openId4VPRequest.transactionData.isEmpty()) {
+                            emptyMap<String, Any>()
+                        } else {
+                            mapOf(
+                                Pair(
+                                    "net.openid.open4vc",
+                                    openId4VPRequest.generateDeviceSignedTransactionData(
+                                        matchedCredential.dcqlId
+                                    )
+                                )
+                            )
+                        }
                         val deviceResponse = generateDeviceResponse(
                             doctype = selectedCredential.credential.docType,
                             issuerSigned = filteredIssuerSigned,
                             devicePrivateKey = selectedCredential.credential.deviceKey,
-                            sessionTranscript = createSessionTranscript(openId4VPRequest.getHandover(origin))
+                            sessionTranscript = createSessionTranscript(
+                                openId4VPRequest.getHandover(
+                                    origin
+                                )
+                            ),
+                            deviceNamespaces = deviceNamespaces
+
                         )
                         val encodedDeviceResponse =
                             Base64.encodeToString(deviceResponse, Base64.URL_SAFE or Base64.NO_WRAP)
