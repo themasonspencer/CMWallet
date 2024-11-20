@@ -13,27 +13,15 @@
                     "cose_key"
                 ],
                 "credential_signing_alg_values_supported": [
-                    "ES256",
-                    "ES384",
-                    "ES512"
+                    "ES256"
                 ],
                 "display": [
                     {
-                        "name": "Payment Card",
+                        "name": "Visa Payment Card",
                         "locale": "en-US",
                         "logo": {
                             "uri": "https://state.example.org/public/mdl.png",
                             "alt_text": "Visa Payment Card"
-                        },
-                        "background_color": "#12107c",
-                        "text_color": "#FFFFFF"
-                        },
-                    {
-                        "name": "付款凭证",
-                        "locale": "zh-CN",
-                        "logo": {
-                            "uri": "https://state.example.org/public/mdl.png",
-                            "alt_text": "Visa付款凭证"
                         },
                         "background_color": "#12107c",
                         "text_color": "#FFFFFF"
