@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.util.Base64
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt
 import androidx.credentials.DigitalCredential
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.GetCredentialResponse
@@ -12,6 +14,8 @@ import androidx.credentials.GetDigitalCredentialOption
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.registry.provider.selectedEntryId
+import androidx.fragment.app.FragmentActivity
+import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.data.model.MdocCredential
 import com.credman.cmwallet.mdoc.createSessionTranscript
 import com.credman.cmwallet.mdoc.filterIssuerSigned
@@ -20,13 +24,14 @@ import com.credman.cmwallet.openid4vp.OpenId4VP
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
 import org.json.JSONObject
 
-class GetCredentialActivity : ComponentActivity() {
+class GetCredentialActivity : FragmentActivity() {
     @OptIn(ExperimentalDigitalCredentialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val request = PendingIntentHandler.retrieveProviderGetCredentialRequest(intent)
+        var shouldFinishActivity = true
         if (request != null) {
-            Log.i("GetCredentialActivity", "selectedEntryId ${request.selectedEntryId}")
+            Log.i(TAG, "selectedEntryId ${request.selectedEntryId}")
             val selectedEntryId = JSONObject(request.selectedEntryId)
             val origin = request.callingAppInfo.getOrigin(
                 CmWalletApplication.credentialRepo.privAppsJson
@@ -35,10 +40,11 @@ class GetCredentialActivity : ComponentActivity() {
 
             request.credentialOptions.forEach {
                 if (it is GetDigitalCredentialOption) {
-                    Log.i("GetCredentialActivity", "Request ${it.requestJson}")
+                    Log.i(TAG, "Request ${it.requestJson}")
                     val providerIdx = selectedEntryId.getInt("provider_idx")
                     val selectedId = selectedEntryId.getString("id")
-                    val result = Intent()
+                    val resultData = Intent()
+                    shouldFinishActivity = false
                     try {
                         val response = processDigitalCredentialOption(
                             it.requestJson,
@@ -47,34 +53,85 @@ class GetCredentialActivity : ComponentActivity() {
                             origin
                         )
 
-                        PendingIntentHandler.setGetCredentialResponse(
-                            result, GetCredentialResponse(
-                                DigitalCredential(response)
-                            )
+                        val biometricPrompt = BiometricPrompt(
+                            this@GetCredentialActivity,
+                            object : BiometricPrompt.AuthenticationCallback() {
+                                override fun onAuthenticationFailed() {
+                                    super.onAuthenticationFailed()
+                                    Log.d(TAG, "onAuthenticationFailed")
+                                }
+
+                                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                                    Log.d(TAG, "onAuthenticationSucceeded")
+
+                                    PendingIntentHandler.setGetCredentialResponse(
+                                        resultData, GetCredentialResponse(
+                                            DigitalCredential(response.responseJson)
+                                        )
+                                    )
+
+                                    setResult(RESULT_OK, resultData)
+                                    finish()
+                                }
+
+                                override fun onAuthenticationError(
+                                    errorCode: Int,
+                                    errString: CharSequence
+                                ) {
+                                    Log.e(TAG, "onAuthenticationError $errorCode $errString")
+                                    PendingIntentHandler.setGetCredentialException(
+                                        resultData,
+                                        GetCredentialUnknownException()
+                                    )
+                                    setResult(RESULT_OK, resultData)
+                                    finish()
+                                }
+                            })
+                        Log.d(TAG, "authenticating")
+                        biometricPrompt.authenticate(
+                            BiometricPrompt.PromptInfo.Builder()
+                                .setTitle(response.authenticationTitle)
+                                .setSubtitle(response.authenticationSubtitle)
+                                .setAllowedAuthenticators(
+                                    BiometricManager.Authenticators.BIOMETRIC_STRONG
+                                            or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                                )
+                                .build()
                         )
 
                     } catch (e: Exception) {
-                        Log.e("GetCredentialActivity", "exception", e)
+                        Log.e(TAG, "exception", e)
                         PendingIntentHandler.setGetCredentialException(
-                            result,
+                            resultData,
                             GetCredentialUnknownException()
                         )
+                        setResult(RESULT_OK, resultData)
+                        finish()
                     }
-                    setResult(RESULT_OK, result)
                 }
             }
         }
-        finish()
+        if (shouldFinishActivity) {
+            finish()
+        }
     }
+
+    private data class DigitalCredentialResult(
+        val responseJson: String,
+        val authenticationTitle: CharSequence,
+        val authenticationSubtitle: CharSequence?
+    )
 
     private fun processDigitalCredentialOption(
         requestJson: String,
         providerIdx: Int,
         selectedID: String,
         origin: String
-    ): String {
+    ): DigitalCredentialResult {
         val selectedCredential = CmWalletApplication.credentialRepo.getCredential(selectedID)
             ?: throw RuntimeException("Selected credential not found")
+        var authenticationTitle: CharSequence = "Verify your identity"
+        var authenticationSubtitle: CharSequence? = null
 
         val request = JSONObject(requestJson)
         require(request.has("providers")) { "DigitalCredentialOption requires providers" }
@@ -110,12 +167,18 @@ class GetCredentialActivity : ComponentActivity() {
                         val deviceNamespaces = if (openId4VPRequest.transactionData.isEmpty()) {
                             emptyMap<String, Any>()
                         } else {
+                            val deviceSignedTransactionData =
+                                openId4VPRequest.generateDeviceSignedTransactionData(
+                                    matchedCredential.dcqlId
+                                )
+                            if (deviceSignedTransactionData.authenticationTitleAndSubtitle != null) {
+                                authenticationTitle = deviceSignedTransactionData.authenticationTitleAndSubtitle.first
+                                authenticationSubtitle = deviceSignedTransactionData.authenticationTitleAndSubtitle.second
+                            }
                             mapOf(
                                 Pair(
                                     "net.openid.open4vc",
-                                    openId4VPRequest.generateDeviceSignedTransactionData(
-                                        matchedCredential.dcqlId
-                                    )
+                                    deviceSignedTransactionData.deviceSignedTransactionData
                                 )
                             )
                         }
@@ -140,7 +203,11 @@ class GetCredentialActivity : ComponentActivity() {
                 // Create the openid4vp result
                 val responseJson = JSONObject()
                 responseJson.put("vp_token", vpToken)
-                return responseJson.toString()
+                return DigitalCredentialResult(
+                    responseJson = responseJson.toString(),
+                    authenticationTitle = authenticationTitle,
+                    authenticationSubtitle = authenticationSubtitle,
+                )
 
             }
 

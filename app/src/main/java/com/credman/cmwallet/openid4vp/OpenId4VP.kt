@@ -60,21 +60,39 @@ class OpenId4VP(val request: String) {
 
     }
 
-    fun generateDeviceSignedTransactionData(dcqlId: String): Map<String, List<ByteArray>> {
+    data class TransactionDataResult(
+        val deviceSignedTransactionData: Map<String, List<ByteArray>>,
+        val authenticationTitleAndSubtitle: Pair<CharSequence, CharSequence?>?,
+    )
+
+    fun generateDeviceSignedTransactionData(dcqlId: String): TransactionDataResult {
         if (transactionData.isEmpty()) {
-            return emptyMap()
+            return TransactionDataResult(emptyMap(), null)
         }
         val transactionDataHashes = mutableListOf<ByteArray>()
+        var authenticationTitleAndSubtitle: Pair<CharSequence, CharSequence?>? = null
         for (transactionDataItem in transactionData) {
             if (dcqlId in transactionDataItem.credentialIds) {
                 val md = MessageDigest.getInstance("SHA-256")
                 transactionDataHashes.add(md.digest(transactionDataItem.encodedData.encodeToByteArray()))
+                val decoded = JSONObject(String(Base64.decode(transactionDataItem.encodedData, Base64.URL_SAFE)))
+                val merchantName = decoded.optString(MERCHANT_NAME)
+                val amount = decoded.optString(AMOUNT)
+                if (!merchantName.isNullOrBlank() && !amount.isNullOrBlank()) {
+                    authenticationTitleAndSubtitle = Pair(
+                        "Confirm transaction",
+                        "Authorize payment of amount $amount to $merchantName.")
+                }
             }
         }
-        return mapOf(Pair(
-            "transaction_data_hashes",
-            transactionDataHashes.toList()
-        ))
+        return TransactionDataResult(
+            mapOf(
+                Pair(
+                    "transaction_data_hashes",
+                    transactionDataHashes.toList()
+                )),
+            authenticationTitleAndSubtitle,
+        )
     }
 
     fun matchCredentials(credentialStore: JSONObject): Map<String, List<MatchedCredential>> {
@@ -97,5 +115,10 @@ class OpenId4VP(val request: String) {
             "OID4VPDCAPIHandover",
             md.digest(cborEncode(CborTag(24, cborEncode(handoverData))))
         )
+    }
+
+    companion object {
+        const val MERCHANT_NAME = "merchant_name"
+        const val AMOUNT = "amount"
     }
 }

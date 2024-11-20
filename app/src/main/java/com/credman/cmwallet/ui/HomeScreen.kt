@@ -33,10 +33,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,6 +46,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.credman.cmwallet.R
 import com.credman.cmwallet.data.model.Credential
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.model.MdocCredential
@@ -186,33 +189,27 @@ fun CredentialCard(
             Box(
                 Modifier
                     .fillMaxSize()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                Color(0x407D5280), Color(0x40EFB8C8)
-                            )
-                        )
+                    .paint(
+                        painterResource(id = R.drawable.card_art_dark),
+                        contentScale = ContentScale.Crop,
                     )
             ) {
-                Row() {
-                    Image(
-                        modifier = Modifier
-                            .padding(10.dp)
-                            .size(80.dp, 80.dp),
-                        imageVector = Icons.Filled.Face,
-                        contentDescription = ""
-                    )
+                Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically){
                     Column(
-                        modifier = Modifier.padding(10.dp, 20.dp)
+                        modifier = Modifier.padding(20.dp, 20.dp),
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
                             text = metadata.title,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White,
                         )
                         Text(
                             text = metadata.subtitle ?: "",
                             fontSize = 16.sp,
+                            color = Color.White,
                         )
                     }
                 }
