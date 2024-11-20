@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.androidx.registry.digitalcredentials.preview)
     implementation(libs.androidx.registry.provider)
     implementation(libs.androidx.credentials)
+    implementation(libs.play.services.identity.credentials)
     implementation(libs.androidx.registry.provider.play.services)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.androidx.core.ktx)
@@ -66,4 +67,10 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("com.google.android.gms:play-services-identity-credentials:16.0.0-alpha04")
+    }
 }
