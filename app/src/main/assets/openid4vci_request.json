@@ -5,6 +5,7 @@
       ],
     "issuer_metadata": {
         "credential_issuer": "https://credential-issuer.example.com",
+        "credential_endpoint": "https://credential-issuer.example.com",
         "credential_configurations_supported": {
             "com.emvco.payment_card": {
                 "format": "mso_mdoc",

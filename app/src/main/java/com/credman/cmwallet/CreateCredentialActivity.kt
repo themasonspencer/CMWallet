@@ -11,11 +11,14 @@ import androidx.activity.ComponentActivity
 import androidx.credentials.CreateCustomCredentialResponse
 import androidx.credentials.DigitalCredential
 import androidx.credentials.ExperimentalDigitalCredentialApi
+import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.provider.ProviderCreateCredentialRequest
-import androidx.credentials.registry.provider.selectedEntryId
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.openid4vci.DATA
+import com.credman.cmwallet.openid4vci.OpenId4VCI
+import com.credman.cmwallet.openid4vci.PROTOCOL
 import org.json.JSONObject
 
 @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -36,17 +39,42 @@ class CreateCredentialActivity : ComponentActivity() {
         ) ?: ""
         Log.i(TAG, "[CreateCredentialActivity] origin $origin")
 
-        val testResponse = CreateCustomCredentialResponse(
-            type = DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
-            data = Bundle().apply {
-                putString("androidx.credentials.BUNDLE_KEY_RESPONSE_JSON", "test response")
-            },
-        )
+        try {
+            // This will eventually be replaced by a structured Jetpack property,
+            // as opposed to having to parse a raw data from Bundle.
+            val requestJsonString: String = request.callingRequest.credentialData.getString(
+                "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
+            )!!
 
-        val resultData = Intent()
-        PendingIntentHandler.setCreateCredentialResponse(resultData, testResponse)
-        setResult(RESULT_OK, resultData)
-        finish()
+            val requestJson = JSONObject(requestJsonString)
+            require(requestJson.has(PROTOCOL)) { "request json missing required field $PROTOCOL" }
+            require(requestJson.has(DATA)) { "request json missing required field $DATA" }
+
+            Log.d(TAG, "Request json received: ${requestJson.getString(DATA)}")
+
+            val openId4VCI = OpenId4VCI(requestJson.getString(DATA))
+
+            val testResponse = CreateCustomCredentialResponse(
+                type = DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
+                data = Bundle().apply {
+                    putString("androidx.credentials.BUNDLE_KEY_RESPONSE_JSON", "test response")
+                },
+            )
+
+            val resultData = Intent()
+            PendingIntentHandler.setCreateCredentialResponse(resultData, testResponse)
+            setResult(RESULT_OK, resultData)
+            finish()
+        } catch (e: Exception) {
+            Log.e(TAG, "exception", e)
+            val resultData = Intent()
+            PendingIntentHandler.setCreateCredentialException(
+                resultData,
+                CreateCredentialUnknownException(),
+            )
+            setResult(RESULT_OK, resultData)
+            finish()
+        }
     }
 
     /**
