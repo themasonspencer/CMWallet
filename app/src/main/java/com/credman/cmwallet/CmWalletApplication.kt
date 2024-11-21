@@ -11,6 +11,8 @@ import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.repository.CredentialRepository
 import com.credman.cmwallet.data.room.Credential
 import com.credman.cmwallet.data.room.CredentialDatabase
+import com.credman.cmwallet.openid4vci.MdocCredConfigsSupportedItem
+import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.google.android.gms.identitycredentials.IdentityCredentialClient
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
 import com.google.android.gms.identitycredentials.RegisterCreationOptionsRequest
