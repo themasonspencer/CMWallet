@@ -4,6 +4,7 @@ import android.util.Base64
 import android.util.Log
 import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.room.Credential
 import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.mdoc.toCredentialItem
@@ -62,10 +63,11 @@ class OpenId4VCI(val request: String) {
         credentialConfigurationsSupportedMap = tmpMap
     }
 
-    suspend fun requestAndSaveCredential() {
+    suspend fun requestCredential(
+        credentialConfigurationId: String = credentialConfigurationIds.first()
+    ): CredentialResponse? {
         val client = HttpClient(CIO)
         Log.d(TAG, "Requesting to credential endpoint $credentialEndpoint")
-        val credConfigId = credentialConfigurationIds.first()
         val httpResponse = client.post(credentialEndpoint) {
             headers {
                 append(HttpHeaders.Authorization, getAuthToken())
@@ -73,7 +75,7 @@ class OpenId4VCI(val request: String) {
             contentType(ContentType.Application.Json)
             setBody(
                 CredentialRequest(
-                    credConfigId,
+                    credentialConfigurationId,
                     proof = Proof(
                         JWT,
                         jwt = generateDeviceKeyJwt()
@@ -87,20 +89,25 @@ class OpenId4VCI(val request: String) {
                     " Content type: ${httpResponse.headers[HttpHeaders.ContentType]}.")
             val stringBody: String = httpResponse.body()
             Log.d(TAG, "Response body: $stringBody")
-            val credResponse = stringBody.toCredentialResponse()
-            val credentialIssuerSigned = Base64.decode(
-                credResponse!!.credentials!!.first().credential,
-                Base64.URL_SAFE
-            )
-            val credItem = toCredentialItem(
-                credentialIssuerSigned,
-                deviceKey,
-                credentialConfigurationsSupportedMap[credConfigId]!!)
-            CmWalletApplication.database.credentialDao().insertAll(Credential(0L, credItem.toJson()))
+            return stringBody.toCredentialResponse()
         } else {
             Log.e(TAG, "Error credential endpoint code: ${httpResponse.status.value}")
-            TODO()
+            return null
         }
+    }
+
+    fun generateCredentialToSave(
+        credentialEndpointResponse: CredentialResponse,
+        credentialConfigurationId: String = credentialConfigurationIds.first(),
+    ): CredentialItem {
+        val credentialIssuerSigned = Base64.decode(
+            credentialEndpointResponse.credentials!!.first().credential,
+            Base64.URL_SAFE
+        )
+        return toCredentialItem(
+            credentialIssuerSigned,
+            deviceKey,
+            credentialConfigurationsSupportedMap[credentialConfigurationId]!!)
     }
 
     private fun generateDeviceKeyJwt(): String {

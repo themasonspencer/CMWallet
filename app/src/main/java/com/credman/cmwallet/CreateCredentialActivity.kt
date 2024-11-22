@@ -16,6 +16,7 @@ import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.data.room.Credential
 import com.credman.cmwallet.openid4vci.DATA
 import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.PROTOCOL
@@ -56,7 +57,11 @@ class CreateCredentialActivity : ComponentActivity() {
             val openId4VCI = OpenId4VCI(requestJson.getString(DATA))
 
             runBlocking {
-                openId4VCI.requestAndSaveCredential()
+                val credResponse = openId4VCI.requestCredential()!!
+                val credItem = openId4VCI.generateCredentialToSave(credResponse)
+                CmWalletApplication.database.credentialDao().insertAll(
+                    Credential(0L, credItem.toJson())
+                )
             }
 
             val testResponse = CreateCustomCredentialResponse(
