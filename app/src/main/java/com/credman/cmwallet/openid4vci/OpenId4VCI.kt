@@ -1,7 +1,12 @@
 package com.credman.cmwallet.openid4vci
 
+import android.util.Base64
 import android.util.Log
+import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.data.room.Credential
+import com.credman.cmwallet.loadECPrivateKey
+import com.credman.cmwallet.mdoc.toCredentialItem
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
@@ -12,6 +17,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.headers
 import org.json.JSONObject
+import java.security.PrivateKey
 
 class OpenId4VCI(val request: String) {
     val requestJson: JSONObject = JSONObject(request)
@@ -22,6 +28,8 @@ class OpenId4VCI(val request: String) {
     // Credential Issuer Metadata Parameters
     val credentialEndpoint: String
     val credentialConfigurationsSupportedMap: Map<String, CredConfigsSupportedItem>
+
+    private lateinit var deviceKey: PrivateKey
 
     init {
         require(requestJson.has(CREDENTIAL_ISSUER)) { "Issuance request must contain $CREDENTIAL_ISSUER" }
@@ -54,8 +62,10 @@ class OpenId4VCI(val request: String) {
         credentialConfigurationsSupportedMap = tmpMap
     }
 
-    suspend fun requestCredential() {
+    suspend fun requestAndSaveCredential() {
         val client = HttpClient(CIO)
+        Log.d(TAG, "Requesting to credential endpoint $credentialEndpoint")
+        val credConfigId = credentialConfigurationIds.first()
         val httpResponse = client.post(credentialEndpoint) {
             headers {
                 append(HttpHeaders.Authorization, getAuthToken())
@@ -63,7 +73,7 @@ class OpenId4VCI(val request: String) {
             contentType(ContentType.Application.Json)
             setBody(
                 CredentialRequest(
-                    credentialConfigurationIds.first(),
+                    credConfigId,
                     proof = Proof(
                         JWT,
                         jwt = generateDeviceKeyJwt()
@@ -74,12 +84,19 @@ class OpenId4VCI(val request: String) {
 
         if (httpResponse.status.value == 202) {
             Log.d(TAG, "Successful credential endpoint response." +
-                    "Content type: ${httpResponse.headers[HttpHeaders.ContentType]}, " +
-                    "Content body: ${httpResponse.body<String>()}")
-            val credResponse = httpResponse.body<String>().toCredentialResponse()
-            // TODO: remove !!
-            val credential = credResponse!!.credentials!!.first().credential
-            TODO()
+                    " Content type: ${httpResponse.headers[HttpHeaders.ContentType]}.")
+            val stringBody: String = httpResponse.body()
+            Log.d(TAG, "Response body: $stringBody")
+            val credResponse = stringBody.toCredentialResponse()
+            val credentialIssuerSigned = Base64.decode(
+                credResponse!!.credentials!!.first().credential,
+                Base64.URL_SAFE
+            )
+            val credItem = toCredentialItem(
+                credentialIssuerSigned,
+                deviceKey,
+                credentialConfigurationsSupportedMap[credConfigId]!!)
+            CmWalletApplication.database.credentialDao().insertAll(Credential(0L, credItem.toJson()))
         } else {
             Log.e(TAG, "Error credential endpoint code: ${httpResponse.status.value}")
             TODO()
@@ -87,6 +104,9 @@ class OpenId4VCI(val request: String) {
     }
 
     private fun generateDeviceKeyJwt(): String {
+        // TODO: generate real device key
+        val tmpKey = "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6ef4-enmfQHRWUW40-Soj3aFB0rsEOp3tYMW-HJPBvChRANCAAT5N1NLZcub4bOgWfBwF8MHPGkfJ8Dm300cioatq9XovaLgG205FEXUOuNMEMQuLbrn8oiOC0nTnNIVn-OtSmSb"
+        deviceKey = loadECPrivateKey(Base64.decode(tmpKey, Base64.URL_SAFE))
         return "TODO"
     }
 

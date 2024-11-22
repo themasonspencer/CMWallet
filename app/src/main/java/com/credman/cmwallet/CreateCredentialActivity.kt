@@ -19,6 +19,7 @@ import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.openid4vci.DATA
 import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.PROTOCOL
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 
 @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -54,10 +55,14 @@ class CreateCredentialActivity : ComponentActivity() {
 
             val openId4VCI = OpenId4VCI(requestJson.getString(DATA))
 
+            runBlocking {
+                openId4VCI.requestAndSaveCredential()
+            }
+
             val testResponse = CreateCustomCredentialResponse(
                 type = DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
                 data = Bundle().apply {
-                    putString("androidx.credentials.BUNDLE_KEY_RESPONSE_JSON", "test response")
+                    putString("androidx.credentials.BUNDLE_KEY_RESPONSE_JSON", "successful response")
                 },
             )
 

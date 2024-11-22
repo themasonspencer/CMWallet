@@ -21,8 +21,7 @@ class CredentialItem(
 
     // Returns the credential that should be persisted in the app database, i.e.
     // [com.credman.cmwallet.data.room.Credential.credJson]
-    fun toJson(): String = JSONObject()
-        .put(CREDENTIAL, credential.toJson())
+    fun toJson(): String = credential.toJson()
         .put(METADATA, metadata.toJson())
         .toString()
 }
@@ -144,10 +143,12 @@ class PaymentMetadata(
     val cardNetworkArt: String?, // b64 encoding
 ) : CredentialMetadata(title, subtitle, icon) {
     override fun toJson(): JSONObject = JSONObject()
-        .put(TITLE, title)
-        .putOpt(SUBTITLE, subtitle)
-        .putOpt(CARD_ART, icon)
-        .putOpt(CARD_NETWORK_ART, cardNetworkArt)
+        .put(PAYMENT, JSONObject().apply {
+            put(TITLE, title)
+            putOpt(SUBTITLE, subtitle)
+            putOpt(CARD_ART, icon)
+            putOpt(CARD_NETWORK_ART, cardNetworkArt)
+        })
 }
 
 class VerificationMetadata(
@@ -156,12 +157,15 @@ class VerificationMetadata(
     icon: String?,
 ) : CredentialMetadata(title, subtitle, icon) {
     override fun toJson(): JSONObject = JSONObject()
-        .put(TITLE, title)
-        .putOpt(SUBTITLE, subtitle)
-        .putOpt(CARD_ICON, icon)
+        .put(VERIFICATION, JSONObject().apply {
+            put(TITLE, title)
+            putOpt(SUBTITLE, subtitle)
+            putOpt(CARD_ICON, icon)
+        })
 }
 
 const val MSO_MDOC = "mso_mdoc"
+const val PAYMENT_CARD_DOC_TYPE = "com.emvco.payment_card"
 private const val DEVICE_KEY = "deviceKey"
 private const val ISSUER_SIGNED = "issuerSigned"
 private const val METADATA = "metadata"
