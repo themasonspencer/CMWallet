@@ -3,11 +3,11 @@ package com.credman.cmwallet
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import androidx.credentials.CreateCredentialRequest
-import androidx.credentials.CreateCredentialRequest.DisplayInfo
 import android.service.credentials.CredentialProviderService
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.credentials.CreateCredentialRequest
+import androidx.credentials.CreateCredentialRequest.DisplayInfo
 import androidx.credentials.CreateCustomCredentialResponse
 import androidx.credentials.DigitalCredential
 import androidx.credentials.ExperimentalDigitalCredentialApi
@@ -16,11 +16,9 @@ import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
-import com.credman.cmwallet.data.room.Credential
 import com.credman.cmwallet.openid4vci.DATA
 import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.PROTOCOL
-import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 
 @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -56,18 +54,21 @@ class CreateCredentialActivity : ComponentActivity() {
 
             val openId4VCI = OpenId4VCI(requestJson.getString(DATA))
 
-            runBlocking {
-                val credResponse = openId4VCI.requestCredential()!!
-                val credItem = openId4VCI.generateCredentialToSave(credResponse)
-                CmWalletApplication.database.credentialDao().insertAll(
-                    Credential(0L, credItem.toJson())
-                )
-            }
+//            runBlocking {
+//                val credResponse = openId4VCI.requestCredentialFromEndpoint()!!
+//                val credItem = openId4VCI.generateCredentialToSave(credResponse)
+//                CmWalletApplication.database.credentialDao().insertAll(
+//                    Credential(0L, credItem.toJson())
+//                )
+//            }
 
             val testResponse = CreateCustomCredentialResponse(
                 type = DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
                 data = Bundle().apply {
-                    putString("androidx.credentials.BUNDLE_KEY_RESPONSE_JSON", "successful response")
+                    putString(
+                        "androidx.credentials.BUNDLE_KEY_RESPONSE_JSON",
+                        "successful response"
+                    )
                 },
             )
 
@@ -103,10 +104,12 @@ class CreateCredentialActivity : ComponentActivity() {
                     callingRequest =
                     CreateCredentialRequest.createFrom(
                         request.type,
-                        request.data.apply { putBundle(
-                            DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
-                            tmpRequestInto.toBundle(),
-                        ) },
+                        request.data.apply {
+                            putBundle(
+                                DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
+                                tmpRequestInto.toBundle(),
+                            )
+                        },
                         request.data,
                         requireSystemProvider = false,
                         request.callingAppInfo.origin
@@ -124,9 +127,11 @@ class CreateCredentialActivity : ComponentActivity() {
             }
         } else {
             val requestBundle = intent.getBundleExtra(
-                "android.service.credentials.extra.CREATE_CREDENTIAL_REQUEST") ?: return null
+                "android.service.credentials.extra.CREATE_CREDENTIAL_REQUEST"
+            ) ?: return null
             val requestDataBundle = requestBundle.getBundle(
-                "androidx.credentials.provider.extra.CREATE_REQUEST_CREDENTIAL_DATA") ?: Bundle()
+                "androidx.credentials.provider.extra.CREATE_REQUEST_CREDENTIAL_DATA"
+            ) ?: Bundle()
             requestDataBundle.putBundle(
                 DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
                 tmpRequestInto.toBundle(),

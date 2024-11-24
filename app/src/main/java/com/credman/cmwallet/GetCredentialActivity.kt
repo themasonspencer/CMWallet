@@ -1,11 +1,9 @@
 package com.credman.cmwallet
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
-import androidx.activity.ComponentActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.credentials.DigitalCredential
@@ -23,6 +21,8 @@ import com.credman.cmwallet.mdoc.filterIssuerSigned
 import com.credman.cmwallet.mdoc.generateDeviceResponse
 import com.credman.cmwallet.openid4vp.OpenId4VP
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import org.json.JSONObject
 
 class GetCredentialActivity : FragmentActivity() {
@@ -125,6 +125,17 @@ class GetCredentialActivity : FragmentActivity() {
         val authenticationSubtitle: CharSequence?
     )
 
+    @Serializable
+    data class DigitalCredentialRequestOptions(
+        val providers: List<DigitalCredentialRequest>
+    )
+
+    @Serializable
+    data class DigitalCredentialRequest(
+        val protocol: String,
+        val request: String
+    )
+
     private fun processDigitalCredentialOption(
         requestJson: String,
         providerIdx: Int,
@@ -136,22 +147,22 @@ class GetCredentialActivity : FragmentActivity() {
         var authenticationTitle: CharSequence = "Verify your identity"
         var authenticationSubtitle: CharSequence? = null
 
-        val request = JSONObject(requestJson)
-        require(request.has("providers")) { "DigitalCredentialOption requires providers" }
-        val providers = request.getJSONArray("providers")
-        require(providerIdx < providers.length()) { "Provider IDX is invalid" }
-        val provider = providers.getJSONObject(providerIdx)
+        val digitalCredentialRequestOptions =
+            Json.decodeFromString<DigitalCredentialRequestOptions>(requestJson)
+        Log.i(
+            "GetCredentialActivity",
+            "digitalCredentialRequestOptions $digitalCredentialRequestOptions"
+        )
 
-        require(provider.has("protocol")) { "DigitalCredentialOption provider must contain protocol" }
-        require(provider.has("request")) { "DigitalCredentialOption provider must contain request" }
+        val provider = digitalCredentialRequestOptions.providers[providerIdx]
 
-        val protocol = provider.getString("protocol")
-        val dcRequest = provider.getString("request")
-
-        Log.i("GetCredentialActivity", "processDigitalCredentialOption protocol $protocol")
-        when (protocol) {
+        Log.i(
+            "GetCredentialActivity",
+            "processDigitalCredentialOption protocol ${provider.protocol}"
+        )
+        when (provider.protocol) {
             "openid4vp1.0" -> {
-                val openId4VPRequest = OpenId4VP(dcRequest)
+                val openId4VPRequest = OpenId4VP(provider.request)
                 Log.i("GetCredentialActivity", "nonce ${openId4VPRequest.nonce}")
                 val matchedCredential =
                     openId4VPRequest.performQueryOnCredential(selectedCredential)
@@ -175,8 +186,10 @@ class GetCredentialActivity : FragmentActivity() {
                                     matchedCredential.dcqlId
                                 )
                             if (deviceSignedTransactionData.authenticationTitleAndSubtitle != null) {
-                                authenticationTitle = deviceSignedTransactionData.authenticationTitleAndSubtitle.first
-                                authenticationSubtitle = deviceSignedTransactionData.authenticationTitleAndSubtitle.second
+                                authenticationTitle =
+                                    deviceSignedTransactionData.authenticationTitleAndSubtitle.first
+                                authenticationSubtitle =
+                                    deviceSignedTransactionData.authenticationTitleAndSubtitle.second
                             }
                             mapOf(
                                 Pair(

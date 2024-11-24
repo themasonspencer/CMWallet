@@ -92,8 +92,14 @@ data class MdocCredential(
         }
         credential.put(NAMESPACES, namespacesJson)
         result.put(CREDENTIAL, credential)
-        result.put(DEVICE_KEY, Base64.encodeToString(deviceKey.encoded, Base64.URL_SAFE or Base64.NO_WRAP))
-        result.put(ISSUER_SIGNED, Base64.encodeToString(issuerSigned, Base64.URL_SAFE or Base64.NO_WRAP))
+        result.put(
+            DEVICE_KEY,
+            Base64.encodeToString(deviceKey.encoded, Base64.URL_SAFE or Base64.NO_WRAP)
+        )
+        result.put(
+            ISSUER_SIGNED,
+            Base64.encodeToString(issuerSigned, Base64.URL_SAFE or Base64.NO_WRAP)
+        )
         return result
     }
 }
@@ -114,6 +120,7 @@ sealed class CredentialMetadata(
     val icon: String?
 ) {
     internal abstract fun toJson(): JSONObject
+
     companion object {
         fun fromJson(type: String, json: JSONObject): CredentialMetadata {
             return when (type) {

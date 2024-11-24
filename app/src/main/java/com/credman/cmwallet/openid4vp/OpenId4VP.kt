@@ -1,7 +1,6 @@
 package com.credman.cmwallet.openid4vp
 
 import android.util.Base64
-import android.util.Log
 import com.credman.cmwallet.cbor.CborTag
 import com.credman.cmwallet.cbor.cborEncode
 import com.credman.cmwallet.data.model.CredentialItem
@@ -38,20 +37,24 @@ class OpenId4VP(val request: String) {
             val tempList = mutableListOf<TransactionData>()
             for (i in 0 until transactionDataJson.length()) {
                 val transactionDataItemEncoded = transactionDataJson.getString(i)
-                val transactionDataItemJson = Base64.decode(transactionDataItemEncoded, Base64.URL_SAFE ).toString(Charsets.UTF_8)
+                val transactionDataItemJson =
+                    Base64.decode(transactionDataItemEncoded, Base64.URL_SAFE)
+                        .toString(Charsets.UTF_8)
                 val transactionDataItem = JSONObject(transactionDataItemJson)
                 val credentialIds = mutableListOf<String>()
                 val credentialIdsJson = transactionDataItem.getJSONArray("credential_ids")
-                for (j in 0 until  credentialIdsJson.length()) {
+                for (j in 0 until credentialIdsJson.length()) {
                     credentialIds.add(credentialIdsJson.getString(j))
                 }
 
-                tempList.add(TransactionData(
-                    transactionDataItemEncoded,
-                    transactionDataItem.getString("type"),
-                    credentialIds,
-                    transactionDataItem
-                ))
+                tempList.add(
+                    TransactionData(
+                        transactionDataItemEncoded,
+                        transactionDataItem.getString("type"),
+                        credentialIds,
+                        transactionDataItem
+                    )
+                )
             }
             transactionData = tempList
         } else {
@@ -75,13 +78,21 @@ class OpenId4VP(val request: String) {
             if (dcqlId in transactionDataItem.credentialIds) {
                 val md = MessageDigest.getInstance("SHA-256")
                 transactionDataHashes.add(md.digest(transactionDataItem.encodedData.encodeToByteArray()))
-                val decoded = JSONObject(String(Base64.decode(transactionDataItem.encodedData, Base64.URL_SAFE)))
+                val decoded = JSONObject(
+                    String(
+                        Base64.decode(
+                            transactionDataItem.encodedData,
+                            Base64.URL_SAFE
+                        )
+                    )
+                )
                 val merchantName = decoded.optString(MERCHANT_NAME)
                 val amount = decoded.optString(AMOUNT)
                 if (!merchantName.isNullOrBlank() && !amount.isNullOrBlank()) {
                     authenticationTitleAndSubtitle = Pair(
                         "Confirm transaction",
-                        "Authorize payment of amount $amount to $merchantName.")
+                        "Authorize payment of amount $amount to $merchantName."
+                    )
                 }
             }
         }
@@ -90,7 +101,8 @@ class OpenId4VP(val request: String) {
                 Pair(
                     "transaction_data_hashes",
                     transactionDataHashes.toList()
-                )),
+                )
+            ),
             authenticationTitleAndSubtitle,
         )
     }

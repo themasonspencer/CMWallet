@@ -6,6 +6,7 @@ import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.cbor.CborTag
 import com.credman.cmwallet.cbor.cborDecode
 import com.credman.cmwallet.cbor.cborEncode
+import com.credman.cmwallet.convertDerToRaw
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.model.MSO_MDOC
 import com.credman.cmwallet.data.model.MdocCredential
@@ -34,8 +35,8 @@ fun toCredentialItem(
     deviceKey: PrivateKey,
     credentialConfiguration: CredConfigsSupportedItem,
 ): CredentialItem {
-    require(credentialConfiguration is MdocCredConfigsSupportedItem) { "Credential configuration should be"}
-    require(credentialConfiguration.format == MSO_MDOC) { "Expect mdo_mdoc format but got ${credentialConfiguration.format}"}
+    require(credentialConfiguration is MdocCredConfigsSupportedItem) { "Credential configuration should be" }
+    require(credentialConfiguration.format == MSO_MDOC) { "Expect mdo_mdoc format but got ${credentialConfiguration.format}" }
     val issuerSignedDict = cborDecode(issuerSigned) as Map<*, *>
     val doctype = credentialConfiguration.doctype
     val claims = credentialConfiguration.claims
@@ -51,9 +52,13 @@ fun toCredentialItem(
                 val elementDict = cborDecode(element.item as ByteArray) as Map<*, *>
                 val elementIdentifier = elementDict[ELEMENT_IDENTIFYIER] as String
                 val elementValue = elementDict[ELEMENT_VALUE] as Any
-                val elementDisplay = namespacedClaims.values[elementIdentifier]?.display?.firstOrNull()
+                val elementDisplay =
+                    namespacedClaims.values[elementIdentifier]?.display?.firstOrNull()
                 if (elementDisplay?.name == null) {
-                    Log.w(TAG, "Skipping element $elementIdentifier because it doesn't have a display value")
+                    Log.w(
+                        TAG,
+                        "Skipping element $elementIdentifier because it doesn't have a display value"
+                    )
                 } else {
                     namespacedData[elementIdentifier] = MdocField(
                         value = elementValue,
@@ -78,7 +83,7 @@ fun toCredentialItem(
     val subtitle = credentialConfiguration.display?.firstOrNull()?.description
     val itemIcon = credentialConfiguration.display?.firstOrNull()?.backgroundImage?.let {
         val imageUri = Uri.parse(it)
-        require(imageUri.scheme == DATA) { "only image data scheme is supported for now"}
+        require(imageUri.scheme == DATA) { "only image data scheme is supported for now" }
         val ssp = Uri.parse(it).schemeSpecificPart
         ssp.replace(regex, "")
     }
@@ -89,6 +94,7 @@ fun toCredentialItem(
             icon = itemIcon,
             cardNetworkArt = null,
         )
+
         else -> VerificationMetadata(
             title = title ?: "Card",
             subtitle = subtitle,
@@ -192,39 +198,6 @@ fun generateDeviceResponse(
     return cborEncode(deviceResponse)
 }
 
-fun convertDerToRaw(signature: ByteArray): ByteArray {
-    val ret = ByteArray(64)
-
-    var rOffset = 4
-    if ((signature[1].toInt() and 0x80) != 0) {
-        rOffset += signature[1].toInt() and 0x7f
-    }
-
-    var rLen = signature[rOffset - 1].toInt() and 0xFF
-    var rPad = 0
-
-    if (rLen > 32) {
-        rOffset += (rLen - 32)
-        rLen = 32
-    } else {
-        rPad = 32 - rLen
-    }
-    signature.copyInto(ret, rPad, rOffset, rOffset + rLen)
-
-    var sOffset = rOffset + rLen + 2
-    var sLen = signature[sOffset - 1].toInt() and 0xFF
-    var sPad = 0
-
-    if (sLen > 32) {
-        sOffset += (sLen - 32)
-        sLen = 32
-    } else {
-        sPad = 32 - sLen
-    }
-    signature.copyInto(ret, 32 + sPad, sOffset, sOffset + sLen)
-
-    return ret
-}
 
 internal const val ELEMENT_IDENTIFYIER = "elementIdentifier"
 internal const val ELEMENT_VALUE = "elementValue"

@@ -8,6 +8,7 @@ import com.credman.cmwallet.data.model.MSO_MDOC
 import com.credman.cmwallet.data.model.MdocCredential
 import com.credman.cmwallet.data.source.CredentialDatabaseDataSource
 import com.credman.cmwallet.data.source.TestCredentialsDataSource
+import com.credman.cmwallet.openid4vci.OpenId4VCI
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
@@ -22,6 +23,8 @@ import java.nio.ByteOrder
 class CredentialRepository {
     var privAppsJson = "{}"
         private set
+
+    var openId4VCITestRequestJson = "{}"
 
     private val testCredentialsDataSource = TestCredentialsDataSource()
     private val credentialDatabaseDataSource = CredentialDatabaseDataSource()
@@ -56,6 +59,11 @@ class CredentialRepository {
 
     fun setPrivAppsJson(appsJson: String) {
         privAppsJson = appsJson
+    }
+
+    suspend fun issueCredential(requestJson: String) {
+        val openId4VCI = OpenId4VCI(requestJson)
+
     }
 
     class RegistryIcon(
@@ -136,11 +144,18 @@ class CredentialRepository {
                             is JSONArray -> {
                                 mdocCredentials.put(item.credential.docType, current.put(credJson))
                             }
+
                             null -> {
-                                mdocCredentials.put(item.credential.docType, JSONArray().put(credJson))
+                                mdocCredentials.put(
+                                    item.credential.docType,
+                                    JSONArray().put(credJson)
+                                )
                             }
-                            else -> throw IllegalStateException("Unexpected namespaced data that's" +
-                                    " not a JSONArray. Instead it is ${current::class.java}")
+
+                            else -> throw IllegalStateException(
+                                "Unexpected namespaced data that's" +
+                                        " not a JSONArray. Instead it is ${current::class.java}"
+                            )
                         }
                     }
                 }
@@ -157,6 +172,7 @@ class CredentialRepository {
 
     companion object {
         const val TAG = "CredentialRepository"
+
         // Wasm database json keys
         const val CREDENTIALS = "credentials"
         const val ID = "id"

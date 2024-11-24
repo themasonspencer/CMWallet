@@ -1,15 +1,22 @@
 package com.credman.cmwallet.ui
 
+import android.util.Base64
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.repository.CredentialRepository
+import com.credman.cmwallet.loadECPrivateKey
+import com.credman.cmwallet.openid4vci.OpenId4VCI
+import com.credman.cmwallet.openid4vci.data.CredentialRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.security.KeyFactory
+import java.security.interfaces.ECPrivateKey
+import java.security.spec.X509EncodedKeySpec
 
 data class HomeScreenUiState(
     val credentials: List<CredentialItem>
@@ -31,4 +38,30 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    fun testIssuance() {
+        Log.i("HomeViewModel", "testIssuance")
+        val requestJson = CmWalletApplication.credentialRepo.openId4VCITestRequestJson
+        val openId4VCI = OpenId4VCI(requestJson)
+        viewModelScope.launch {
+            val tmpKey =
+                "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6ef4-enmfQHRWUW40-Soj3aFB0rsEOp3tYMW-HJPBvChRANCAAT5N1NLZcub4bOgWfBwF8MHPGkfJ8Dm300cioatq9XovaLgG205FEXUOuNMEMQuLbrn8oiOC0nTnNIVn-OtSmSb"
+            val tmpPublicKey =
+                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE-TdTS2XLm-GzoFnwcBfDBzxpHyfA5t9NHIqGravV6L2i4BttORRF1DrjTBDELi265_KIjgtJ05zSFZ_jrUpkmw=="
+            val privateKey =
+                loadECPrivateKey(Base64.decode(tmpKey, Base64.URL_SAFE)) as ECPrivateKey
+            val publicKeySpec = X509EncodedKeySpec(Base64.decode(tmpPublicKey, Base64.URL_SAFE))
+            val kf = KeyFactory.getInstance("EC")
+            val publicKey = kf.generatePublic(publicKeySpec)!!
+
+            val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
+                CredentialRequest(
+                    credential_configuration_id = openId4VCI.credentialConfigurationIds.first(),
+                    proof = openId4VCI.createProofJwt(publicKey, privateKey)
+
+                )
+            )
+            Log.i("HomeViewModel", "credentialResponse $credentialResponse")
+
+        }
+    }
 }

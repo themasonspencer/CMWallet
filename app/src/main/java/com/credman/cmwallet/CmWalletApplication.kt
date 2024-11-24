@@ -7,19 +7,14 @@ import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegistryManager
 import androidx.room.Room
-import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.repository.CredentialRepository
-import com.credman.cmwallet.data.room.Credential
 import com.credman.cmwallet.data.room.CredentialDatabase
-import com.credman.cmwallet.openid4vci.MdocCredConfigsSupportedItem
-import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.google.android.gms.identitycredentials.IdentityCredentialClient
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
 import com.google.android.gms.identitycredentials.RegisterCreationOptionsRequest
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 class CmWalletApplication : Application() {
@@ -50,6 +45,7 @@ class CmWalletApplication : Application() {
         // Add the test credentials from the included json
         credentialRepo.addCredentialsFromJson(testCredentialsJson)
         credentialRepo.setPrivAppsJson(loadAppsJson().toString(Charsets.UTF_8))
+        credentialRepo.openId4VCITestRequestJson = loadOpenId4VCIRequestJson().decodeToString()
 
         // Listen for new credentials and update the registry.
         applicationScope.launch {
@@ -81,13 +77,13 @@ class CmWalletApplication : Application() {
         }
 
 //        TODO: delete: this is only for testing.
-        CoroutineScope(Dispatchers.IO).launch {
-            delay(5000)
-            val json = readAsset("test.json").toString(Charsets.UTF_8)
-            database.credentialDao().insertAll(Credential(2000L, json))
+//        CoroutineScope(Dispatchers.IO).launch {
 //            delay(5000)
-//            database.credentialDao().delete(Credential(2000L, json))
-        }
+//            val json = readAsset("test.json").toString(Charsets.UTF_8)
+//            database.credentialDao().insertAll(Credential(2000L, json))
+////            delay(5000)
+////            database.credentialDao().delete(Credential(2000L, json))
+//        }
     }
 
     private fun readAsset(fileName: String): ByteArray {
@@ -112,5 +108,9 @@ class CmWalletApplication : Application() {
 
     private fun loadAppsJson(): ByteArray {
         return readAsset("apps.json");
+    }
+
+    private fun loadOpenId4VCIRequestJson(): ByteArray {
+        return readAsset("openid4vci_request.json");
     }
 }
