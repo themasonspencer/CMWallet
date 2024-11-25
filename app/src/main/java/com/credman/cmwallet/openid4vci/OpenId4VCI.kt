@@ -14,6 +14,7 @@ import com.credman.cmwallet.toJWK
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
@@ -21,6 +22,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
+import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
@@ -29,6 +31,7 @@ import org.json.JSONObject
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.time.Instant
+
 
 class OpenId4VCI(val credentialOfferJson: String) {
     val credentialOffer = JSONObject(credentialOfferJson)
@@ -42,6 +45,12 @@ class OpenId4VCI(val credentialOfferJson: String) {
     val credentialConfigurationsSupportedMap: Map<String, CredConfigsSupportedItem>
 
     private lateinit var deviceKey: PrivateKey
+
+    private val httpClient = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json()
+        }
+    }
 
     init {
         require(credentialOffer.has(CREDENTIAL_ISSUER)) { "Issuance request must contain $CREDENTIAL_ISSUER" }
@@ -81,13 +90,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
 
     suspend fun requestNonceFromEndpoint(): NonceResponse {
         require(nonceEndpoint != null) { "nonce_endpoint must be set when requesting a nonce" }
-        val httpResponse = HttpClient(CIO).post(nonceEndpoint)
-        if (httpResponse.status == HttpStatusCode.OK) {
-            val responseJson = httpResponse.body<String>()
-            return Json.decodeFromString(responseJson)
-        } else {
-            throw RuntimeException("Failed to get nonce")
-        }
+        return httpClient.post(nonceEndpoint).body()
     }
 
     suspend fun requestCredentialFromEndpoint(
@@ -131,7 +134,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
             payload = buildJsonObject {
                 put("aud", credentialIssuer)
                 put("iat", Instant.now().epochSecond)
-                put("nonce", nonceResponse.c_nonce)
+                put("nonce", nonceResponse.cNonce)
             },
             privateKey = privateKey
         )
@@ -139,7 +142,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
 
     suspend fun createProofJwt(publicKey: PublicKey, privateKey: PrivateKey): Proof {
         return Proof(
-            proof_type = "jwt",
+            proofType = "jwt",
             jwt = createJwt(publicKey, privateKey)
         )
     }

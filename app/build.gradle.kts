@@ -43,6 +43,8 @@ android {
 dependencies {
     implementation(libs.ktor.client.core)
     implementation(libs.ktor.client.cio)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.registry.digitalcredentials.mdoc)
     implementation(libs.androidx.registry.digitalcredentials.preview)

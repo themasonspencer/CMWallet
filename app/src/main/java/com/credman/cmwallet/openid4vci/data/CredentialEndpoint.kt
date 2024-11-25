@@ -1,29 +1,30 @@
 package com.credman.cmwallet.openid4vci.data
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class Proof(
-    val proof_type: String,
-    val jwt: String? = null,
-    val attestation: String? = null
+    @SerialName("proof_type") val proofType: String,
+    @SerialName("jwt") val jwt: String? = null,
+    @SerialName("attestation") val attestation: String? = null
 )
 
 @Serializable
 data class CredentialRequest(
-    val credential_identifier: String? = null,
-    val credential_configuration_id: String? = null,
-    val proof: Proof? = null
+    @SerialName("credential_identifier") val credentialIdentifier: String? = null,
+    @SerialName("credential_configuration_id") val credentialConfigurationId: String? = null,
+    @SerialName("proof") val proof: Proof? = null
 )
 
 @Serializable
 data class Credential(
-    val credential: String
+    @SerialName("credential") val credential: String
 )
 
 @Serializable
 data class CredentialResponse(
-    val credentials: List<Credential>? = null,
-    val transaction_id: String? = null,
-    val notification_id: String? = null
+    @SerialName("credentials") val credentials: List<Credential>? = null,
+    @SerialName("transaction_id") val transactionId: String? = null,
+    @SerialName("notification_id") val notificationId: String? = null
 )

@@ -55,7 +55,7 @@ class HomeViewModel : ViewModel() {
 
             val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
                 CredentialRequest(
-                    credential_configuration_id = openId4VCI.credentialConfigurationIds.first(),
+                    credentialConfigurationId = openId4VCI.credentialConfigurationIds.first(),
                     proof = openId4VCI.createProofJwt(publicKey, privateKey)
 
                 )
