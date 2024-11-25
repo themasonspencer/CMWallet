@@ -28,6 +28,7 @@ import kotlinx.serialization.json.put
 import org.json.JSONObject
 import java.security.PrivateKey
 import java.security.PublicKey
+import java.time.Instant
 
 class OpenId4VCI(val credentialOfferJson: String) {
     val credentialOffer = JSONObject(credentialOfferJson)
@@ -129,7 +130,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
             },
             payload = buildJsonObject {
                 put("aud", credentialIssuer)
-                put("iat", 1234)
+                put("iat", Instant.now().epochSecond)
                 put("nonce", nonceResponse.c_nonce)
             },
             privateKey = privateKey
