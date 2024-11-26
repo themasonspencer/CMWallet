@@ -197,7 +197,7 @@ fun CredentialCard(
     onCredentialClick: (CredentialItem) -> Unit
 ) {
     val metadata = cred.metadata
-    val cardArt = Base64.decode(metadata.icon, 0)
+    val cardArt = metadata.icon?.let { Base64.decode(it, 0) } ?: ByteArray(0)
     Card(
         modifier = Modifier.size(350.dp, 210.dp),
         shape = CardDefaults.shape,
