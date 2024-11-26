@@ -44,8 +44,6 @@ class OpenId4VCI(val credentialOfferJson: String) {
     val nonceEndpoint: String?
     val credentialConfigurationsSupportedMap: Map<String, CredConfigsSupportedItem>
 
-    private lateinit var deviceKey: PrivateKey
-
     private val httpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
             json()
@@ -149,6 +147,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
 
     fun generateCredentialToSave(
         credentialEndpointResponse: CredentialResponse,
+        deviceKey: PrivateKey,
         credentialConfigurationId: String = credentialConfigurationIds.first(),
     ): CredentialItem {
         val credentialIssuerSigned = Base64.decode(

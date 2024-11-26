@@ -1,4 +1,4 @@
-package com.credman.cmwallet
+package com.credman.cmwallet.getcred
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,6 +14,7 @@ import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.registry.provider.selectedEntryId
 import androidx.fragment.app.FragmentActivity
+import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.data.model.MdocCredential
 import com.credman.cmwallet.mdoc.createSessionTranscript

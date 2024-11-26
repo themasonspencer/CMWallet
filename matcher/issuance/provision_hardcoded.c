@@ -7,7 +7,7 @@
 #include "../cJSON/cJSON.h"
 #include "../credentialmanager.h"
 
-#include "aus_card_icon.h"
+#include "launcher_icon.h"
 
 #define Matcher_NONE (0)
 #define Matcher_EQUAL (1 << 0)
@@ -43,9 +43,9 @@ static void init_per_doc_matchers(MatchersPerDoc *it) {
 int main() {
 	printf("Identity Credentials Matcher\n");
     printf("Adding hardcoded entry\n");
-    char *icon_start = _wasm_sample_matchers_aus_mdl_cardart_png;
+    char *icon_start = _launcher_icon_png;
 
-    AddStringIdEntry("0", icon_start, sizeof(_wasm_sample_matchers_aus_mdl_cardart_png), "CMWallet", "Save your document to CMWallet", NULL, NULL);
+    AddStringIdEntry("0", icon_start, sizeof(_launcher_icon_png), "CMWallet", "Save your document to CMWallet", NULL, NULL);
 
 	return 0;
 }

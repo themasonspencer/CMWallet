@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".GetCredentialActivity"
+            android:name=".getcred.GetCredentialActivity"
             android:exported="true"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
@@ -34,9 +34,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CreateCredentialActivity"
+            android:name=".createcred.CreateCredentialActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.NoDisplay">
+            android:theme="@style/Theme.CMWallet">
             <intent-filter>
                 <action android:name="androidx.credentials.registry.provider.action.CREATE_CREDENTIAL" />
                 <category android:name="android.intent.category.DEFAULT" />
