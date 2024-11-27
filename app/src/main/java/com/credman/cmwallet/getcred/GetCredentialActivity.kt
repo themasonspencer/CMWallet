@@ -1,5 +1,6 @@
 package com.credman.cmwallet.getcred
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
@@ -95,11 +96,7 @@ class GetCredentialActivity : FragmentActivity() {
                                 .setTitle(response.authenticationTitle)
                                 .setSubtitle(response.authenticationSubtitle)
                                 .setConfirmationRequired(false)
-                                .setAllowedAuthenticators(
-                                    BiometricManager.Authenticators.BIOMETRIC_STRONG
-//                                            or BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                                )
-                                .setNegativeButtonText("Cancel")
+                                .setStrongOrDeviceAuthenticators(this@GetCredentialActivity)
                                 .build()
                         )
 
@@ -231,5 +228,21 @@ class GetCredentialActivity : FragmentActivity() {
             else -> throw IllegalArgumentException()
         }
     }
+}
+
+/**
+ * Returns biometric Strong only if it is available. Otherwise, also allows device credentials.
+ */
+fun BiometricPrompt.PromptInfo.Builder.setStrongOrDeviceAuthenticators(context: Context): BiometricPrompt.PromptInfo.Builder {
+    val authenticators = BiometricManager.Authenticators.BIOMETRIC_STRONG
+    val biometricManager = BiometricManager.from(context)
+    if (biometricManager.canAuthenticate(authenticators) == BiometricManager.BIOMETRIC_SUCCESS) {
+        this.setAllowedAuthenticators(authenticators).setNegativeButtonText("Cancel")
+    } else {
+        this.setAllowedAuthenticators(
+            authenticators or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        )
+    }
+    return this
 }
 
