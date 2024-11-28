@@ -18,9 +18,7 @@ import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.room.Credential
 import com.credman.cmwallet.loadECPrivateKey
-import com.credman.cmwallet.openid4vci.DATA
 import com.credman.cmwallet.openid4vci.OpenId4VCI
-import com.credman.cmwallet.openid4vci.PROTOCOL
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -30,8 +28,8 @@ import java.security.interfaces.ECPrivateKey
 import java.security.spec.X509EncodedKeySpec
 
 sealed class Result {
-    data class Error(val msg: String? = null): Result()
-    data class Response(val response: CreateCredentialResponse): Result()
+    data class Error(val msg: String? = null) : Result()
+    data class Response(val response: CreateCredentialResponse) : Result()
 }
 
 data class CreateCredentialUiState(
@@ -72,12 +70,12 @@ class CreateCredentialViewModel : ViewModel() {
             )!!
 
             val requestJson = JSONObject(requestJsonString)
-            require(requestJson.has(PROTOCOL)) { "request json missing required field $PROTOCOL" }
-            require(requestJson.has(DATA)) { "request json missing required field $DATA" }
+            require(requestJson.has("protocol")) { "request json missing required field protocol" }
+            require(requestJson.has("data")) { "request json missing required field data" }
 
-            Log.d(TAG, "Request json received: ${requestJson.getString(DATA)}")
+            Log.d(TAG, "Request json received: ${requestJson.getString("data")}")
 
-            val openId4VCI = OpenId4VCI(requestJson.getString(DATA))
+            val openId4VCI = OpenId4VCI(requestJson.getString("data"))
 
             val tmpKey =
                 "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6ef4-enmfQHRWUW40-Soj3aFB0rsEOp3tYMW-HJPBvChRANCAAT5N1NLZcub4bOgWfBwF8MHPGkfJ8Dm300cioatq9XovaLgG205FEXUOuNMEMQuLbrn8oiOC0nTnNIVn-OtSmSb"
@@ -91,7 +89,7 @@ class CreateCredentialViewModel : ViewModel() {
 
             val credResponse = openId4VCI.requestCredentialFromEndpoint(
                 CredentialRequest(
-                    credentialConfigurationId = openId4VCI.credentialConfigurationIds.first(),
+                    credentialConfigurationId = openId4VCI.credentialOffer.credentialConfigurationIds.first(),
                     proof = openId4VCI.createProofJwt(publicKey, privateKey)
 
                 )

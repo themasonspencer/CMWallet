@@ -6,6 +6,7 @@ import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.createJWTES256
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.mdoc.toCredentialItem
+import com.credman.cmwallet.openid4vci.data.CredentialOffer
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
 import com.credman.cmwallet.openid4vci.data.CredentialResponse
 import com.credman.cmwallet.openid4vci.data.NonceResponse
@@ -27,22 +28,16 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import org.json.JSONObject
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.time.Instant
 
-
 class OpenId4VCI(val credentialOfferJson: String) {
-    val credentialOffer = JSONObject(credentialOfferJson)
-
-    val credentialIssuer: String
-    val credentialConfigurationIds: List<String>
-
-    // Credential Issuer Metadata Parameters
-    val credentialEndpoint: String
-    val nonceEndpoint: String?
-    val credentialConfigurationsSupportedMap: Map<String, CredConfigsSupportedItem>
+    private val json = Json {
+        explicitNulls = false
+        ignoreUnknownKeys = true
+    }
+    val credentialOffer: CredentialOffer = json.decodeFromString(credentialOfferJson)
 
     private val httpClient = HttpClient(CIO) {
         install(ContentNegotiation) {
@@ -50,75 +45,24 @@ class OpenId4VCI(val credentialOfferJson: String) {
         }
     }
 
-    init {
-        require(credentialOffer.has(CREDENTIAL_ISSUER)) { "Issuance request must contain $CREDENTIAL_ISSUER" }
-        require(credentialOffer.has(CREDENTIAL_CONFIGURATION_IDS)) { "Issuance request must contain $CREDENTIAL_CONFIGURATION_IDS" }
-        // This should be required for the DC API browser profile
-        require(credentialOffer.has(ISSUER_METADATA)) { "Issuance request must contain $ISSUER_METADATA" }
-
-        credentialIssuer = credentialOffer.getString(CREDENTIAL_ISSUER)
-        credentialConfigurationIds =
-            credentialOffer.getJSONArray(CREDENTIAL_CONFIGURATION_IDS).let {
-                val ids = mutableListOf<String>()
-                for (i in 0..<it.length()) {
-                    ids.add(it.getString(i))
-                }
-                ids
-            }
-        require(credentialConfigurationIds.isNotEmpty()) { "Credential configuration id list shouldn't be empty" }
-
-        val issuerMetadataJson = credentialOffer.getJSONObject(ISSUER_METADATA)
-        require(issuerMetadataJson.has(CREDENTIAL_ENDPOINT)) { "Issuance request must contain $CREDENTIAL_ENDPOINT" }
-        credentialEndpoint = issuerMetadataJson.getString(CREDENTIAL_ENDPOINT)
-        nonceEndpoint = issuerMetadataJson.optString(NONCE_ENDPOINT)
-
-        require(issuerMetadataJson.has(CREDENTIAL_CONFIGURATION_SUPPORTED)) { "Issuance request must contain $CREDENTIAL_CONFIGURATION_SUPPORTED" }
-        val credConfigSupportedJson =
-            issuerMetadataJson.getJSONObject(CREDENTIAL_CONFIGURATION_SUPPORTED)
-        val itr = credConfigSupportedJson.keys()
-        val tmpMap = mutableMapOf<String, CredConfigsSupportedItem>()
-        while (itr.hasNext()) {
-            val configId = itr.next()
-            val item = credConfigSupportedJson.getJSONObject(configId)
-            tmpMap[configId] =
-                CredConfigsSupportedItem.createFrom(credConfigSupportedJson.getJSONObject(configId))
-        }
-        credentialConfigurationsSupportedMap = tmpMap
-    }
-
     suspend fun requestNonceFromEndpoint(): NonceResponse {
-        require(nonceEndpoint != null) { "nonce_endpoint must be set when requesting a nonce" }
-        return httpClient.post(nonceEndpoint).body()
+        require(credentialOffer.issuerMetadata.nonceEndpoint != null) { "nonce_endpoint must be set when requesting a nonce" }
+        return httpClient.post(credentialOffer.issuerMetadata.nonceEndpoint).body()
     }
+
+//    suspend fun requestTokenFromEndpoint(): NonceResponse {
+//        require(nonceEndpoint != null) { "nonce_endpoint must be set when requesting a nonce" }
+//        return httpClient.post(nonceEndpoint).body()
+//    }
 
     suspend fun requestCredentialFromEndpoint(
         credentialRequest: CredentialRequest
     ): CredentialResponse {
-        Log.d(
-            TAG,
-            "Requesting to credential endpoint $credentialEndpoint ${
-                Json.encodeToString(credentialRequest)
-            }"
-        )
-        val httpResponse = HttpClient(CIO).post(credentialEndpoint) {
+        return httpClient.post(credentialOffer.issuerMetadata.credentialEndpoint) {
             bearerAuth("fdfd")
             contentType(ContentType.Application.Json)
-            setBody(
-                Json.encodeToString(credentialRequest)
-            )
-        }
-
-        if (httpResponse.status == HttpStatusCode.OK) {
-            Log.d(
-                TAG, "Successful credential endpoint response." +
-                        " Content type: ${httpResponse.headers[HttpHeaders.ContentType]}."
-            )
-            val responseJson: String = httpResponse.body()
-            Log.d(TAG, "Response body: $responseJson")
-            return Json.decodeFromString(responseJson)
-        } else {
-            throw RuntimeException("Credential Endpoint error: ${httpResponse.status}")
-        }
+            setBody(credentialRequest)
+        }.body()
     }
 
     suspend fun createJwt(publicKey: PublicKey, privateKey: PrivateKey): String {
@@ -130,7 +74,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
                 put("jwk", publicKey.toJWK())
             },
             payload = buildJsonObject {
-                put("aud", credentialIssuer)
+                put("aud", credentialOffer.credentialIssuer)
                 put("iat", Instant.now().epochSecond)
                 put("nonce", nonceResponse.cNonce)
             },
@@ -148,7 +92,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
     fun generateCredentialToSave(
         credentialEndpointResponse: CredentialResponse,
         deviceKey: PrivateKey,
-        credentialConfigurationId: String = credentialConfigurationIds.first(),
+        credentialConfigurationId: String = credentialOffer.credentialConfigurationIds.first(),
     ): CredentialItem {
         val credentialIssuerSigned = Base64.decode(
             credentialEndpointResponse.credentials!!.first().credential,
@@ -157,7 +101,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
         return toCredentialItem(
             credentialIssuerSigned,
             deviceKey,
-            credentialConfigurationsSupportedMap[credentialConfigurationId]!!
+            credentialOffer.issuerMetadata.credentialConfigurationsSupported[credentialConfigurationId]!!
         )
     }
 }

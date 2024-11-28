@@ -8,16 +8,14 @@ import com.credman.cmwallet.cbor.cborDecode
 import com.credman.cmwallet.cbor.cborEncode
 import com.credman.cmwallet.convertDerToRaw
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.model.MSO_MDOC
 import com.credman.cmwallet.data.model.MdocCredential
 import com.credman.cmwallet.data.model.MdocField
 import com.credman.cmwallet.data.model.MdocNameSpace
 import com.credman.cmwallet.data.model.PAYMENT_CARD_DOC_TYPE
 import com.credman.cmwallet.data.model.PaymentMetadata
 import com.credman.cmwallet.data.model.VerificationMetadata
-import com.credman.cmwallet.openid4vci.CredConfigsSupportedItem
-import com.credman.cmwallet.openid4vci.DATA
-import com.credman.cmwallet.openid4vci.MdocCredConfigsSupportedItem
+import com.credman.cmwallet.openid4vci.data.CredentialConfiguration
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
 import java.security.PrivateKey
 import java.security.Signature
 
@@ -33,10 +31,9 @@ fun createSessionTranscript(handover: Any): ByteArray {
 fun toCredentialItem(
     issuerSigned: ByteArray,
     deviceKey: PrivateKey,
-    credentialConfiguration: CredConfigsSupportedItem,
+    credentialConfiguration: CredentialConfiguration,
 ): CredentialItem {
-    require(credentialConfiguration is MdocCredConfigsSupportedItem) { "Credential configuration should be" }
-    require(credentialConfiguration.format == MSO_MDOC) { "Expect mdo_mdoc format but got ${credentialConfiguration.format}" }
+    require(credentialConfiguration is CredentialConfigurationMDoc) { "Credential configuration should be" }
     val issuerSignedDict = cborDecode(issuerSigned) as Map<*, *>
     val doctype = credentialConfiguration.doctype
     val claims = credentialConfiguration.claims
@@ -53,7 +50,7 @@ fun toCredentialItem(
                 val elementIdentifier = elementDict[ELEMENT_IDENTIFYIER] as String
                 val elementValue = elementDict[ELEMENT_VALUE] as Any
                 val elementDisplay =
-                    namespacedClaims.values[elementIdentifier]?.display?.firstOrNull()
+                    namespacedClaims[elementIdentifier]?.display?.firstOrNull()
                 if (elementDisplay?.name == null) {
                     Log.w(
                         TAG,
@@ -82,9 +79,9 @@ fun toCredentialItem(
     val title = credentialConfiguration.display?.firstOrNull()?.name
     val subtitle = credentialConfiguration.display?.firstOrNull()?.description
     val itemIcon = credentialConfiguration.display?.firstOrNull()?.backgroundImage?.let {
-        val imageUri = Uri.parse(it)
-        require(imageUri.scheme == DATA) { "only image data scheme is supported for now" }
-        val ssp = Uri.parse(it).schemeSpecificPart
+        val imageUri = Uri.parse(it.uri)
+        require(imageUri.scheme == "data") { "only image data scheme is supported for now" }
+        val ssp = Uri.parse(it.uri).schemeSpecificPart
         ssp.replace(regex, "")
     }
     val credMetadata = when (doctype) {

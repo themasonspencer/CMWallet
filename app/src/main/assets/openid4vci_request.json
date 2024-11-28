@@ -2,9 +2,15 @@
     "credential_issuer": "https://credential-issuer.example.com",
     "credential_configuration_ids": [
         "com.emvco.payment_card"
-      ],
+    ],
+    "grants": {
+        "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
+            "pre-authorized_code": "12345"
+        }
+    },
     "issuer_metadata": {
         "credential_issuer": "https://credential-issuer.example.com",
+        "authorization_servers": ["https://localhost:8080/api"],
         "credential_endpoint": "http://localhost:8080/api/credential_endpoint",
         "nonce_endpoint": "http://localhost:8080/api/nonce_endpoint",
         "credential_configurations_supported": {
