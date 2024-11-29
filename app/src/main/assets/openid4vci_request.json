@@ -1,18 +1,17 @@
 {
-    "credential_issuer": "https://credential-issuer.example.com",
+    "credential_issuer": "http://localhost:8080",
     "credential_configuration_ids": [
         "com.emvco.payment_card"
     ],
     "grants": {
         "urn:ietf:params:oauth:grant-type:pre-authorized_code": {
-            "pre-authorized_code": "12345"
+            "pre-authorized_code": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoidXNlcjEiLCJjcmVkZW50aWFscyI6WyJwYXltZW50MSJdfQ.Zk-r6DylL6RC6QDellfU7I95wUKFCJcRzY7ouj3lKdg"
         }
     },
     "issuer_metadata": {
-        "credential_issuer": "https://credential-issuer.example.com",
-        "authorization_servers": ["https://localhost:8080/api"],
-        "credential_endpoint": "http://localhost:8080/api/credential_endpoint",
-        "nonce_endpoint": "http://localhost:8080/api/nonce_endpoint",
+        "credential_issuer": "http://localhost:8080",
+        "credential_endpoint": "http://localhost:8080/openid4vci/credential_endpoint",
+        "nonce_endpoint": "http://localhost:8080/openid4vci/nonce_endpoint",
         "credential_configurations_supported": {
             "com.emvco.payment_card": {
                 "format": "mso_mdoc",

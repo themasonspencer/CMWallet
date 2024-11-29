@@ -88,7 +88,8 @@ class CreateCredentialViewModel : ViewModel() {
             val publicKey = kf.generatePublic(publicKeySpec)!!
 
             val credResponse = openId4VCI.requestCredentialFromEndpoint(
-                CredentialRequest(
+                accessToken = "fdf",
+                credentialRequest = CredentialRequest(
                     credentialConfigurationId = openId4VCI.credentialOffer.credentialConfigurationIds.first(),
                     proof = openId4VCI.createProofJwt(publicKey, privateKey)
 

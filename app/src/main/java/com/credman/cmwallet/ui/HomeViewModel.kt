@@ -8,7 +8,9 @@ import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.openid4vci.OpenId4VCI
+import com.credman.cmwallet.openid4vci.data.AuthorizationDetailResponseOpenIdCredential
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
+import com.credman.cmwallet.openid4vci.data.TokenRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -53,15 +55,42 @@ class HomeViewModel : ViewModel() {
             val kf = KeyFactory.getInstance("EC")
             val publicKey = kf.generatePublic(publicKeySpec)!!
 
-            val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
-                CredentialRequest(
-                    credentialConfigurationId = openId4VCI.credentialOffer.credentialConfigurationIds.first(),
-                    proof = openId4VCI.createProofJwt(publicKey, privateKey)
 
-                )
-            )
-            Log.i("HomeViewModel", "credentialResponse $credentialResponse")
 
+            // Figure out auth server
+            val authServer = if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null ) {
+                openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
+            } else {
+                "Can't do this yet"
+            }
+            require(openId4VCI.credentialOffer.grants != null)
+            // Check what type of grant we have
+            if (openId4VCI.credentialOffer.grants.preAuthorizedCode != null) {
+                val grant = openId4VCI.credentialOffer.grants.preAuthorizedCode
+
+                val tokenResponse = openId4VCI.requestTokenFromEndpoint(authServer, TokenRequest(
+                    grantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
+                    preAuthorizedCode = grant.preAuthorizedCode
+                ))
+                Log.i("HomeViewModel", "tokenResponse $tokenResponse")
+                tokenResponse.authorizationDetails?.forEach { authDetail ->
+                    when(authDetail) {
+                        is AuthorizationDetailResponseOpenIdCredential -> {
+                            authDetail.credentialIdentifiers.forEach { credentialId ->
+                                val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
+                                    accessToken = tokenResponse.accessToken,
+                                    credentialRequest = CredentialRequest(
+                                        credentialIdentifier = credentialId,
+                                        proof = openId4VCI.createProofJwt(publicKey, privateKey)
+                                    )
+                                )
+                                Log.i("HomeViewModel", "credentialResponse $credentialResponse")
+                            }
+                        }
+                    }
+                }
+
+            }
         }
     }
 }
