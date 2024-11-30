@@ -25,7 +25,7 @@ import java.nio.ByteOrder
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class CredentialRepository {
-    val json = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+    //val json = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
 
     var privAppsJson = "{}"
         private set

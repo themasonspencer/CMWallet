@@ -1,5 +1,7 @@
 package com.credman.cmwallet.data.model
 
+import com.credman.cmwallet.decodeBase64UrlNoPadding
+import com.credman.cmwallet.mdoc.MDoc
 import com.credman.cmwallet.openid4vci.data.CredentialConfiguration
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,11 +14,16 @@ data class CredentialItem(
     val credentials: List<Credential>
 )
 
+// TODO: This is kinda hardcoded to mdoc, fix this to support other types
 @Serializable
 data class Credential(
     val key: CredentialKey,
     val credential: String
-)
+) {
+    val mdoc: MDoc  by lazy {
+        MDoc(credential.decodeBase64UrlNoPadding())
+    }
+}
 
 @Serializable
 sealed class CredentialKey {
