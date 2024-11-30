@@ -1,10 +1,7 @@
 package com.credman.cmwallet.ui
 
 import android.graphics.BitmapFactory
-import android.util.Base64
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,9 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -46,7 +41,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.credman.cmwallet.R
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.model.MdocCredential
+import com.credman.cmwallet.decodeBase64UrlNoPadding
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,7 +112,7 @@ fun CredentialList(
         ) {
             credentials.forEach {
                 item {
-                    CredentialCard(cred = it, onCredentialClick)
+                    CredentialCard(credential = it, onCredentialClick = onCredentialClick)
                 }
             }
         }
@@ -138,71 +134,69 @@ fun CredentialDialog(
         ) {
             Column {
                 Text(
-                    text = "${credentialItem.metadata.title}",
+                    text = credentialItem.displayData.title,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(10.dp),
                     textAlign = TextAlign.Center,
                 )
-                if (credentialItem.credential is MdocCredential) {
-                    credentialItem.credential.nameSpaces.forEach { (namespace, mdocNameSpace) ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(10.dp)
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            Row(Modifier.background(Color.LightGray)) {
-                                Text(
-                                    text = namespace,
-                                    modifier = Modifier
-                                        .border(1.dp, Color.Black)
-                                        .weight(1.0f)
-                                        .padding(5.dp)
-                                )
-                            }
-                            mdocNameSpace.data.forEach { (fieldName, mdocField) ->
-                                Row() {
-                                    Text(
-                                        text = fieldName,
-                                        modifier = Modifier
-                                            .border(1.dp, Color.Black)
-                                            .weight(0.5f)
-                                            .padding(5.dp)
-                                    )
-                                    Text(
-                                        text = mdocField.value.toString(),
-                                        modifier = Modifier
-                                            .border(1.dp, Color.Black)
-                                            .weight(0.5f)
-                                            .padding(5.dp),
-                                        softWrap = false
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                }
-
+//                if (credentialItem.credential is MdocCredential) {
+//                    credentialItem.credential.nameSpaces.forEach { (namespace, mdocNameSpace) ->
+//                        Column(
+//                            modifier = Modifier
+//                                .fillMaxWidth()
+//                                .padding(10.dp)
+//                                .verticalScroll(rememberScrollState())
+//                        ) {
+//                            Row(Modifier.background(Color.LightGray)) {
+//                                Text(
+//                                    text = namespace,
+//                                    modifier = Modifier
+//                                        .border(1.dp, Color.Black)
+//                                        .weight(1.0f)
+//                                        .padding(5.dp)
+//                                )
+//                            }
+//                            mdocNameSpace.data.forEach { (fieldName, mdocField) ->
+//                                Row() {
+//                                    Text(
+//                                        text = fieldName,
+//                                        modifier = Modifier
+//                                            .border(1.dp, Color.Black)
+//                                            .weight(0.5f)
+//                                            .padding(5.dp)
+//                                    )
+//                                    Text(
+//                                        text = mdocField.value.toString(),
+//                                        modifier = Modifier
+//                                            .border(1.dp, Color.Black)
+//                                            .weight(0.5f)
+//                                            .padding(5.dp),
+//                                        softWrap = false
+//                                    )
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
             }
-
         }
     }
 }
 
+@OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun CredentialCard(
-    cred: CredentialItem,
+    credential: CredentialItem,
     onCredentialClick: (CredentialItem) -> Unit
 ) {
-    val metadata = cred.metadata
-    val cardArt = metadata.icon?.let { Base64.decode(it, 0) } ?: ByteArray(0)
+
+    val cardArt = credential.displayData.icon?.decodeBase64UrlNoPadding() ?: ByteArray(0)
     Card(
         modifier = Modifier.size(350.dp, 210.dp),
         shape = CardDefaults.shape,
         onClick = {
-            onCredentialClick(cred)
+            onCredentialClick(credential)
         }
     ) {
         if (cardArt.size > 0) {
@@ -229,13 +223,13 @@ fun CredentialCard(
                         verticalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = metadata.title,
+                            text = credential.displayData.title,
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color.White,
                         )
                         Text(
-                            text = metadata.subtitle ?: "",
+                            text = credential.displayData.subtitle ?: "",
                             fontSize = 16.sp,
                             color = Color.White,
                         )

@@ -56,25 +56,27 @@ class HomeViewModel : ViewModel() {
             val publicKey = kf.generatePublic(publicKeySpec)!!
 
 
-
             // Figure out auth server
-            val authServer = if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null ) {
-                openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
-            } else {
-                "Can't do this yet"
-            }
+            val authServer =
+                if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null) {
+                    openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
+                } else {
+                    "Can't do this yet"
+                }
             require(openId4VCI.credentialOffer.grants != null)
             // Check what type of grant we have
             if (openId4VCI.credentialOffer.grants.preAuthorizedCode != null) {
                 val grant = openId4VCI.credentialOffer.grants.preAuthorizedCode
 
-                val tokenResponse = openId4VCI.requestTokenFromEndpoint(authServer, TokenRequest(
-                    grantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
-                    preAuthorizedCode = grant.preAuthorizedCode
-                ))
+                val tokenResponse = openId4VCI.requestTokenFromEndpoint(
+                    authServer, TokenRequest(
+                        grantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
+                        preAuthorizedCode = grant.preAuthorizedCode
+                    )
+                )
                 Log.i("HomeViewModel", "tokenResponse $tokenResponse")
                 tokenResponse.authorizationDetails?.forEach { authDetail ->
-                    when(authDetail) {
+                    when (authDetail) {
                         is AuthorizationDetailResponseOpenIdCredential -> {
                             authDetail.credentialIdentifiers.forEach { credentialId ->
                                 val credentialResponse = openId4VCI.requestCredentialFromEndpoint(

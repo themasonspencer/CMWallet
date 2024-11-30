@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class OauthAuthorizationServer (
+data class OauthAuthorizationServer(
     @SerialName("issuer") val issuer: String,
     @SerialName("authorization_endpoint") val authorizationEndpoint: String?,
     @SerialName("token_endpoint") val tokenEndpoint: String?,
@@ -19,8 +19,8 @@ sealed class AuthorizationDetailResponse {
 
 @Serializable
 @SerialName("openid_credential")
-data class AuthorizationDetailResponseOpenIdCredential (
+data class AuthorizationDetailResponseOpenIdCredential(
     @SerialName("type") override val type: String,
     @SerialName("credential_configuration_id") val credentialConfigurationId: String,
     @SerialName("credential_identifiers") val credentialIdentifiers: List<String>
-): AuthorizationDetailResponse()
+) : AuthorizationDetailResponse()

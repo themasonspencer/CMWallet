@@ -2,11 +2,14 @@ package com.credman.cmwallet.openid4vp
 
 import android.util.Log
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.model.MdocCredential
+import com.credman.cmwallet.decodeBase64UrlNoPadding
+import com.credman.cmwallet.mdoc.MDoc
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
 import org.json.JSONArray
 import org.json.JSONObject
 
-abstract class MatchedClaim()
+abstract class MatchedClaim
 
 class MatchedMDocClaim(val namespace: String, val claimName: String) : MatchedClaim()
 
@@ -37,39 +40,45 @@ fun performQueryOnCredential(
     require(!(claims == null && claimSets != null)) { "dcql_query credential must contains claim_sets without claims" }
 
     // Check format
-    require(selectedCredential.credential.format == format) { "selected credentials format does not match" }
+    require(selectedCredential.config.format == format) { "selected credentials format does not match" }
 
     // TODO: Check doctype
     if (claims == null) {
         Log.i("DCQL", "Matching without claims")
-        when (selectedCredential.credential) {
-            is MdocCredential -> {
+        when (selectedCredential.config) {
+            is CredentialConfigurationMDoc -> {
+                val mdoc =
+                    MDoc(selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding())
                 val ret = mutableMapOf<String, List<String>>()
-                selectedCredential.credential.nameSpaces.forEach { (namespace, elements) ->
-                    ret[namespace] = elements.data.keys.toList()
+                mdoc.issuerSignedNamespaces.forEach { (namespace, elements) ->
+                    ret[namespace] = elements.keys.toList()
                 }
                 return OpenId4VPMatchedCredential(
                     dcqlId = dcqlId,
                     matchedClaims = OpenId4VPMatchedMDocClaims(ret)
                 )
             }
+
+            is CredentialConfigurationUnknownFormat -> TODO()
         }
     } else {
         Log.i("DCQL", "Matching with claims")
         if (claimSets == null) {
             Log.i("DCQL", "Matching without claim_sets")
-            when (selectedCredential.credential) {
-                is MdocCredential -> {
+            when (selectedCredential.config) {
+                is CredentialConfigurationMDoc -> {
+                    val mdoc =
+                        MDoc(selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding())
                     val ret = mutableMapOf<String, MutableList<String>>()
                     for (claimIdx in 0 until claims.length()) {
                         val claim = claims.getJSONObject(claimIdx)!!
                         val claimNamespace = claim.getString("namespace")
                         val claimName = claim.getString("claim_name")
 
-                        selectedCredential.credential.nameSpaces.forEach { (namespace, elements) ->
+                        mdoc.issuerSignedNamespaces.forEach { (namespace, elements) ->
                             if (namespace == claimNamespace) {
-                                elements.data.forEach { element ->
-                                    if (claimName == element.key) {
+                                elements.forEach { (element, value) ->
+                                    if (claimName == element) {
                                         if (ret.containsKey(namespace)) {
                                             ret[namespace]?.add(claimName)
                                         } else {
@@ -85,6 +94,8 @@ fun performQueryOnCredential(
                         matchedClaims = OpenId4VPMatchedMDocClaims(ret)
                     )
                 }
+
+                is CredentialConfigurationUnknownFormat -> TODO()
             }
         } else {
             Log.i("DCQL", "Matching with claim_sets")

@@ -65,6 +65,11 @@ fun ByteArray.toBase64UrlNoPadding(): String {
     return Base64.UrlSafe.withPadding(Base64.PaddingOption.ABSENT).encode(this)
 }
 
+@OptIn(ExperimentalEncodingApi::class)
+fun String.decodeBase64UrlNoPadding(): ByteArray {
+    return Base64.UrlSafe.withPadding(kotlin.io.encoding.Base64.PaddingOption.ABSENT).decode(this)
+}
+
 fun createJWTES256(
     header: JsonElement,
     payload: JsonElement,

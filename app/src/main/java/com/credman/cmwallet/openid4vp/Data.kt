@@ -1,6 +1,6 @@
 package com.credman.cmwallet.openid4vp
 
-abstract class OpenId4VPMatchedClaims()
+abstract class OpenId4VPMatchedClaims
 
 data class OpenId4VPMatchedMDocClaims(
     val claims: Map<String, List<String>>

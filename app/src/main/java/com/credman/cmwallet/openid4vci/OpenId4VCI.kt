@@ -1,11 +1,6 @@
 package com.credman.cmwallet.openid4vci
 
-import android.util.Base64
-import android.util.Log
-import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.createJWTES256
-import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.mdoc.toCredentialItem
 import com.credman.cmwallet.openid4vci.data.CredentialOffer
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
 import com.credman.cmwallet.openid4vci.data.CredentialResponse
@@ -25,13 +20,9 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.append
 import io.ktor.http.contentType
 import io.ktor.http.parameters
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -57,7 +48,8 @@ class OpenId4VCI(val credentialOfferJson: String) {
 
     suspend fun requestAuthServerMetadata(server: String): OauthAuthorizationServer {
         if (server !in authServerCache) {
-            authServerCache[server] = httpClient.get("$server/.well-known/oauth-authorization-server").body()
+            authServerCache[server] =
+                httpClient.get("$server/.well-known/oauth-authorization-server").body()
         }
         return authServerCache[server]!!
     }
@@ -72,11 +64,11 @@ class OpenId4VCI(val credentialOfferJson: String) {
         tokenRequest: TokenRequest
     ): TokenResponse {
         val endpoint = requestAuthServerMetadata(authServer).tokenEndpoint
-        require(endpoint != null) {"Token Endpoint Missed from Auth Server metadata"}
+        require(endpoint != null) { "Token Endpoint Missed from Auth Server metadata" }
         return httpClient.submitForm(
             url = endpoint,
             formParameters = parameters {
-                json.encodeToJsonElement(tokenRequest).jsonObject.forEach {key, element ->
+                json.encodeToJsonElement(tokenRequest).jsonObject.forEach { key, element ->
                     append(key, element.jsonPrimitive.content)
                 }
             }
@@ -120,19 +112,19 @@ class OpenId4VCI(val credentialOfferJson: String) {
         )
     }
 
-    fun generateCredentialToSave(
-        credentialEndpointResponse: CredentialResponse,
-        deviceKey: PrivateKey,
-        credentialConfigurationId: String = credentialOffer.credentialConfigurationIds.first(),
-    ): CredentialItem {
-        val credentialIssuerSigned = Base64.decode(
-            credentialEndpointResponse.credentials!!.first().credential,
-            Base64.URL_SAFE
-        )
-        return toCredentialItem(
-            credentialIssuerSigned,
-            deviceKey,
-            credentialOffer.issuerMetadata.credentialConfigurationsSupported[credentialConfigurationId]!!
-        )
-    }
+//    fun generateCredentialToSave(
+//        credentialEndpointResponse: CredentialResponse,
+//        deviceKey: PrivateKey,
+//        credentialConfigurationId: String = credentialOffer.credentialConfigurationIds.first(),
+//    ): CredentialItem {
+//        val credentialIssuerSigned = Base64.decode(
+//            credentialEndpointResponse.credentials!!.first().credential,
+//            Base64.URL_SAFE
+//        )
+//        return toCredentialItem(
+//            credentialIssuerSigned,
+//            deviceKey,
+//            credentialOffer.issuerMetadata.credentialConfigurationsSupported[credentialConfigurationId]!!
+//        )
+//    }
 }

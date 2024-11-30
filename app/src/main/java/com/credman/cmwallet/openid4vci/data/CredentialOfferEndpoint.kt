@@ -111,7 +111,7 @@ data class CredentialConfigurationMDoc(
     @SerialName("doctype") val doctype: String,
     @SerialName("claims") val claims: Map<String, Map<String, MDocClaim>>?,
     @SerialName("order") val order: List<String>?,
-): CredentialConfiguration()
+) : CredentialConfiguration()
 
 @Serializable
 data class CredentialConfigurationUnknownFormat(
@@ -121,9 +121,10 @@ data class CredentialConfigurationUnknownFormat(
     @SerialName("credential_signing_alg_values_supported") override val credentialSigningAlgValuesSupported: List<String>?,
     @SerialName("proof_types_supported") override val proofTypesSupported: Map<String, CredentialConfigurationProofType>?,
     @SerialName("display") override val display: List<CredentialConfigurationDisplay>?
-): CredentialConfiguration()
+) : CredentialConfiguration()
 
-object CredentialConfigurationSerializer : JsonContentPolymorphicSerializer<CredentialConfiguration>(CredentialConfiguration::class) {
+object CredentialConfigurationSerializer :
+    JsonContentPolymorphicSerializer<CredentialConfiguration>(CredentialConfiguration::class) {
     override fun selectDeserializer(element: JsonElement) = when {
         element.jsonObject["format"]!!.jsonPrimitive.content == "mso_mdoc" -> CredentialConfigurationMDoc.serializer()
         else -> CredentialConfigurationUnknownFormat.serializer()

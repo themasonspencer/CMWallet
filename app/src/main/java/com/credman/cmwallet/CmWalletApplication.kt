@@ -9,6 +9,7 @@ import androidx.credentials.registry.provider.RegistryManager
 import androidx.room.Room
 import com.credman.cmwallet.data.repository.CredentialRepository
 import com.credman.cmwallet.data.room.CredentialDatabase
+import com.credman.cmwallet.mdoc.MDoc
 import com.google.android.gms.identitycredentials.IdentityCredentialClient
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
 import com.google.android.gms.identitycredentials.RegisterCreationOptionsRequest
@@ -16,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class CmWalletApplication : Application() {
     companion object {
@@ -29,9 +31,16 @@ class CmWalletApplication : Application() {
     private lateinit var identityCredentialClient: IdentityCredentialClient
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
-    @OptIn(ExperimentalDigitalCredentialApi::class)
+    @OptIn(ExperimentalDigitalCredentialApi::class, ExperimentalEncodingApi::class)
     override fun onCreate() {
         super.onCreate()
+
+        val testIssuerSignedString =
+            "ompuYW1lU3BhY2VzoXFvcmcuaXNvLjE4MDEzLjUuMYPYGFhUpGhkaWdlc3RJRABmcmFuZG9tUKRsGD3aPLpwu_wGZyvuvdxxZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlZVNtaXRo2BhYUaRoZGlnZXN0SUQBZnJhbmRvbVAQwZXPLt5ybFSqRvFVCnPocWVsZW1lbnRJZGVudGlmaWVyamdpdmVuX25hbWVsZWxlbWVudFZhbHVlY0pvbtgYWE-kaGRpZ2VzdElEAmZyYW5kb21QPNysOvdkUbmuOPhvyXsrAHFlbGVtZW50SWRlbnRpZmllcmthZ2Vfb3Zlcl8yMWxlbGVtZW50VmFsdWX1amlzc3VlckF1dGiEQ6EBJqEYIVkCSzCCAkcwggHtoAMCAQICFHStD_3VcEOVnxRIW57aoGfaMp7FMAoGCCqGSM49BAMCMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MB4XDTI0MTExMDAxMDgwM1oXDTM0MTAyOTAxMDgwM1oweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATrQ6h60nar2xgrGpTMbRRYLBtWyfkHw2k4QzZc40EsBJNeDp-WXKz85dJjNloCsC7Ckb1spirxQdKVPWy2eRBpo1MwUTAdBgNVHQ4EFgQUCyxw_AMcbG8Lp1EwUuOaRBk527AwHwYDVR0jBBgwFoAUCyxw_AMcbG8Lp1EwUuOaRBk527AwDwYDVR0TAQH_BAUwAwEB_zAKBggqhkjOPQQDAgNIADBFAiEA_JW68hhRYz9l2scu8yW55xi7yyq7ycHg6arTH4b75zMCIG5DADVEbdGnoh6rzTKUdXEh2EnsgjERk6vH6u25Y4fLWQG62BhZAbWmZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGV1b3JnLmlzby4xODAxMy41LjEubURMbHZhbHVlRGlnZXN0c6Fxb3JnLmlzby4xODAxMy41LjGjAFgg-TGk78sfX6xxEfdjckEmDSfiVWzOGIIwTqm0oQetoR8BWCAcX3iJNwCyYOy1Bfl9sAjv1lEuD7iXI5dJbkwPUB6-RwJYIGFOQ5HGtkmhrJWuJ6eTdM2PC_lAIDR5_9pWUiRogpWwbWRldmljZUtleUluZm-haWRldmljZUtleaQBAiABIVggdO8Xw9vvSFlJ9WC7Jd69A_jZ8fbaDi54X92jIbkJmxoiWCAMTMw-ipf52P1MpCfqncpCKgmnEXVhBruNhKLUYs3VhWx2YWxpZGl0eUluZm-jZnNpZ25lZMB4GzIwMjQtMTEtMTdUMjA6NTI6MjIuOTE5NzgyWml2YWxpZEZyb23AeBsyMDI0LTExLTE3VDIwOjUyOjIyLjkxOTc4OVpqdmFsaWRVbnRpbMB4GzIwMzQtMTEtMDVUMjA6NTI6MjIuOTE5Nzg5WlhAl1Lt2d0SSsbuMizlTkVeLR7wucamVyUhyHm6PdG1W0YWXIxfLGwP0rG7Zhpuomh5kpItM7lRdR_FdkJHXO81MQ"
+        val testIssuerSigned = testIssuerSignedString.decodeBase64UrlNoPadding()
+        val mdoc = MDoc(testIssuerSigned)
+        println(mdoc.issuerSignedNamespaces)
+
         identityCredentialClient = IdentityCredentialManager.getClient(applicationContext)
         database = Room.databaseBuilder(
             applicationContext,
@@ -40,11 +49,11 @@ class CmWalletApplication : Application() {
         credentialRepo = CredentialRepository()
 
         val openId4VPMatcher = loadOpenId4VPMatcher()
-        val testCredentialsJson = loadTestCredentials().toString(Charsets.UTF_8)
+        val testCredentialsJson = loadTestCredentialsNew().decodeToString()
 
         // Add the test credentials from the included json
         credentialRepo.addCredentialsFromJson(testCredentialsJson)
-        credentialRepo.setPrivAppsJson(loadAppsJson().toString(Charsets.UTF_8))
+        credentialRepo.setPrivAppsJson(loadAppsJson().decodeToString())
         credentialRepo.openId4VCITestRequestJson = loadOpenId4VCIRequestJson().decodeToString()
 
         // Listen for new credentials and update the registry.
@@ -87,7 +96,7 @@ class CmWalletApplication : Application() {
     }
 
     private fun readAsset(fileName: String): ByteArray {
-        val stream = assets.open(fileName);
+        val stream = assets.open(fileName)
         val data = ByteArray(stream.available())
         stream.read(data)
         stream.close()
@@ -95,22 +104,26 @@ class CmWalletApplication : Application() {
     }
 
     private fun loadOpenId4VPMatcher(): ByteArray {
-        return readAsset("openid4vp.wasm");
+        return readAsset("openid4vp.wasm")
     }
 
     private fun loadIssuanceMatcher(): ByteArray {
-        return readAsset("provision_hardcoded.wasm");
+        return readAsset("provision_hardcoded.wasm")
     }
 
     private fun loadTestCredentials(): ByteArray {
-        return readAsset("database.json");
+        return readAsset("database.json")
+    }
+
+    private fun loadTestCredentialsNew(): ByteArray {
+        return readAsset("databasenew.json")
     }
 
     private fun loadAppsJson(): ByteArray {
-        return readAsset("apps.json");
+        return readAsset("apps.json")
     }
 
     private fun loadOpenId4VCIRequestJson(): ByteArray {
-        return readAsset("openid4vci_request.json");
+        return readAsset("openid4vci_request.json")
     }
 }

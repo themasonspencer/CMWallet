@@ -23,5 +23,5 @@ interface CredentialDao {
     fun getAll(): Flow<List<Credential>>
 
     @Query("SELECT * FROM credential WHERE id = :id")
-    fun loadCredById(id: Long): Credential?
+    fun loadCredById(id: String): Credential?
 }

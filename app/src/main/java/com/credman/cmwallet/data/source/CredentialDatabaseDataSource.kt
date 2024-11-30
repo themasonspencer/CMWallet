@@ -14,12 +14,12 @@ class CredentialDatabaseDataSource {
     val credentials: Flow<List<CredentialItem>> = credentialDao
         .getAll()
         .transform { list ->
-            emit(list.map { it.toCredentialItem() })
+            emit(list.map { it.credentialItem })
         }
 
     fun getCredential(id: String): CredentialItem? {
         return try {
-            credentialDao.loadCredById(id.toLong())?.toCredentialItem()
+            credentialDao.loadCredById(id)?.credentialItem
         } catch (e: Exception) {
             Log.e(CmWalletApplication.TAG, "database retrieval error", e)
             null

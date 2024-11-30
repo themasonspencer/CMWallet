@@ -14,7 +14,7 @@ data class TokenRequest(
 )
 
 @Serializable
-data class TokenResponse (
+data class TokenResponse(
     @SerialName("access_token") val accessToken: String,
     @SerialName("refresh_token") val refreshToken: String? = null,
     @SerialName("expires_in") val expiresInSeconds: Long? = null,

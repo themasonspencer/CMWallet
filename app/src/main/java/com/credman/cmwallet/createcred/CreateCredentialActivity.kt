@@ -1,28 +1,19 @@
 package com.credman.cmwallet.createcred
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.service.credentials.CredentialProviderService
-import android.util.Base64
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -30,31 +21,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialRequest.DisplayInfo
 import androidx.credentials.CreateCredentialResponse
-import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
-import com.credman.cmwallet.R
-import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.model.MdocCredential
-import com.credman.cmwallet.data.model.PaymentMetadata
-import com.credman.cmwallet.data.model.VerificationMetadata
 import com.credman.cmwallet.ui.CredentialCard
 import com.credman.cmwallet.ui.theme.CMWalletTheme
 
@@ -91,7 +68,7 @@ class CreateCredentialActivity : ComponentActivity() {
     @Composable
     fun CreateCredentialScreen(viewModel: CreateCredentialViewModel) {
         val uiState = viewModel.uiState
-        LaunchedEffect(uiState.state){
+        LaunchedEffect(uiState.state) {
             handleUiResult(uiState.state)
         }
 
@@ -110,7 +87,10 @@ class CreateCredentialActivity : ComponentActivity() {
             ) {
                 val credential = uiState.credentialToSave
                 if (credential == null) {
-                    LinearProgressIndicator(Modifier.fillMaxWidth().padding(horizontal = 2.dp))
+                    LinearProgressIndicator(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 2.dp))
                 } else {
                     Row(
                         modifier = Modifier
@@ -118,10 +98,11 @@ class CreateCredentialActivity : ComponentActivity() {
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = when (credential.metadata) {
-                                is VerificationMetadata -> "Review and add your digital ID"
-                                is PaymentMetadata -> "Review and add your credit card"
-                            }
+                            text = "fdfd"
+//                            text = when (credential.metadata) {
+//                                is VerificationMetadata -> "Review and add your digital ID"
+//                                is PaymentMetadata -> "Review and add your credit card"
+//                            }
                         )
                     }
                     Row(
@@ -131,9 +112,9 @@ class CreateCredentialActivity : ComponentActivity() {
                     ) {
                         CredentialCard(credential, {})
                     }
-                    when (val credentialDetails = credential.credential) {
-                        is MdocCredential -> CredentialClaimList(credentialDetails)
-                    }
+//                    when (val credentialDetails = credential.credential) {
+//                        is MdocCredential -> CredentialClaimList(credentialDetails)
+//                    }
 
                     Button(
                         modifier = Modifier.padding(horizontal = 16.dp),
@@ -237,17 +218,17 @@ class CreateCredentialActivity : ComponentActivity() {
 
 @Composable
 fun CredentialClaimList(
-    cred: MdocCredential,
+//    cred: MdocCredential,
 ) {
-    cred.nameSpaces.forEach { namespacedData ->
-        namespacedData.value.data.forEach { field ->
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(field.value.display)
-                Text(field.value.displayValue ?: " " /*placeholder*/)
-            }
-        }
-    }
+//    cred.nameSpaces.forEach { namespacedData ->
+//        namespacedData.value.data.forEach { field ->
+//            Row(
+//                modifier = Modifier.fillMaxWidth().padding(10.dp),
+//                horizontalArrangement = Arrangement.SpaceBetween,
+//            ) {
+//                Text(field.value.display)
+//                Text(field.value.displayValue ?: " " /*placeholder*/)
+//            }
+//        }
+//    }
 }

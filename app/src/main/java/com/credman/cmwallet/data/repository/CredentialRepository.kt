@@ -1,26 +1,32 @@
 package com.credman.cmwallet.data.repository
 
 import android.os.Build
-import android.util.Base64
 import android.util.Log
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.model.MSO_MDOC
-import com.credman.cmwallet.data.model.MdocCredential
 import com.credman.cmwallet.data.source.CredentialDatabaseDataSource
 import com.credman.cmwallet.data.source.TestCredentialsDataSource
+import com.credman.cmwallet.decodeBase64UrlNoPadding
+import com.credman.cmwallet.mdoc.MDoc
 import com.credman.cmwallet.openid4vci.OpenId4VCI
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.json.ClassDiscriminatorMode
+import kotlinx.serialization.json.Json
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class CredentialRepository {
+    val json = Json { classDiscriminatorMode = ClassDiscriminatorMode.NONE }
+
     var privAppsJson = "{}"
         private set
 
@@ -82,13 +88,14 @@ class CredentialRepository {
      * |----------- Credential Json -----------|  // See assets/paymentcreds.json as an example
      * |---------------------------------------|
      */
+    @OptIn(ExperimentalEncodingApi::class)
     private fun createRegistryDatabase(items: List<CredentialItem>): ByteArray {
         val out = ByteArrayOutputStream()
 
         val iconMap: Map<String, RegistryIcon> = items.associate {
             Pair(
                 it.id,
-                RegistryIcon(Base64.decode(it.metadata.icon, 0))
+                RegistryIcon(it.displayData.icon?.decodeBase64UrlNoPadding() ?: ByteArray(0))
             )
         }
         // Write the offset to the json
@@ -108,46 +115,50 @@ class CredentialRepository {
 
         val mdocCredentials = JSONObject()
         items.forEach { item ->
-            when (item.credential) {
-                is MdocCredential -> {
+            when (item.config) {
+                is CredentialConfigurationMDoc -> {
                     val credJson = JSONObject()
                     credJson.put(ID, item.id)
-                    credJson.put(TITLE, item.metadata.title)
-                    credJson.putOpt(SUBTITLE, item.metadata.subtitle)
+                    credJson.put(TITLE, item.displayData.title)
+                    credJson.putOpt(SUBTITLE, item.displayData.subtitle)
                     val iconJson = JSONObject().apply {
                         put(START, iconMap[item.id]!!.iconOffset)
                         put(LENGTH, iconMap[item.id]!!.iconValue.size)
                     }
                     credJson.put(ICON, iconJson)
-                    if (item.credential.nameSpaces.isNotEmpty()) {
+                    val mdoc = MDoc(item.credentials.first().credential.decodeBase64UrlNoPadding())
+                    if (mdoc.issuerSignedNamespaces.isNotEmpty()) {
                         val namespacesJson = JSONObject()
-                        item.credential.nameSpaces.forEach { namespace ->
+                        mdoc.issuerSignedNamespaces.forEach { (namespace, elements) ->
                             val namespaceJson = JSONObject()
-                            namespace.value.data.forEach { namespaceData ->
+                            elements.forEach { (element, value) ->
                                 val namespaceDataJson = JSONObject()
-                                namespaceDataJson.putOpt(VALUE, namespaceData.value.value)
-                                namespaceDataJson.put(DISPLAY, namespaceData.value.display)
-                                namespaceDataJson.putOpt(
-                                    DISPLAY_VALUE,
-                                    namespaceData.value.displayValue
-                                )
-                                namespaceJson.put(namespaceData.key, namespaceDataJson)
+
+                                namespaceDataJson.putOpt(VALUE, value)
+                                val displayName = item.config.claims?.get(namespace)
+                                    ?.get(element)?.display?.first()?.name!!
+                                namespaceDataJson.put(DISPLAY, displayName)
+//                                namespaceDataJson.putOpt(
+//                                    DISPLAY_VALUE,
+//                                    namespaceData.value.displayValue
+//                                )
+                                namespaceJson.put(element, namespaceDataJson)
                             }
-                            namespacesJson.put(namespace.key, namespaceJson)
+                            namespacesJson.put(namespace, namespaceJson)
                         }
                         credJson.put(NAMESPACES, namespacesJson)
                     }
                     if (Build.VERSION.SDK_INT >= 33) {
-                        mdocCredentials.append(item.credential.docType, credJson)
+                        mdocCredentials.append(item.config.doctype, credJson)
                     } else {
-                        when (val current = mdocCredentials.opt(item.credential.docType)) {
+                        when (val current = mdocCredentials.opt(item.config.doctype)) {
                             is JSONArray -> {
-                                mdocCredentials.put(item.credential.docType, current.put(credJson))
+                                mdocCredentials.put(item.config.doctype, current.put(credJson))
                             }
 
                             null -> {
                                 mdocCredentials.put(
-                                    item.credential.docType,
+                                    item.config.doctype,
                                     JSONArray().put(credJson)
                                 )
                             }
@@ -159,10 +170,12 @@ class CredentialRepository {
                         }
                     }
                 }
+
+                is CredentialConfigurationUnknownFormat -> TODO()
             }
         }
         val registryCredentials = JSONObject()
-        registryCredentials.put(MSO_MDOC, mdocCredentials)
+        registryCredentials.put("mso_mdoc", mdocCredentials)
         val registryJson = JSONObject()
         registryJson.put(CREDENTIALS, registryCredentials)
         Log.d(TAG, "Credential to be registered: ${registryJson.toString(2)}")

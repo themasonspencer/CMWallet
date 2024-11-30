@@ -13,10 +13,8 @@ import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.room.Credential
 import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
@@ -95,9 +93,9 @@ class CreateCredentialViewModel : ViewModel() {
 
                 )
             )
-            val credItem = openId4VCI.generateCredentialToSave(credResponse, privateKey)
-
-            uiState = uiState.copy(credentialToSave = credItem)
+//            val credItem = openId4VCI.generateCredentialToSave(credResponse, privateKey)
+//
+//            uiState = uiState.copy(credentialToSave = credItem)
 
         } catch (e: Exception) {
             Log.e(TAG, "Exception processing request", e)
@@ -106,18 +104,18 @@ class CreateCredentialViewModel : ViewModel() {
     }
 
     fun onConfirm() {
-        val credToSave = uiState.credentialToSave?.toJson()
-        if (credToSave != null) {
-            viewModelScope.launch {
-                CmWalletApplication.database.credentialDao().insertAll(
-                    Credential(0L, credToSave)
-                )
-            }
-            onResponse()
-        } else {
-            Log.e(TAG, "Unexpected: null credential to save")
-            onError("Internal error")
-        }
+//        val credToSave = uiState.credentialToSave?.toJson()
+//        if (credToSave != null) {
+//            viewModelScope.launch {
+//                CmWalletApplication.database.credentialDao().insertAll(
+//                    Credential(0L, credToSave)
+//                )
+//            }
+//            onResponse()
+//        } else {
+//            Log.e(TAG, "Unexpected: null credential to save")
+//            onError("Internal error")
+//        }
     }
 
     private fun onResponse() {

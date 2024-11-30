@@ -3,7 +3,6 @@ package com.credman.cmwallet.getcred
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Base64
 import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
@@ -17,12 +16,17 @@ import androidx.credentials.registry.provider.selectedEntryId
 import androidx.fragment.app.FragmentActivity
 import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
-import com.credman.cmwallet.data.model.MdocCredential
+import com.credman.cmwallet.data.model.CredentialKeySoftware
+import com.credman.cmwallet.decodeBase64UrlNoPadding
+import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.mdoc.createSessionTranscript
 import com.credman.cmwallet.mdoc.filterIssuerSigned
 import com.credman.cmwallet.mdoc.generateDeviceResponse
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
 import com.credman.cmwallet.openid4vp.OpenId4VP
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
+import com.credman.cmwallet.toBase64UrlNoPadding
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
@@ -168,12 +172,12 @@ class GetCredentialActivity : FragmentActivity() {
 
                 // Create the response
                 val vpToken = JSONObject()
-                when (selectedCredential.credential) {
-                    is MdocCredential -> {
+                when (selectedCredential.config) {
+                    is CredentialConfigurationMDoc -> {
                         val matchedClaims =
                             matchedCredential.matchedClaims as OpenId4VPMatchedMDocClaims
                         val filteredIssuerSigned = filterIssuerSigned(
-                            selectedCredential.credential.issuerSigned,
+                            selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding(),
                             matchedClaims.claims
                         )
                         val deviceNamespaces = if (openId4VPRequest.transactionData.isEmpty()) {
@@ -196,10 +200,12 @@ class GetCredentialActivity : FragmentActivity() {
                                 )
                             )
                         }
+                        val devicePrivateKey =
+                            loadECPrivateKey((selectedCredential.credentials.first().key as CredentialKeySoftware).privateKey.decodeBase64UrlNoPadding())
                         val deviceResponse = generateDeviceResponse(
-                            doctype = selectedCredential.credential.docType,
+                            doctype = selectedCredential.config.doctype,
                             issuerSigned = filteredIssuerSigned,
-                            devicePrivateKey = selectedCredential.credential.deviceKey,
+                            devicePrivateKey = devicePrivateKey,
                             sessionTranscript = createSessionTranscript(
                                 openId4VPRequest.getHandover(
                                     origin
@@ -208,10 +214,11 @@ class GetCredentialActivity : FragmentActivity() {
                             deviceNamespaces = deviceNamespaces
 
                         )
-                        val encodedDeviceResponse =
-                            Base64.encodeToString(deviceResponse, Base64.URL_SAFE or Base64.NO_WRAP)
+                        val encodedDeviceResponse = deviceResponse.toBase64UrlNoPadding()
                         vpToken.put(matchedCredential.dcqlId, encodedDeviceResponse)
                     }
+
+                    is CredentialConfigurationUnknownFormat -> TODO()
                 }
 
                 // Create the openid4vp result
