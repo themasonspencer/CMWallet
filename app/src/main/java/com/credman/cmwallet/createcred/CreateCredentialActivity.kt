@@ -98,11 +98,7 @@ class CreateCredentialActivity : ComponentActivity() {
                             .fillMaxWidth()
                     ) {
                         Text(
-                            text = "fdfd"
-//                            text = when (credential.metadata) {
-//                                is VerificationMetadata -> "Review and add your digital ID"
-//                                is PaymentMetadata -> "Review and add your credit card"
-//                            }
+                            text = "Review and add to your wallet"
                         )
                     }
                     Row(

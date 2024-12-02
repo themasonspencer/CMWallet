@@ -13,17 +13,27 @@ import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.data.model.Credential
+import com.credman.cmwallet.data.model.CredentialDisplayData
 import com.credman.cmwallet.data.model.CredentialItem
+import com.credman.cmwallet.data.model.CredentialKey
+import com.credman.cmwallet.data.model.CredentialKeySoftware
+import com.credman.cmwallet.data.room.CredentialDatabaseItem
 import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.openid4vci.OpenId4VCI
+import com.credman.cmwallet.openid4vci.data.AuthorizationDetailResponseOpenIdCredential
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
+import com.credman.cmwallet.openid4vci.data.TokenRequest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.security.KeyFactory
 import java.security.interfaces.ECPrivateKey
 import java.security.spec.X509EncodedKeySpec
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 sealed class Result {
     data class Error(val msg: String? = null) : Result()
@@ -40,22 +50,16 @@ class CreateCredentialViewModel : ViewModel() {
     var uiState by mutableStateOf(CreateCredentialUiState())
         private set
 
-    private val _request = MutableStateFlow<ProviderCreateCredentialRequest?>(null)
-
-    init {
-        viewModelScope.launch {
-            _request.collect {
-                Log.d(TAG, "New request")
-                processRequest(it)
-            }
-        }
-    }
 
     fun onNewRequest(request: ProviderCreateCredentialRequest) {
-        _request.value = request
+        viewModelScope.launch {
+            processRequest(request)
+        }
+        Log.d(TAG, "Done")
     }
 
-    suspend fun processRequest(request: ProviderCreateCredentialRequest?) {
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun processRequest(request: ProviderCreateCredentialRequest?) {
         if (request == null) {
             uiState = CreateCredentialUiState()
             return
@@ -85,17 +89,65 @@ class CreateCredentialViewModel : ViewModel() {
             val kf = KeyFactory.getInstance("EC")
             val publicKey = kf.generatePublic(publicKeySpec)!!
 
-            val credResponse = openId4VCI.requestCredentialFromEndpoint(
-                accessToken = "fdf",
-                credentialRequest = CredentialRequest(
-                    credentialConfigurationId = openId4VCI.credentialOffer.credentialConfigurationIds.first(),
-                    proof = openId4VCI.createProofJwt(publicKey, privateKey)
+            // Figure out auth server
+            val authServer =
+                if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null) {
+                    openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
+                } else {
+                    "Can't do this yet"
+                }
+            require(openId4VCI.credentialOffer.grants != null)
 
+            if (openId4VCI.credentialOffer.grants.preAuthorizedCode != null) {
+                val grant = openId4VCI.credentialOffer.grants.preAuthorizedCode
+
+                val tokenResponse = openId4VCI.requestTokenFromEndpoint(
+                    authServer, TokenRequest(
+                        grantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
+                        preAuthorizedCode = grant.preAuthorizedCode
+                    )
                 )
-            )
-//            val credItem = openId4VCI.generateCredentialToSave(credResponse, privateKey)
-//
-//            uiState = uiState.copy(credentialToSave = credItem)
+                Log.i(TAG, "tokenResponse $tokenResponse")
+                tokenResponse.authorizationDetails?.forEach { authDetail ->
+                    when (authDetail) {
+                        is AuthorizationDetailResponseOpenIdCredential -> {
+                            authDetail.credentialIdentifiers.forEach { credentialId ->
+                                val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
+                                    accessToken = tokenResponse.accessToken,
+                                    credentialRequest = CredentialRequest(
+                                        credentialIdentifier = credentialId,
+                                        proof = openId4VCI.createProofJwt(publicKey, privateKey)
+                                    )
+                                )
+                                Log.i(TAG, "credentialResponse $credentialResponse")
+                                val config = openId4VCI.credentialOffer.issuerMetadata.credentialConfigurationsSupported[authDetail.credentialConfigurationId]!!
+                                val newCredentialItem = CredentialItem(
+                                    id = Uuid.random().toHexString(),
+                                    config = config,
+                                    displayData = CredentialDisplayData(
+                                        title = "Test Cred",
+                                        subtitle = "test cred subtitle",
+                                        icon = null
+                                    ),
+                                    credentials = credentialResponse.credentials!!.map {
+                                        Credential(
+                                            key = CredentialKeySoftware(
+                                                publicKey = tmpPublicKey,
+                                                privateKey = tmpKey
+                                            ),
+                                            credential = it.credential
+                                        )
+                                    }
+                                )
+                                uiState = uiState.copy(credentialToSave = newCredentialItem)
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
 
         } catch (e: Exception) {
             Log.e(TAG, "Exception processing request", e)
@@ -104,18 +156,18 @@ class CreateCredentialViewModel : ViewModel() {
     }
 
     fun onConfirm() {
-//        val credToSave = uiState.credentialToSave?.toJson()
-//        if (credToSave != null) {
-//            viewModelScope.launch {
-//                CmWalletApplication.database.credentialDao().insertAll(
-//                    Credential(0L, credToSave)
-//                )
-//            }
-//            onResponse()
-//        } else {
-//            Log.e(TAG, "Unexpected: null credential to save")
-//            onError("Internal error")
-//        }
+        val credentialToSave = uiState.credentialToSave
+        if (credentialToSave != null) {
+            viewModelScope.launch {
+                CmWalletApplication.database.credentialDao().insertAll(
+                    CredentialDatabaseItem(credentialToSave)
+                )
+            }
+            onResponse()
+        } else {
+            Log.e(TAG, "Unexpected: null credential to save")
+            onError("Internal error")
+        }
     }
 
     private fun onResponse() {

@@ -69,21 +69,21 @@ fun HomeScreen(
         Column(
             modifier = Modifier.padding(innerPadding),
         ) {
-            Row(
-                modifier = Modifier
-                    .padding(10.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Button(
-                    onClick = {
-                        viewModel.testIssuance()
-                    }
-                ) {
-                    Text("Test Issuance")
-                }
-            }
-            HorizontalDivider(thickness = 2.dp)
+//            Row(
+//                modifier = Modifier
+//                    .padding(10.dp)
+//                    .fillMaxWidth(),
+//                horizontalArrangement = Arrangement.Center
+//            ) {
+//                Button(
+//                    onClick = {
+//                        viewModel.testIssuance()
+//                    }
+//                ) {
+//                    Text("Test Issuance")
+//                }
+//            }
+//            HorizontalDivider(thickness = 2.dp)
             CredentialList(
                 uiState.credentials,
                 onCredentialClick = { cred ->
