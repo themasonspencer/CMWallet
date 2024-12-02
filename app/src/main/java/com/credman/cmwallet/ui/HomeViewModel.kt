@@ -40,6 +40,10 @@ class HomeViewModel : ViewModel() {
         }
     }
 
+    fun deleteCredential(id: String) {
+        CmWalletApplication.credentialRepo.deleteCredential(id)
+    }
+
     fun testIssuance() {
         Log.i("HomeViewModel", "testIssuance")
         val requestJson = CmWalletApplication.credentialRepo.openId4VCITestRequestJson

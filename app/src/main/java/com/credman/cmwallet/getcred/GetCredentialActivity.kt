@@ -40,10 +40,14 @@ class GetCredentialActivity : FragmentActivity() {
         if (request != null) {
             Log.i(TAG, "selectedEntryId ${request.selectedEntryId}")
             val selectedEntryId = JSONObject(request.selectedEntryId)
-            val origin = request.callingAppInfo.getOrigin(
+            var origin = request.callingAppInfo.getOrigin(
                 CmWalletApplication.credentialRepo.privAppsJson
             ) ?: ""
             Log.i("GetCredentialActivity", "origin $origin")
+            if (origin.endsWith(":443")) {
+                origin = origin.substringBefore(":443")
+                Log.i("GetCredentialActivity", "new origin $origin")
+            }
 
             request.credentialOptions.forEach {
                 if (it is GetDigitalCredentialOption) {

@@ -63,6 +63,10 @@ class CredentialRepository {
             ?: credentialDatabaseDataSource.getCredential(id)
     }
 
+    fun deleteCredential(id: String) {
+        credentialDatabaseDataSource.deleteCredential(id)
+    }
+
     fun setPrivAppsJson(appsJson: String) {
         privAppsJson = appsJson
     }

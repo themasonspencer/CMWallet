@@ -25,4 +25,8 @@ class CredentialDatabaseDataSource {
             null
         }
     }
+
+    fun deleteCredential(id: String) {
+        credentialDao.deleteById(id)
+    }
 }

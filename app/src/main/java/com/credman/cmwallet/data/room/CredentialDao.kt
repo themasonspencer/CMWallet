@@ -19,6 +19,9 @@ interface CredentialDao {
     @Delete
     suspend fun delete(cred: CredentialDatabaseItem)
 
+    @Query("DELETE FROM credentials WHERE id = :id")
+    fun deleteById(id: String)
+
     @Query("SELECT * FROM credentials")
     fun getAll(): Flow<List<CredentialDatabaseItem>>
 

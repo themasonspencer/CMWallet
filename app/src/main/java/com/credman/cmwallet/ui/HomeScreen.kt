@@ -97,6 +97,10 @@ fun HomeScreen(
             onDismissRequest = {
                 openCredentialDialog.value = null
             },
+            onDeleteCredential = {id ->
+                openCredentialDialog.value = null
+                viewModel.deleteCredential(id)
+            },
             credentialItem = openCredentialDialog.value!!
         )
     }
@@ -127,6 +131,7 @@ fun CredentialList(
 @Composable
 fun CredentialDialog(
     onDismissRequest: () -> Unit,
+    onDeleteCredential: (String) -> Unit,
     credentialItem: CredentialItem
 ) {
     Dialog(onDismissRequest = { onDismissRequest() }) {
@@ -183,6 +188,14 @@ fun CredentialDialog(
                             }
                         }
                     }
+                }
+                Button(
+                    modifier = Modifier.padding(10.dp),
+                    onClick = {
+                        onDeleteCredential(credentialItem.id)
+                    }
+                ) {
+                    Text("Delete")
                 }
             }
         }
