@@ -54,6 +54,10 @@ class OpenId4VCI(val credentialOfferJson: String) {
         return authServerCache[server]!!
     }
 
+    suspend fun authEndpoint(authServer: String): String {
+        return requestAuthServerMetadata(authServer).authorizationEndpoint!!
+    }
+
     suspend fun requestNonceFromEndpoint(): NonceResponse {
         require(credentialOffer.issuerMetadata.nonceEndpoint != null) { "nonce_endpoint must be set when requesting a nonce" }
         return httpClient.post(credentialOffer.issuerMetadata.nonceEndpoint).body()

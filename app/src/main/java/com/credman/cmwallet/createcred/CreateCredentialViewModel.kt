@@ -1,5 +1,6 @@
 package com.credman.cmwallet.createcred
 
+import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
@@ -42,6 +43,7 @@ sealed class Result {
 data class CreateCredentialUiState(
     val credentialsToSave: List<CredentialItem>? = null,
     val state: Result? = null,
+    val authServer: String? = null
 )
 
 @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -97,6 +99,7 @@ class CreateCredentialViewModel : ViewModel() {
                 }
             require(openId4VCI.credentialOffer.grants != null)
 
+
             if (openId4VCI.credentialOffer.grants.preAuthorizedCode != null) {
                 val grant = openId4VCI.credentialOffer.grants.preAuthorizedCode
 
@@ -146,6 +149,22 @@ class CreateCredentialViewModel : ViewModel() {
                         }
                     }
                 }
+            } else if (openId4VCI.credentialOffer.grants.authorizationCode != null) {
+                val grant = openId4VCI.credentialOffer.grants.authorizationCode
+                Log.d(TAG, "Grant: $grant")
+                val authServerUrl = Uri.parse(openId4VCI.authEndpoint(authServer))
+                    .buildUpon()
+                    .appendQueryParameter("response_type", "code")
+                    .appendQueryParameter("state", Uuid.random().toString())
+                    .appendQueryParameter("redirect_uri", "http://localhost")
+                    .appendQueryParameter("issuer_state", grant.issuerState)
+                    .build()
+
+                
+
+                throw IllegalArgumentException("Not finished")
+            } else {
+                throw IllegalArgumentException("Missing grants")
             }
 
 
