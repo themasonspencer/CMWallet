@@ -18,7 +18,6 @@ import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.data.model.Credential
 import com.credman.cmwallet.data.model.CredentialDisplayData
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.data.model.CredentialKey
 import com.credman.cmwallet.data.model.CredentialKeySoftware
 import com.credman.cmwallet.data.room.CredentialDatabaseItem
 import com.credman.cmwallet.loadECPrivateKey
@@ -27,7 +26,6 @@ import com.credman.cmwallet.openid4vci.data.AuthorizationDetailResponseOpenIdCre
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
 import com.credman.cmwallet.openid4vci.data.TokenRequest
 import com.credman.cmwallet.openid4vci.data.imageUriToImageB64
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.security.KeyFactory
@@ -42,7 +40,7 @@ sealed class Result {
 }
 
 data class CreateCredentialUiState(
-    val credentialToSave: CredentialItem? = null,
+    val credentialsToSave: List<CredentialItem>? = null,
     val state: Result? = null,
 )
 
@@ -112,6 +110,7 @@ class CreateCredentialViewModel : ViewModel() {
                 tokenResponse.authorizationDetails?.forEach { authDetail ->
                     when (authDetail) {
                         is AuthorizationDetailResponseOpenIdCredential -> {
+                            val newCredentials = mutableListOf<CredentialItem>()
                             authDetail.credentialIdentifiers.forEach { credentialId ->
                                 val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
                                     accessToken = tokenResponse.accessToken,
@@ -141,8 +140,9 @@ class CreateCredentialViewModel : ViewModel() {
                                         )
                                     }
                                 )
-                                uiState = uiState.copy(credentialToSave = newCredentialItem)
+                                newCredentials.add(newCredentialItem)
                             }
+                            uiState = uiState.copy(credentialsToSave = newCredentials)
                         }
                     }
                 }
@@ -158,11 +158,11 @@ class CreateCredentialViewModel : ViewModel() {
     }
 
     fun onConfirm() {
-        val credentialToSave = uiState.credentialToSave
-        if (credentialToSave != null) {
+        val credentialsToSave = uiState.credentialsToSave
+        if (credentialsToSave != null) {
             viewModelScope.launch {
                 CmWalletApplication.database.credentialDao().insertAll(
-                    CredentialDatabaseItem(credentialToSave)
+                    credentialsToSave.map { CredentialDatabaseItem(it) }
                 )
             }
             onResponse()

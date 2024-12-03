@@ -13,6 +13,9 @@ interface CredentialDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(vararg creds: CredentialDatabaseItem)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(creds: List<CredentialDatabaseItem>)
+
     @Update
     suspend fun updateUsers(vararg creds: CredentialDatabaseItem)
 

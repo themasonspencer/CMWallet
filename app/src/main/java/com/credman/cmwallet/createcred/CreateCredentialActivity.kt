@@ -11,17 +11,14 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -79,8 +76,7 @@ class CreateCredentialActivity : ComponentActivity() {
     @Composable
     fun CreateCredentialScreen(viewModel: CreateCredentialViewModel) {
         val uiState = viewModel.uiState
-        val sheetState = rememberModalBottomSheetState()
-        var showBottomSheet by remember { mutableStateOf(true) }
+        val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         LaunchedEffect(uiState.state) {
             handleUiResult(uiState.state)
         }
@@ -90,9 +86,9 @@ class CreateCredentialActivity : ComponentActivity() {
             onDismissRequest = {},
             sheetState = sheetState
         ) {
-            val credential = uiState.credentialToSave
+            val credentials = uiState.credentialsToSave
 
-            if (credential == null) {
+            if (credentials == null) {
                 LinearProgressIndicator(
                     Modifier
                         .fillMaxWidth()
@@ -113,11 +109,13 @@ class CreateCredentialActivity : ComponentActivity() {
                             fontSize = 20.sp
                         )
                     }
-                    Row(
-                        modifier = Modifier
-                            .padding(10.dp)
-                    ) {
-                        CredentialCard(credential, {})
+                    for (credential in credentials) {
+                        Row(
+                            modifier = Modifier
+                                .padding(10.dp)
+                        ) {
+                            CredentialCard(credential, {})
+                        }
                     }
 //                    when (val credentialDetails = credential.credential) {
 //                        is MdocCredential -> CredentialClaimList(credentialDetails)
