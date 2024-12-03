@@ -34,6 +34,8 @@ import androidx.compose.ui.unit.sp
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialRequest.DisplayInfo
 import androidx.credentials.CreateCredentialResponse
+import androidx.credentials.exceptions.CreateCredentialCancellationException
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.PendingIntentHandler
@@ -83,7 +85,9 @@ class CreateCredentialActivity : ComponentActivity() {
 
 
         ModalBottomSheet(
-            onDismissRequest = {},
+            onDismissRequest = {
+                finishWithError(exception = CreateCredentialCancellationException())
+            },
             sheetState = sheetState
         ) {
             val credentials = uiState.credentialsToSave
@@ -163,11 +167,14 @@ class CreateCredentialActivity : ComponentActivity() {
         finish()
     }
 
-    private fun finishWithError(msg: String? = null) {
+    private fun finishWithError(
+        msg: String? = null,
+        exception: CreateCredentialException = CreateCredentialUnknownException(msg)
+    ) {
         val resultData = Intent()
         PendingIntentHandler.setCreateCredentialException(
             resultData,
-            CreateCredentialUnknownException(msg),
+            exception,
         )
         setResult(RESULT_OK, resultData)
         finish()
