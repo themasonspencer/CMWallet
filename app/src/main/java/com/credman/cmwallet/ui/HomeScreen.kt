@@ -22,7 +22,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,7 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.credman.cmwallet.R
 import com.credman.cmwallet.data.model.CredentialItem
-import com.credman.cmwallet.decodeBase64UrlNoPadding
+import com.credman.cmwallet.decodeBase64
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -209,7 +208,7 @@ fun CredentialCard(
     onCredentialClick: (CredentialItem) -> Unit
 ) {
 
-    val cardArt = credential.displayData.icon?.decodeBase64UrlNoPadding() ?: ByteArray(0)
+    val cardArt = credential.displayData.icon?.decodeBase64() ?: ByteArray(0)
     Card(
         modifier = Modifier.size(350.dp, 210.dp),
         shape = CardDefaults.shape,

@@ -5,6 +5,7 @@ import android.util.Log
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.source.CredentialDatabaseDataSource
 import com.credman.cmwallet.data.source.TestCredentialsDataSource
+import com.credman.cmwallet.decodeBase64
 import com.credman.cmwallet.decodeBase64UrlNoPadding
 import com.credman.cmwallet.mdoc.MDoc
 import com.credman.cmwallet.openid4vci.OpenId4VCI
@@ -99,7 +100,7 @@ class CredentialRepository {
         val iconMap: Map<String, RegistryIcon> = items.associate {
             Pair(
                 it.id,
-                RegistryIcon(it.displayData.icon?.decodeBase64UrlNoPadding() ?: ByteArray(0))
+                RegistryIcon(it.displayData.icon?.decodeBase64() ?: ByteArray(0))
             )
         }
         // Write the offset to the json

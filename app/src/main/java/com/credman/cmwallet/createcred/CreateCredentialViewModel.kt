@@ -26,6 +26,7 @@ import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.data.AuthorizationDetailResponseOpenIdCredential
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
 import com.credman.cmwallet.openid4vci.data.TokenRequest
+import com.credman.cmwallet.openid4vci.data.imageUriToImageB64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -121,13 +122,14 @@ class CreateCredentialViewModel : ViewModel() {
                                 )
                                 Log.i(TAG, "credentialResponse $credentialResponse")
                                 val config = openId4VCI.credentialOffer.issuerMetadata.credentialConfigurationsSupported[authDetail.credentialConfigurationId]!!
+                                val display = credentialResponse.display?.firstOrNull()
                                 val newCredentialItem = CredentialItem(
                                     id = Uuid.random().toHexString(),
                                     config = config,
                                     displayData = CredentialDisplayData(
-                                        title = "Test Cred",
-                                        subtitle = "test cred subtitle",
-                                        icon = null
+                                        title = display?.name ?:"Unknown",
+                                        subtitle = display?.description,
+                                        icon = display?.logo?.uri.imageUriToImageB64()
                                     ),
                                     credentials = credentialResponse.credentials!!.map {
                                         Credential(
