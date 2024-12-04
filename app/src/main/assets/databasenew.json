@@ -200,6 +200,24 @@
               }
             ]
           }
+        },
+        "com.example.1": {
+          "age_over_21": {
+            "display": [
+              {
+                "name": "Age over 21",
+                "locale": "en-US"
+              }
+            ]
+          },
+          "email": {
+            "display": [
+              {
+                "name": "Email Address",
+                "locale": "en-US"
+              }
+            ]
+          }
         }
       }
     },
@@ -290,6 +308,24 @@
             "display": [
               {
                 "name": "Payment Account Reference",
+                "locale": "en-US"
+              }
+            ]
+          }
+        },
+        "com.example.1": {
+          "age_over_21": {
+            "display": [
+              {
+                "name": "Age over 21",
+                "locale": "en-US"
+              }
+            ]
+          },
+          "email": {
+            "display": [
+              {
+                "name": "Email Address",
                 "locale": "en-US"
               }
             ]
