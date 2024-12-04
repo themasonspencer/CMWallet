@@ -26,6 +26,7 @@ import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.data.AuthorizationDetailResponseOpenIdCredential
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
 import com.credman.cmwallet.openid4vci.data.TokenRequest
+import com.credman.cmwallet.openid4vci.data.TokenResponse
 import com.credman.cmwallet.openid4vci.data.imageUriToImageB64
 import kotlinx.coroutines.launch
 import org.json.JSONObject
@@ -40,10 +41,16 @@ sealed class Result {
     data class Response(val response: CreateCredentialResponse) : Result()
 }
 
+data class AuthServerUiState (
+    val url: String,
+    val redirectUrl: String,
+    val state: String
+)
+
 data class CreateCredentialUiState(
     val credentialsToSave: List<CredentialItem>? = null,
     val state: Result? = null,
-    val authServer: String? = null
+    val authServer: AuthServerUiState? = null
 )
 
 @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -51,12 +58,88 @@ class CreateCredentialViewModel : ViewModel() {
     var uiState by mutableStateOf(CreateCredentialUiState())
         private set
 
+    private lateinit var openId4VCI: OpenId4VCI
+
+    val tmpKey =
+        "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6ef4-enmfQHRWUW40-Soj3aFB0rsEOp3tYMW-HJPBvChRANCAAT5N1NLZcub4bOgWfBwF8MHPGkfJ8Dm300cioatq9XovaLgG205FEXUOuNMEMQuLbrn8oiOC0nTnNIVn-OtSmSb"
+    val tmpPublicKey =
+        "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE-TdTS2XLm-GzoFnwcBfDBzxpHyfA5t9NHIqGravV6L2i4BttORRF1DrjTBDELi265_KIjgtJ05zSFZ_jrUpkmw=="
+    val privateKey =
+        loadECPrivateKey(Base64.decode(tmpKey, Base64.URL_SAFE)) as ECPrivateKey
+    val publicKeySpec = X509EncodedKeySpec(Base64.decode(tmpPublicKey, Base64.URL_SAFE))
+    val kf = KeyFactory.getInstance("EC")
+    val publicKey = kf.generatePublic(publicKeySpec)!!
 
     fun onNewRequest(request: ProviderCreateCredentialRequest) {
         viewModelScope.launch {
             processRequest(request)
         }
         Log.d(TAG, "Done")
+    }
+
+    fun onCode(code: String) {
+        uiState = uiState.copy(authServer = null)
+        viewModelScope.launch {
+            // Figure out auth server
+            val authServer =
+                if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null) {
+                    openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
+                } else {
+                    "Can't do this yet"
+                }
+            val tokenResponse = openId4VCI.requestTokenFromEndpoint(
+                authServer, TokenRequest(
+                    grantType = "authorization_code",
+                    code  =  code
+                )
+            )
+            Log.i(TAG, "tokenResponse $tokenResponse")
+            processToken(tokenResponse)
+
+        }
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
+    private suspend fun processToken(tokenResponse: TokenResponse) {
+        tokenResponse.authorizationDetails?.forEach { authDetail ->
+            when (authDetail) {
+                is AuthorizationDetailResponseOpenIdCredential -> {
+                    val newCredentials = mutableListOf<CredentialItem>()
+                    authDetail.credentialIdentifiers.forEach { credentialId ->
+                        val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
+                            accessToken = tokenResponse.accessToken,
+                            credentialRequest = CredentialRequest(
+                                credentialIdentifier = credentialId,
+                                proof = openId4VCI.createProofJwt(publicKey, privateKey)
+                            )
+                        )
+                        Log.i(TAG, "credentialResponse $credentialResponse")
+                        val config = openId4VCI.credentialOffer.issuerMetadata.credentialConfigurationsSupported[authDetail.credentialConfigurationId]!!
+                        val display = credentialResponse.display?.firstOrNull()
+                        val newCredentialItem = CredentialItem(
+                            id = Uuid.random().toHexString(),
+                            config = config,
+                            displayData = CredentialDisplayData(
+                                title = display?.name ?:"Unknown",
+                                subtitle = display?.description,
+                                icon = display?.logo?.uri.imageUriToImageB64()
+                            ),
+                            credentials = credentialResponse.credentials!!.map {
+                                Credential(
+                                    key = CredentialKeySoftware(
+                                        publicKey = tmpPublicKey,
+                                        privateKey = tmpKey
+                                    ),
+                                    credential = it.credential
+                                )
+                            }
+                        )
+                        newCredentials.add(newCredentialItem)
+                    }
+                    uiState = uiState.copy(credentialsToSave = newCredentials, authServer = null)
+                }
+            }
+        }
     }
 
     @OptIn(ExperimentalUuidApi::class)
@@ -78,17 +161,9 @@ class CreateCredentialViewModel : ViewModel() {
 
             Log.d(TAG, "Request json received: ${requestJson.getString("data")}")
 
-            val openId4VCI = OpenId4VCI(requestJson.getString("data"))
+            openId4VCI = OpenId4VCI(requestJson.getString("data"))
 
-            val tmpKey =
-                "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6ef4-enmfQHRWUW40-Soj3aFB0rsEOp3tYMW-HJPBvChRANCAAT5N1NLZcub4bOgWfBwF8MHPGkfJ8Dm300cioatq9XovaLgG205FEXUOuNMEMQuLbrn8oiOC0nTnNIVn-OtSmSb"
-            val tmpPublicKey =
-                "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE-TdTS2XLm-GzoFnwcBfDBzxpHyfA5t9NHIqGravV6L2i4BttORRF1DrjTBDELi265_KIjgtJ05zSFZ_jrUpkmw=="
-            val privateKey =
-                loadECPrivateKey(Base64.decode(tmpKey, Base64.URL_SAFE)) as ECPrivateKey
-            val publicKeySpec = X509EncodedKeySpec(Base64.decode(tmpPublicKey, Base64.URL_SAFE))
-            val kf = KeyFactory.getInstance("EC")
-            val publicKey = kf.generatePublic(publicKeySpec)!!
+
 
             // Figure out auth server
             val authServer =
@@ -99,70 +174,37 @@ class CreateCredentialViewModel : ViewModel() {
                 }
             require(openId4VCI.credentialOffer.grants != null)
 
-
-            if (openId4VCI.credentialOffer.grants.preAuthorizedCode != null) {
-                val grant = openId4VCI.credentialOffer.grants.preAuthorizedCode
+            if (openId4VCI.credentialOffer.grants!!.preAuthorizedCode != null) {
+                val grant = openId4VCI.credentialOffer.grants!!.preAuthorizedCode
 
                 val tokenResponse = openId4VCI.requestTokenFromEndpoint(
                     authServer, TokenRequest(
                         grantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
-                        preAuthorizedCode = grant.preAuthorizedCode
+                        preAuthorizedCode = grant?.preAuthorizedCode
                     )
                 )
                 Log.i(TAG, "tokenResponse $tokenResponse")
-                tokenResponse.authorizationDetails?.forEach { authDetail ->
-                    when (authDetail) {
-                        is AuthorizationDetailResponseOpenIdCredential -> {
-                            val newCredentials = mutableListOf<CredentialItem>()
-                            authDetail.credentialIdentifiers.forEach { credentialId ->
-                                val credentialResponse = openId4VCI.requestCredentialFromEndpoint(
-                                    accessToken = tokenResponse.accessToken,
-                                    credentialRequest = CredentialRequest(
-                                        credentialIdentifier = credentialId,
-                                        proof = openId4VCI.createProofJwt(publicKey, privateKey)
-                                    )
-                                )
-                                Log.i(TAG, "credentialResponse $credentialResponse")
-                                val config = openId4VCI.credentialOffer.issuerMetadata.credentialConfigurationsSupported[authDetail.credentialConfigurationId]!!
-                                val display = credentialResponse.display?.firstOrNull()
-                                val newCredentialItem = CredentialItem(
-                                    id = Uuid.random().toHexString(),
-                                    config = config,
-                                    displayData = CredentialDisplayData(
-                                        title = display?.name ?:"Unknown",
-                                        subtitle = display?.description,
-                                        icon = display?.logo?.uri.imageUriToImageB64()
-                                    ),
-                                    credentials = credentialResponse.credentials!!.map {
-                                        Credential(
-                                            key = CredentialKeySoftware(
-                                                publicKey = tmpPublicKey,
-                                                privateKey = tmpKey
-                                            ),
-                                            credential = it.credential
-                                        )
-                                    }
-                                )
-                                newCredentials.add(newCredentialItem)
-                            }
-                            uiState = uiState.copy(credentialsToSave = newCredentials)
-                        }
-                    }
-                }
-            } else if (openId4VCI.credentialOffer.grants.authorizationCode != null) {
-                val grant = openId4VCI.credentialOffer.grants.authorizationCode
+                processToken(tokenResponse)
+
+            } else if (openId4VCI.credentialOffer.grants!!.authorizationCode != null) {
+                val grant = openId4VCI.credentialOffer.grants!!.authorizationCode
                 Log.d(TAG, "Grant: $grant")
                 val authServerUrl = Uri.parse(openId4VCI.authEndpoint(authServer))
                     .buildUpon()
                     .appendQueryParameter("response_type", "code")
                     .appendQueryParameter("state", Uuid.random().toString())
                     .appendQueryParameter("redirect_uri", "http://localhost")
-                    .appendQueryParameter("issuer_state", grant.issuerState)
+                    .appendQueryParameter("issuer_state", grant?.issuerState ?: "")
                     .build()
 
-                
+                Log.d(TAG, "authServerUrl: $authServerUrl")
+                uiState = uiState.copy(authServer = AuthServerUiState(
+                    url = authServerUrl.toString(),
+                    redirectUrl = "http://localhost",
+                    state = "state"
+                ))
 
-                throw IllegalArgumentException("Not finished")
+                //throw IllegalArgumentException("Not finished")
             } else {
                 throw IllegalArgumentException("Missing grants")
             }

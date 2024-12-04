@@ -5,14 +5,21 @@ import android.os.Build
 import android.os.Bundle
 import android.service.credentials.CredentialProviderService
 import android.util.Log
+import android.view.ViewGroup
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
@@ -31,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialRequest.DisplayInfo
 import androidx.credentials.CreateCredentialResponse
@@ -77,6 +85,7 @@ class CreateCredentialActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun CreateCredentialScreen(viewModel: CreateCredentialViewModel) {
+        println("color ${BottomSheetDefaults.ContainerColor.alpha} ${BottomSheetDefaults.ContainerColor.red} ${BottomSheetDefaults.ContainerColor.green} ${BottomSheetDefaults.ContainerColor.blue}")
         val uiState = viewModel.uiState
         val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         LaunchedEffect(uiState.state) {
@@ -92,7 +101,36 @@ class CreateCredentialActivity : ComponentActivity() {
         ) {
             val credentials = uiState.credentialsToSave
 
-            if (credentials == null) {
+            if (uiState.authServer != null) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .padding(10.dp)
+                    ) {
+                        Text(
+                            text = "Verify your identity...",
+                            textAlign = TextAlign.Center,
+                            fontSize = 20.sp
+                        )
+                    }
+                    Box(
+                        modifier = Modifier.fillMaxWidth().height(500.dp)
+                    ) {
+                        AuthWebView(
+                            url = uiState.authServer.url,
+                            redirectUrl = uiState.authServer.redirectUrl,
+                            onDone = {code ->
+                                viewModel.onCode(code)
+                            }
+                        )
+                    }
+
+
+                }
+            } else if (credentials == null) {
                 LinearProgressIndicator(
                     Modifier
                         .fillMaxWidth()
@@ -239,6 +277,42 @@ class CreateCredentialActivity : ComponentActivity() {
                 null
             }
         }
+    }
+
+    @Composable
+    fun AuthWebView(
+        url: String,
+        redirectUrl: String,
+        onDone: (String) -> Unit
+    ) {
+        AndroidView(factory = {
+            WebView(it).apply {
+                settings.javaScriptEnabled = true
+                this.layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                this.webViewClient = object : WebViewClient() {
+                    override fun shouldOverrideUrlLoading(
+                        view: WebView?,
+                        request: WebResourceRequest?
+                    ): Boolean {
+
+                        request?.let {
+
+                            if (request.url.toString().startsWith("$redirectUrl/")) {
+                                request.url.getQueryParameter("code")?.let { code ->
+                                    onDone(code)
+                                }
+                            }
+                        }
+                        return super.shouldOverrideUrlLoading(view, request)
+                    }
+                }
+            }
+        }, update = {
+            it.loadUrl(url)
+        })
     }
 }
 
