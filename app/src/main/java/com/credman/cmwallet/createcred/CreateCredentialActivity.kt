@@ -48,8 +48,11 @@ import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.PendingIntentHandler
 import androidx.credentials.provider.ProviderCreateCredentialRequest
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.data.model.CredentialItem
+import com.credman.cmwallet.getcred.GetCredentialActivity
 import com.credman.cmwallet.ui.CredentialCard
 import com.credman.cmwallet.ui.theme.CMWalletTheme
 
@@ -122,7 +125,7 @@ class CreateCredentialActivity : ComponentActivity() {
                         AuthWebView(
                             url = uiState.authServer.url,
                             redirectUrl = uiState.authServer.redirectUrl,
-                            onDone = {code ->
+                            onDone = { code ->
                                 viewModel.onCode(code)
                             }
                         )
@@ -130,6 +133,13 @@ class CreateCredentialActivity : ComponentActivity() {
 
 
                 }
+            } else if (uiState.vpResponse != null) {
+                VpCredential(
+                    vpResponse =  uiState.vpResponse,
+                    onApprove = {
+                        viewModel.onApprove()
+                    }
+                )
             } else if (credentials == null) {
                 LinearProgressIndicator(
                     Modifier
@@ -275,6 +285,55 @@ class CreateCredentialActivity : ComponentActivity() {
             } catch (e: Exception) {
                 Log.e(TAG, "Parsing error", e)
                 null
+            }
+        }
+    }
+
+    @Composable
+    fun VpCredential(
+        vpResponse: CredentialItem,
+        onApprove: () -> Unit
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(10.dp)
+            ) {
+                Text(
+                    text = "Verify your ID",
+                    textAlign = TextAlign.Center,
+                    fontSize = 20.sp
+                )
+            }
+            Row(
+                modifier = Modifier
+                    .padding(10.dp)
+            ) {
+                CredentialCard(vpResponse, {})
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                TextButton(
+                    modifier = Modifier.padding(20.dp, 10.dp, 10.dp, 20.dp ),
+                    onClick = {
+
+                    }
+                ) {
+                    Text("Cancel")
+                }
+                Button(
+                    modifier = Modifier.padding(10.dp, 10.dp, 20.dp, 20.dp ),
+                    onClick = {
+                        onApprove()
+                    }
+                ) {
+                    Text("Share")
+                }
             }
         }
     }

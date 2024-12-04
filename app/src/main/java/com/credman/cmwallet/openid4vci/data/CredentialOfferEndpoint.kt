@@ -16,6 +16,7 @@ data class GrantPreAuthorizedCode(
 data class GrantAuthorizationCode(
     @SerialName("issuer_state") val issuerState: String?,
     @SerialName("authorization_server") val authorizationServer: String?,
+    @SerialName("vp_request") val vpRequest: String?
 )
 
 @Serializable

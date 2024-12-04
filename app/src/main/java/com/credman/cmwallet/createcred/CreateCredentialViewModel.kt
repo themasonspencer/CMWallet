@@ -21,13 +21,17 @@ import com.credman.cmwallet.data.model.CredentialDisplayData
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.model.CredentialKeySoftware
 import com.credman.cmwallet.data.room.CredentialDatabaseItem
+import com.credman.cmwallet.getcred.GetCredentialActivity
+import com.credman.cmwallet.getcred.createOpenID4VPResponse
 import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.data.AuthorizationDetailResponseOpenIdCredential
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
+import com.credman.cmwallet.openid4vci.data.GrantAuthorizationCode
 import com.credman.cmwallet.openid4vci.data.TokenRequest
 import com.credman.cmwallet.openid4vci.data.TokenResponse
 import com.credman.cmwallet.openid4vci.data.imageUriToImageB64
+import com.credman.cmwallet.openid4vp.OpenId4VP
 import kotlinx.coroutines.launch
 import org.json.JSONObject
 import java.security.KeyFactory
@@ -50,7 +54,11 @@ data class AuthServerUiState (
 data class CreateCredentialUiState(
     val credentialsToSave: List<CredentialItem>? = null,
     val state: Result? = null,
-    val authServer: AuthServerUiState? = null
+    val authServer: AuthServerUiState? = null,
+    val vpResponse:  CredentialItem? = null,
+
+    // hack
+    val tmpCode: GrantAuthorizationCode? = null
 )
 
 @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -95,7 +103,6 @@ class CreateCredentialViewModel : ViewModel() {
             )
             Log.i(TAG, "tokenResponse $tokenResponse")
             processToken(tokenResponse)
-
         }
     }
 
@@ -143,6 +150,34 @@ class CreateCredentialViewModel : ViewModel() {
     }
 
     @OptIn(ExperimentalUuidApi::class)
+    fun onApprove() {
+        viewModelScope.launch {
+            val authServer =
+                if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null) {
+                    openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
+                } else {
+                    "Can't do this yet"
+                }
+            val authServerUrl = Uri.parse(openId4VCI.authEndpoint(authServer))
+                .buildUpon()
+                .appendQueryParameter("response_type", "code")
+                .appendQueryParameter("state", Uuid.random().toString())
+                .appendQueryParameter("redirect_uri", "http://localhost")
+                .appendQueryParameter("issuer_state", uiState.tmpCode?.issuerState ?: "")
+                .appendQueryParameter("vp_response", "foo")
+                .build()
+
+            Log.d(TAG, "authServerUrl: $authServerUrl")
+            uiState = uiState.copy(authServer = AuthServerUiState(
+                url = authServerUrl.toString(),
+                redirectUrl = "http://localhost",
+                state = "state"
+            ), vpResponse = null)
+        }
+
+    }
+
+    @OptIn(ExperimentalUuidApi::class)
     private suspend fun processRequest(request: ProviderCreateCredentialRequest?) {
         if (request == null) {
             uiState = CreateCredentialUiState()
@@ -187,24 +222,38 @@ class CreateCredentialViewModel : ViewModel() {
                 processToken(tokenResponse)
 
             } else if (openId4VCI.credentialOffer.grants!!.authorizationCode != null) {
-                val grant = openId4VCI.credentialOffer.grants!!.authorizationCode
+                val grant = openId4VCI.credentialOffer.grants!!.authorizationCode!!
                 Log.d(TAG, "Grant: $grant")
-                val authServerUrl = Uri.parse(openId4VCI.authEndpoint(authServer))
-                    .buildUpon()
-                    .appendQueryParameter("response_type", "code")
-                    .appendQueryParameter("state", Uuid.random().toString())
-                    .appendQueryParameter("redirect_uri", "http://localhost")
-                    .appendQueryParameter("issuer_state", grant?.issuerState ?: "")
-                    .build()
+                if (grant.vpRequest != null) {
+                    val openId4VPRequest = OpenId4VP(grant.vpRequest)
+                    val selectedCredential = CmWalletApplication.credentialRepo.getCredential("1")
+                        ?: throw RuntimeException("Selected credential not found")
+                    val matchedCredential =
+                        openId4VPRequest.performQueryOnCredential(selectedCredential)
+                    val vpResponse = createOpenID4VPResponse(
+                        openId4VPRequest,
+                        "wallet",
+                        selectedCredential,
+                        matchedCredential
+                    )
+                    uiState = uiState.copy(vpResponse = selectedCredential, tmpCode = grant)
 
-                Log.d(TAG, "authServerUrl: $authServerUrl")
-                uiState = uiState.copy(authServer = AuthServerUiState(
-                    url = authServerUrl.toString(),
-                    redirectUrl = "http://localhost",
-                    state = "state"
-                ))
+                } else {
+                    val authServerUrl = Uri.parse(openId4VCI.authEndpoint(authServer))
+                        .buildUpon()
+                        .appendQueryParameter("response_type", "code")
+                        .appendQueryParameter("state", Uuid.random().toString())
+                        .appendQueryParameter("redirect_uri", "http://localhost")
+                        .appendQueryParameter("issuer_state", grant?.issuerState ?: "")
+                        .build()
 
-                //throw IllegalArgumentException("Not finished")
+                    Log.d(TAG, "authServerUrl: $authServerUrl")
+                    uiState = uiState.copy(authServer = AuthServerUiState(
+                        url = authServerUrl.toString(),
+                        redirectUrl = "http://localhost",
+                        state = "state"
+                    ))
+                }
             } else {
                 throw IllegalArgumentException("Missing grants")
             }

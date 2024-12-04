@@ -16,8 +16,10 @@ import androidx.credentials.registry.provider.selectedEntryId
 import androidx.fragment.app.FragmentActivity
 import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.model.CredentialKeySoftware
 import com.credman.cmwallet.decodeBase64UrlNoPadding
+import com.credman.cmwallet.getcred.GetCredentialActivity.DigitalCredentialResult
 import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.mdoc.createSessionTranscript
 import com.credman.cmwallet.mdoc.filterIssuerSigned
@@ -25,11 +27,81 @@ import com.credman.cmwallet.mdoc.generateDeviceResponse
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
 import com.credman.cmwallet.openid4vp.OpenId4VP
+import com.credman.cmwallet.openid4vp.OpenId4VPMatchedCredential
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
 import com.credman.cmwallet.toBase64UrlNoPadding
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.json.JSONObject
+
+fun createOpenID4VPResponse(
+    openId4VPRequest: OpenId4VP,
+    origin: String,
+    selectedCredential: CredentialItem,
+    matchedCredential: OpenId4VPMatchedCredential
+): DigitalCredentialResult {
+    var authenticationTitle: CharSequence = "Verify your identity"
+    var authenticationSubtitle: CharSequence? = null
+    // Create the response
+    val vpToken = JSONObject()
+    when (selectedCredential.config) {
+        is CredentialConfigurationMDoc -> {
+            val matchedClaims =
+                matchedCredential.matchedClaims as OpenId4VPMatchedMDocClaims
+            val filteredIssuerSigned = filterIssuerSigned(
+                selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding(),
+                matchedClaims.claims
+            )
+            val deviceNamespaces = if (openId4VPRequest.transactionData.isEmpty()) {
+                emptyMap<String, Any>()
+            } else {
+                val deviceSignedTransactionData =
+                    openId4VPRequest.generateDeviceSignedTransactionData(
+                        matchedCredential.dcqlId
+                    )
+                if (deviceSignedTransactionData.authenticationTitleAndSubtitle != null) {
+                    authenticationTitle =
+                        deviceSignedTransactionData.authenticationTitleAndSubtitle.first
+                    authenticationSubtitle =
+                        deviceSignedTransactionData.authenticationTitleAndSubtitle.second
+                }
+                mapOf(
+                    Pair(
+                        "net.openid.open4vc",
+                        deviceSignedTransactionData.deviceSignedTransactionData
+                    )
+                )
+            }
+            val devicePrivateKey =
+                loadECPrivateKey((selectedCredential.credentials.first().key as CredentialKeySoftware).privateKey.decodeBase64UrlNoPadding())
+            val deviceResponse = generateDeviceResponse(
+                doctype = selectedCredential.config.doctype,
+                issuerSigned = filteredIssuerSigned,
+                devicePrivateKey = devicePrivateKey,
+                sessionTranscript = createSessionTranscript(
+                    openId4VPRequest.getHandover(
+                        origin
+                    )
+                ),
+                deviceNamespaces = deviceNamespaces
+
+            )
+            val encodedDeviceResponse = deviceResponse.toBase64UrlNoPadding()
+            vpToken.put(matchedCredential.dcqlId, encodedDeviceResponse)
+        }
+
+        is CredentialConfigurationUnknownFormat -> TODO()
+    }
+
+    // Create the openid4vp result
+    val responseJson = JSONObject()
+    responseJson.put("vp_token", vpToken)
+    return DigitalCredentialResult(
+        responseJson = responseJson.toString(),
+        authenticationTitle = authenticationTitle,
+        authenticationSubtitle = authenticationSubtitle,
+    )
+}
 
 class GetCredentialActivity : FragmentActivity() {
     @OptIn(ExperimentalDigitalCredentialApi::class)
@@ -125,7 +197,7 @@ class GetCredentialActivity : FragmentActivity() {
         }
     }
 
-    private data class DigitalCredentialResult(
+    data class DigitalCredentialResult(
         val responseJson: String,
         val authenticationTitle: CharSequence,
         val authenticationSubtitle: CharSequence?
@@ -150,8 +222,7 @@ class GetCredentialActivity : FragmentActivity() {
     ): DigitalCredentialResult {
         val selectedCredential = CmWalletApplication.credentialRepo.getCredential(selectedID)
             ?: throw RuntimeException("Selected credential not found")
-        var authenticationTitle: CharSequence = "Verify your identity"
-        var authenticationSubtitle: CharSequence? = null
+
 
         val digitalCredentialRequestOptions =
             Json.decodeFromString<DigitalCredentialRequestOptions>(requestJson)
@@ -174,65 +245,14 @@ class GetCredentialActivity : FragmentActivity() {
                     openId4VPRequest.performQueryOnCredential(selectedCredential)
                 Log.i("GetCredentialActivity", "matchedCredential $matchedCredential")
 
-                // Create the response
-                val vpToken = JSONObject()
-                when (selectedCredential.config) {
-                    is CredentialConfigurationMDoc -> {
-                        val matchedClaims =
-                            matchedCredential.matchedClaims as OpenId4VPMatchedMDocClaims
-                        val filteredIssuerSigned = filterIssuerSigned(
-                            selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding(),
-                            matchedClaims.claims
-                        )
-                        val deviceNamespaces = if (openId4VPRequest.transactionData.isEmpty()) {
-                            emptyMap<String, Any>()
-                        } else {
-                            val deviceSignedTransactionData =
-                                openId4VPRequest.generateDeviceSignedTransactionData(
-                                    matchedCredential.dcqlId
-                                )
-                            if (deviceSignedTransactionData.authenticationTitleAndSubtitle != null) {
-                                authenticationTitle =
-                                    deviceSignedTransactionData.authenticationTitleAndSubtitle.first
-                                authenticationSubtitle =
-                                    deviceSignedTransactionData.authenticationTitleAndSubtitle.second
-                            }
-                            mapOf(
-                                Pair(
-                                    "net.openid.open4vc",
-                                    deviceSignedTransactionData.deviceSignedTransactionData
-                                )
-                            )
-                        }
-                        val devicePrivateKey =
-                            loadECPrivateKey((selectedCredential.credentials.first().key as CredentialKeySoftware).privateKey.decodeBase64UrlNoPadding())
-                        val deviceResponse = generateDeviceResponse(
-                            doctype = selectedCredential.config.doctype,
-                            issuerSigned = filteredIssuerSigned,
-                            devicePrivateKey = devicePrivateKey,
-                            sessionTranscript = createSessionTranscript(
-                                openId4VPRequest.getHandover(
-                                    origin
-                                )
-                            ),
-                            deviceNamespaces = deviceNamespaces
 
-                        )
-                        val encodedDeviceResponse = deviceResponse.toBase64UrlNoPadding()
-                        vpToken.put(matchedCredential.dcqlId, encodedDeviceResponse)
-                    }
 
-                    is CredentialConfigurationUnknownFormat -> TODO()
-                }
-
-                // Create the openid4vp result
-                val responseJson = JSONObject()
-                responseJson.put("vp_token", vpToken)
-                return DigitalCredentialResult(
-                    responseJson = responseJson.toString(),
-                    authenticationTitle = authenticationTitle,
-                    authenticationSubtitle = authenticationSubtitle,
-                )
+                return createOpenID4VPResponse(
+                    openId4VPRequest,
+                    origin,
+                    selectedCredential,
+                    matchedCredential
+                );
 
             }
 
