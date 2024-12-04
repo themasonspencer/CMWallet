@@ -141,7 +141,7 @@ fun CredentialDialog(
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
-            Column {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
                 Text(
                     text = credentialItem.displayData.title,
                     modifier = Modifier
@@ -155,7 +155,6 @@ fun CredentialDialog(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(10.dp)
-                                .verticalScroll(rememberScrollState())
                         ) {
                             Row(Modifier.background(Color.LightGray)) {
                                 Text(
