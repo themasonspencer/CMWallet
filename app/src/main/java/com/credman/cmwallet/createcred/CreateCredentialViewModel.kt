@@ -179,8 +179,9 @@ class CreateCredentialViewModel : ViewModel() {
 
     @OptIn(ExperimentalUuidApi::class)
     private suspend fun processRequest(request: ProviderCreateCredentialRequest?) {
+        uiState = CreateCredentialUiState()
         if (request == null) {
-            uiState = CreateCredentialUiState()
+            //uiState = CreateCredentialUiState()
             return
         }
         try {

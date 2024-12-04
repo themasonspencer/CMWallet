@@ -137,7 +137,6 @@ fun CredentialDialog(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(400.dp)
                 .padding(16.dp),
             shape = RoundedCornerShape(16.dp),
         ) {
