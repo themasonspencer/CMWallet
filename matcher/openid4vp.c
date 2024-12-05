@@ -7,6 +7,7 @@
 
 #include "base64.h"
 #include "dcql.h"
+#include "icon.h"
 
 #define PROTOCOL_OPENID4VP_1_0 "openid4vp1.0"
 
@@ -47,6 +48,10 @@ int main() {
     cJSON* requests = cJSON_GetObjectItem(dc_request, "providers"); // TODO: This has changed in the latest spec
     int requests_size = cJSON_GetArraySize(requests);
 
+    int matched = 0;
+    int should_offer_issuance = 0;
+    char* merchant_name = NULL;
+    char* transaction_amount = NULL;
     for(int i=0; i<requests_size; i++) {
         cJSON* request = cJSON_GetArrayItem(requests, i);
         //printf("Request %s\n", cJSON_Print(request));
@@ -60,7 +65,9 @@ int main() {
             char* data_json_string = cJSON_GetStringValue(data);
             cJSON* data_json = cJSON_Parse(data_json_string);
             cJSON* query = cJSON_GetObjectItem(data_json, "dcql_query");
-
+            if (cJSON_HasObjectItem(data_json, "offer")) {
+                should_offer_issuance = 1;
+            }
 
             // For now we only support one transaction data item
 
@@ -76,6 +83,8 @@ int main() {
                     int transaction_data_json_len = B64DecodeURL(transaction_data_encoded_str, &transaction_data_json);
                     transaction_data = cJSON_Parse(transaction_data_json);
                     transaction_credential_ids = cJSON_GetObjectItem(transaction_data, "credential_ids");
+                    merchant_name = cJSON_GetStringValue(cJSON_GetObjectItem(transaction_data, "merchant_name"));
+                    transaction_amount = cJSON_GetStringValue(cJSON_GetObjectItem(transaction_data, "amount"));
                 }
                 
             }
@@ -105,8 +114,6 @@ int main() {
                     cJSON_ArrayForEach(transaction_credential_id, transaction_credential_ids) {
                         printf("comparing cred id %s with transaction cred id %s.\n", cJSON_Print(doc_id), cJSON_Print(transaction_credential_id));
                         if (cJSON_Compare(transaction_credential_id, doc_id, cJSON_True)) {
-                            char* merchant_name = cJSON_GetStringValue(cJSON_GetObjectItem(transaction_data, "merchant_name"));
-                            char* transaction_amount = cJSON_GetStringValue(cJSON_GetObjectItem(transaction_data, "amount"));
 
                             char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
                             char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
@@ -119,13 +126,14 @@ int main() {
                             int icon_len = (int)(cJSON_GetNumberValue(cJSON_GetObjectItem(icon, "length")));
 
                             AddPaymentEntry(id, merchant_name, title, subtitle, creds_blob + icon_start_int, icon_len, transaction_amount, NULL, 0, NULL, 0);
-
+                            matched = 1;
                             break;
                         }
                     }
                 } else {
                     char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
                     char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
+                    matched = 1;
                     AddStringIdEntry(id, NULL, 0, title, subtitle, NULL, NULL);
                     cJSON *matched_claim_names = cJSON_GetObjectItem(c, "matched_claim_names");
                     cJSON *claim;
@@ -137,6 +145,10 @@ int main() {
 
 
         }
+    }
+
+    if (matched == 0 && should_offer_issuance != 0 && merchant_name != NULL) {
+        AddPaymentEntry("ISSUANCE", merchant_name, "Add your credit card and proceed to pay", NULL, _icons_Wallet_Rounded_png, sizeof(_icons_Wallet_Rounded_png), transaction_amount, NULL, 0, NULL, 0);
     }
 
     return 0;
