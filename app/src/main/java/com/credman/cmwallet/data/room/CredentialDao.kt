@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CredentialDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(vararg creds: CredentialDatabaseItem)
+    suspend fun insertAll(vararg creds: CredentialDatabaseItem): List<Long>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(creds: List<CredentialDatabaseItem>)
+    suspend fun insertAll(creds: List<CredentialDatabaseItem>): List<Long>
 
     @Update
     suspend fun updateUsers(vararg creds: CredentialDatabaseItem)

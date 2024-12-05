@@ -203,14 +203,18 @@ class CreateCredentialActivity : ComponentActivity() {
     private fun handleUiResult(r: Result?) {
         when (r) {
             is Result.Error -> finishWithError(r.msg)
-            is Result.Response -> finishWithResponse(r.response)
+            is Result.Response -> finishWithResponse(r.response, r.newEntryId)
             else -> {} // No-op
         }
     }
 
-    private fun finishWithResponse(response: CreateCredentialResponse) {
+    private fun finishWithResponse(response: CreateCredentialResponse, newEntryId: String) {
         val resultData = Intent()
         PendingIntentHandler.setCreateCredentialResponse(resultData, response)
+
+        // A bit hacky, for the inline issuance
+        resultData.putExtra("newEntryId", newEntryId)
+
         setResult(RESULT_OK, resultData)
         finish()
     }

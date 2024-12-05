@@ -42,7 +42,10 @@ import kotlin.uuid.Uuid
 
 sealed class Result {
     data class Error(val msg: String? = null) : Result()
-    data class Response(val response: CreateCredentialResponse) : Result()
+    data class Response(
+        val response: CreateCredentialResponse,
+        val newEntryId: String,
+    ) : Result()
 }
 
 data class AuthServerUiState (
@@ -190,7 +193,7 @@ class CreateCredentialViewModel : ViewModel() {
             val requestJsonString: String = request.callingRequest.credentialData.getString(
                 "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
             )!!
-
+            
             val requestJson = JSONObject(requestJsonString)
             require(requestJson.has("protocol")) { "request json missing required field protocol" }
             require(requestJson.has("data")) { "request json missing required field data" }
@@ -272,18 +275,18 @@ class CreateCredentialViewModel : ViewModel() {
         val credentialsToSave = uiState.credentialsToSave
         if (credentialsToSave != null) {
             viewModelScope.launch {
-                CmWalletApplication.database.credentialDao().insertAll(
+                val insertedId = CmWalletApplication.database.credentialDao().insertAll(
                     credentialsToSave.map { CredentialDatabaseItem(it) }
-                )
+                )[0]
+                onResponse(insertedId.toString())
             }
-            onResponse()
         } else {
             Log.e(TAG, "Unexpected: null credential to save")
             onError("Internal error")
         }
     }
 
-    private fun onResponse() {
+    private fun onResponse(newEntryId: String) {
         val testResponse = CreateCustomCredentialResponse(
             type = DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
             data = Bundle().apply {
@@ -293,7 +296,7 @@ class CreateCredentialViewModel : ViewModel() {
                 )
             },
         )
-        uiState = uiState.copy(state = Result.Response(testResponse))
+        uiState = uiState.copy(state = Result.Response(testResponse, newEntryId))
     }
 
     private fun onError(msg: String? = null) {

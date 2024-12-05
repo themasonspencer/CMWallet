@@ -21,6 +21,7 @@ class OpenId4VP(val request: String) {
     val clientId: String // TODO: parse out the scheme
     val dcqlQuery: JSONObject
     val transactionData: List<TransactionData>
+    val issuanceOffer: JSONObject?
 
     init {
         // Parse required params
@@ -31,6 +32,7 @@ class OpenId4VP(val request: String) {
         clientId = requestJson.getString("client_id")
         nonce = requestJson.getString("nonce")
         dcqlQuery = requestJson.getJSONObject("dcql_query")
+        issuanceOffer = requestJson.optJSONObject("offer")
 
         val transactionDataJson = requestJson.optJSONArray("transaction_data")
         if (transactionDataJson != null) {
