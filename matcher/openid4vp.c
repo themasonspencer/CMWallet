@@ -148,7 +148,7 @@ int main() {
     }
 
     if (matched == 0 && should_offer_issuance != 0 && merchant_name != NULL) {
-        AddPaymentEntry("ISSUANCE", merchant_name, "Add your credit card and proceed to pay", NULL, _icons_Wallet_Rounded_png, sizeof(_icons_Wallet_Rounded_png), transaction_amount, NULL, 0, NULL, 0);
+        AddPaymentEntry("ISSUANCE", merchant_name, "Verify this transaction and save your card in CMWallet", NULL, _icons_Wallet_Rounded_png, sizeof(_icons_Wallet_Rounded_png), transaction_amount, NULL, 0, NULL, 0);
     }
 
     return 0;
