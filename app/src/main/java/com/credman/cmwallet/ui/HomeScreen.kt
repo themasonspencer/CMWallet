@@ -22,6 +22,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.activity.compose.LocalActivity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -42,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.credman.cmwallet.MainActivity
 import com.credman.cmwallet.R
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.decodeBase64
@@ -68,21 +71,22 @@ fun HomeScreen(
         Column(
             modifier = Modifier.padding(innerPadding),
         ) {
-//            Row(
-//                modifier = Modifier
-//                    .padding(10.dp)
-//                    .fillMaxWidth(),
-//                horizontalArrangement = Arrangement.Center
-//            ) {
-//                Button(
-//                    onClick = {
-//                        viewModel.testIssuance()
-//                    }
-//                ) {
-//                    Text("Test Issuance")
-//                }
-//            }
-//            HorizontalDivider(thickness = 2.dp)
+            Row(
+                modifier = Modifier
+                    .padding(10.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                val activity = LocalActivity.current as MainActivity
+                Button(
+                    onClick = {
+                        viewModel.testIssuance(activity)
+                    }
+                ) {
+                    Text("Test Issuance")
+                }
+            }
+            HorizontalDivider(thickness = 2.dp)
             CredentialList(
                 uiState.credentials,
                 onCredentialClick = { cred ->
