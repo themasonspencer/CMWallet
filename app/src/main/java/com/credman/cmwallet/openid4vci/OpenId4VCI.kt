@@ -1,5 +1,6 @@
 package com.credman.cmwallet.openid4vci
 
+import android.util.Log
 import com.credman.cmwallet.createJWTES256
 import com.credman.cmwallet.openid4vci.data.CredentialOffer
 import com.credman.cmwallet.openid4vci.data.CredentialRequest
@@ -47,6 +48,9 @@ class OpenId4VCI(val credentialOfferJson: String) {
     }
 
     suspend fun requestAuthServerMetadata(server: String): OauthAuthorizationServer {
+        if (credentialOffer.authorizationServerMetadata != null) {
+            return credentialOffer.authorizationServerMetadata
+        }
         if (server !in authServerCache) {
             authServerCache[server] =
                 httpClient.get("$server/.well-known/oauth-authorization-server").body()
