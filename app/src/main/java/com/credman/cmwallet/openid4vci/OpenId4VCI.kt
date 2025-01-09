@@ -24,6 +24,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.parameters
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.encodeToJsonElement
@@ -49,6 +50,7 @@ class OpenId4VCI(val credentialOfferJson: String) {
 
     suspend fun requestAuthServerMetadata(server: String): OauthAuthorizationServer {
         if (credentialOffer.authorizationServerMetadata != null) {
+            delay(50)
             return credentialOffer.authorizationServerMetadata
         }
         if (server !in authServerCache) {
