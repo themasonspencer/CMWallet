@@ -60,9 +60,19 @@ class CmWalletApplication : Application() {
         applicationScope.launch {
             credentialRepo.credentialRegistryDatabase.collect { credentialDatabase ->
                 Log.i(TAG, "Credentials changed $credentialDatabase")
+                // For backward compatibility with Chrome
                 registryManager.registerCredentials(
                     request = object : RegisterCredentialsRequest(
                         "com.credman.IdentityCredential",
+                        "openid4vp",
+                        credentialDatabase,
+                        openId4VPMatcher
+                    ) {}
+                )
+                // In the future, should only register this type
+                registryManager.registerCredentials(
+                    request = object : RegisterCredentialsRequest(
+                        DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
                         "openid4vp",
                         credentialDatabase,
                         openId4VPMatcher
