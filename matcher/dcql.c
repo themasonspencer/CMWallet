@@ -78,9 +78,10 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                 cJSON* claim;
                 cJSON_ArrayForEach(claim, claims) {
                     cJSON* claim_values = cJSON_GetObjectItem(claim, "values");
+                    cJSON* path = cJSON_GetObjectItem(claim, "path");
                     if (strcmp(format, "mso_mdoc") == 0) {
-                        char* namespace = cJSON_GetStringValue(cJSON_GetObjectItem(claim, "namespace"));
-                        char* claim_name = cJSON_GetStringValue(cJSON_GetObjectItem(claim, "claim_name"));
+                        char* namespace = cJSON_GetStringValue(cJSON_GetArrayItem(path, 0));
+                        char* claim_name = cJSON_GetStringValue(cJSON_GetArrayItem(path, 1));
                         if (cJSON_HasObjectItem(cJSON_GetObjectItem(candidate, "namespaces"), namespace)) {
                             if (cJSON_HasObjectItem(cJSON_GetObjectItem(cJSON_GetObjectItem(candidate, "namespaces"),namespace), claim_name)) {
                                 if (claim_values != NULL) {
@@ -116,10 +117,11 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                 cJSON* claim;
                 cJSON_ArrayForEach(claim, claims) {
                     cJSON* claim_values = cJSON_GetObjectItem(claim, "values");
+                    cJSON* path = cJSON_GetObjectItem(claim, "path");
                     char* claim_id = cJSON_GetStringValue(cJSON_GetObjectItem(claim, "id"));
                     if (strcmp(format, "mso_mdoc") == 0) {
-                        char* namespace = cJSON_GetStringValue(cJSON_GetObjectItem(claim, "namespace"));
-                        char* claim_name = cJSON_GetStringValue(cJSON_GetObjectItem(claim, "claim_name"));
+                        char* namespace = cJSON_GetStringValue(cJSON_GetArrayItem(path, 0));
+                        char* claim_name = cJSON_GetStringValue(cJSON_GetArrayItem(path, 1));
                         if (cJSON_HasObjectItem(cJSON_GetObjectItem(candidate, "namespaces"), namespace)) {
                             if (cJSON_HasObjectItem(cJSON_GetObjectItem(cJSON_GetObjectItem(candidate, "namespaces"),namespace), claim_name)) {
                                 if (claim_values != NULL) {

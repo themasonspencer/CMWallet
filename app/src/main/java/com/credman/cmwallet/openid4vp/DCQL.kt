@@ -72,8 +72,9 @@ fun performQueryOnCredential(
                     val ret = mutableMapOf<String, MutableList<String>>()
                     for (claimIdx in 0 until claims.length()) {
                         val claim = claims.getJSONObject(claimIdx)!!
-                        val claimNamespace = claim.getString("namespace")
-                        val claimName = claim.getString("claim_name")
+                        val path = claim.getJSONArray("path")
+                        val claimNamespace = path.get(0)
+                        val claimName = path.getString(1)
 
                         mdoc.issuerSignedNamespaces.forEach { (namespace, elements) ->
                             if (namespace == claimNamespace) {
