@@ -314,7 +314,7 @@ class GetCredentialActivity : FragmentActivity() {
             "processDigitalCredentialOption protocol ${provider.protocol}"
         )
         when (provider.protocol) {
-            "openid4vp1.0" -> {
+            "openid4vp" -> {
                 val openId4VPRequest = OpenId4VP(provider.request)
                 Log.i("GetCredentialActivity", "nonce ${openId4VPRequest.nonce}")
                 val matchedCredential =
