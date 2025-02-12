@@ -154,7 +154,10 @@ class GetCredentialActivity : FragmentActivity() {
                     val digitalCredentialRequestOptions =
                         Json.decodeFromString<DigitalCredentialRequestOptions>(it.requestJson)
                     if (entryId == "ISSUANCE") {
-                        val openId4VPRequest = OpenId4VP(digitalCredentialRequestOptions.providers[0].request)
+                        val openId4VPRequest = OpenId4VP(
+                            digitalCredentialRequestOptions.providers[0].request,
+                            origin
+                        )
                         startActivityForResult(
                             Intent(this, CreateCredentialActivity::class.java).apply {
                                 val callingAppInfo = request.callingAppInfo
@@ -315,7 +318,7 @@ class GetCredentialActivity : FragmentActivity() {
         )
         when (provider.protocol) {
             "openid4vp" -> {
-                val openId4VPRequest = OpenId4VP(provider.request)
+                val openId4VPRequest = OpenId4VP(provider.request, origin)
                 Log.i("GetCredentialActivity", "nonce ${openId4VPRequest.nonce}")
                 val matchedCredential =
                     openId4VPRequest.performQueryOnCredential(selectedCredential)

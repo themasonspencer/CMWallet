@@ -229,7 +229,10 @@ class CreateCredentialViewModel : ViewModel() {
                 val grant = openId4VCI.credentialOffer.grants!!.authorizationCode!!
                 Log.d(TAG, "Grant: $grant")
                 if (grant.vpRequest != null) {
-                    val openId4VPRequest = OpenId4VP(grant.vpRequest)
+                    val openId4VPRequest = OpenId4VP(
+                        grant.vpRequest,
+                        request.callingAppInfo.getOrigin(CmWalletApplication.credentialRepo.privAppsJson)
+                    )
                     val selectedCredential = CmWalletApplication.credentialRepo.getCredential("1")
                         ?: throw RuntimeException("Selected credential not found")
                     val matchedCredential =

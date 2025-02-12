@@ -14,22 +14,22 @@ data class TransactionData(
     val data: JSONObject
 )
 
-class OpenId4VP(val request: String) {
+class OpenId4VP(val request: String, origin: String?) {
     val requestJson: JSONObject = JSONObject(request)
 
     val nonce: String
-    val clientId: String // TODO: parse out the scheme
+    val clientId: String
     val dcqlQuery: JSONObject
     val transactionData: List<TransactionData>
     val issuanceOffer: JSONObject?
 
     init {
         // Parse required params
-        require(requestJson.has("client_id")) { "Authorization Request must contain a client_id" }
+//        require(requestJson.has("client_id")) { "Authorization Request must contain a client_id" }
+        clientId = "web-origin:$origin" // TODO: handle native app as origin
         require(requestJson.has("nonce")) { "Authorization Request must contain a nonce" }
         require(requestJson.has("dcql_query")) { "Authorization Request must contain a dcql_query" }
 
-        clientId = requestJson.getString("client_id")
         nonce = requestJson.getString("nonce")
         dcqlQuery = requestJson.getJSONObject("dcql_query")
         issuanceOffer = requestJson.optJSONObject("offer")
@@ -139,7 +139,7 @@ class OpenId4VP(val request: String) {
         val md = MessageDigest.getInstance("SHA-256")
         return listOf(
             oid4vpHandoverIdentifier,
-            md.digest(cborEncode(CborTag(24, cborEncode(handoverData))))
+            md.digest(cborEncode(handoverData))
         )
     }
 
