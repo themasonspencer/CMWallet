@@ -348,5 +348,69 @@
         "credential": "ompuYW1lU3BhY2VzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xh9gYWFikaGRpZ2VzdElEAGZyYW5kb21QYXl5NnPh7MFFB_hU73A-u3FlbGVtZW50SWRlbnRpZmllcmtob2xkZXJfbmFtZWxlbGVtZW50VmFsdWVpSm9uIFNtaXRo2BhYX6RoZGlnZXN0SUQBZnJhbmRvbVA3zeIR9QXYuwc9gskURP0ycWVsZW1lbnRJZGVudGlmaWVya2NhcmRfbnVtYmVybGVsZW1lbnRWYWx1ZXA0MDAwMTIzNDU2Nzg5MDEy2BhYUKRoZGlnZXN0SUQCZnJhbmRvbVA2oIyyL2pnwkga-2gAXPSucWVsZW1lbnRJZGVudGlmaWVybGV4cGlyeV9tb250aGxlbGVtZW50VmFsdWUI2BhYUaRoZGlnZXN0SUQDZnJhbmRvbVAd-hrRHsaUVefNxzSpzpCdcWVsZW1lbnRJZGVudGlmaWVya2V4cGlyeV95ZWFybGVsZW1lbnRWYWx1ZRkH7NgYWFSkaGRpZ2VzdElEBGZyYW5kb21QJgNWoVhWmecMiryYGvrNPHFlbGVtZW50SWRlbnRpZmllcmxjYXJkX25ldHdvcmtsZWxlbWVudFZhbHVlZFZpc2HYGFhWpGhkaWdlc3RJRAVmcmFuZG9tUBXktMHt-ke9UrX7CtsdCCNxZWxlbWVudElkZW50aWZpZXJrY2FyZF9pc3N1ZXJsZWxlbWVudFZhbHVlZ1RyaWJhbmvYGFhMpGhkaWdlc3RJRAZmcmFuZG9tUHltHhuXCrWCbqd-yE-i9oNxZWxlbWVudElkZW50aWZpZXJjcGFybGVsZW1lbnRWYWx1ZWUwMDAxMmppc3N1ZXJBdXRohEOhASahGCFZAkswggJHMIIB7aADAgECAhR0rQ_91XBDlZ8USFue2qBn2jKexTAKBggqhkjOPQQDAjB5MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNTW91bnRhaW4gVmlldzEcMBoGA1UECgwTRGlnaXRhbCBDcmVkZW50aWFsczEfMB0GA1UEAwwWZGlnaXRhbGNyZWRlbnRpYWxzLmRldjAeFw0yNDExMTAwMTA4MDNaFw0zNDEwMjkwMTA4MDNaMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE60OoetJ2q9sYKxqUzG0UWCwbVsn5B8NpOEM2XONBLASTXg6fllys_OXSYzZaArAuwpG9bKYq8UHSlT1stnkQaaNTMFEwHQYDVR0OBBYEFAsscPwDHGxvC6dRMFLjmkQZOduwMB8GA1UdIwQYMBaAFAsscPwDHGxvC6dRMFLjmkQZOduwMA8GA1UdEwEB_wQFMAMBAf8wCgYIKoZIzj0EAwIDSAAwRQIhAPyVuvIYUWM_ZdrHLvMluecYu8squ8nB4Omq0x-G--czAiBuQwA1RG3Rp6Ieq80ylHVxIdhJ7IIxEZOrx-rtuWOHy1kCT9gYWQJKpmd2ZXJzaW9uYzEuMG9kaWdlc3RBbGdvcml0aG1nU0hBLTI1Nmdkb2NUeXBldmNvbS5lbXZjby5wYXltZW50X2NhcmRsdmFsdWVEaWdlc3RzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xpwBYIH79h9Rlegpc3vROd7nILPcvahHSsVG5zMQWZOAmf2ReAVggqSzksj1rnV-q1jpKmcKkrJEleVATHSdgJ5UcCtvSUiUCWCBguY6sfm0qTHc4krV36xP-0cSscTEYtsbNI-I0vZq3LQNYIIjanfv8qc6W23SekoZI8rYKkUrRklBGqahcSAPl89QdBFggBxfv6EafLtY04S-H-_puZbawysqXpzWGKlyFLDBOTbEFWCBmkGPrqNJdZCwH69wj1a3HtITQlmtnW7XxE9xWL_36IQZYIFu6J5uewR52b0NYhHLWCIbq2yzQ_K91r9MMwtFgeq2cbWRldmljZUtleUluZm-haWRldmljZUtleaQBAiABIVgg-TdTS2XLm-GzoFnwcBfDBzxpHyfA5t9NHIqGravV6L0iWCCi4BttORRF1DrjTBDELi265_KIjgtJ05zSFZ_jrUpkm2x2YWxpZGl0eUluZm-jZnNpZ25lZMB4GzIwMjQtMTItMDRUMDQ6MDg6MzIuMTY4ODQwWml2YWxpZEZyb23AeBsyMDI0LTEyLTA0VDA0OjA4OjMyLjE2ODg1M1pqdmFsaWRVbnRpbMB4GzIwMzQtMTEtMjJUMDQ6MDg6MzIuMTY4ODU0WlhAzXjM8QZIBbCNYAdSqbcvwnVImTnEx0m-lRpDIg6xUrqN5FVDNLrNW6JqZ4uRBMTZn5dPdgpx574D5-XjuBKgsQ"
       }
     ]
+  },
+  {
+    "id": "4",
+    "config": {
+      "format": "mso_mdoc",
+      "doctype": "org.iso.7367.1.mVRC",
+      "cryptographic_binding_methods_supported": [
+        "cose_key"
+      ],
+      "credential_signing_alg_values_supported": [
+        "ES256"
+      ],
+      "display": [
+        {
+          "name": "Vehicle Registration",
+          "locale": "en-US",
+          "description": "Vehicle Registration"
+        }
+      ],
+      "claims": {
+        "org.iso.18013.5.1": {
+          "family_name": {
+            "display": [
+              {
+                "name": "Family Name",
+                "locale": "en-US"
+              }
+            ]
+          },
+          "first_name": {
+            "display": [
+              {
+                "name": "Given names",
+                "locale": "en-US"
+              }
+            ]
+          }
+        },
+        "org.iso.7367.1": {
+          "vehicle_holder": {
+            "display": [
+              {
+                "name": "Vehicle Holder Information",
+                "locale": "en-US"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "displayData": {
+      "title": "Erika's Vehicle Registration",
+      "subtitle": "Utopia DMV"
+    },
+    "credentials": [
+      {
+        "key": {
+          "type": "SOFTWARE",
+          "publicKey": "123",
+          "privateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg-bu-9SO_hnjBt5BZ__3WaY4FZ5eKMECZS7Ashf_OXh-hRANCAAQhxAMHe9Dpt3PdhQyWfpXefWdUI7mO2R4DJcMXY8QdxCLPE6oO3sIQ8vW7gHpYsdJkpE-GhIenFKVX4W66gqfz"
+        },
+        "credential": "ompuYW1lU3BhY2VzonFvcmcuaXNvLjE4MDEzLjUuMYLYGFhZpGhkaWdlc3RJRABmcmFuZG9tUIgPJ9wKpudQ7Y1d1GyYocxxZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlak11c3Rlcm1hbm7YGFhTpGhkaWdlc3RJRAFmcmFuZG9tUPFkUVe6xylchmQAFyfNsVVxZWxlbWVudElkZW50aWZpZXJqZmlyc3RfbmFtZWxlbGVtZW50VmFsdWVlRXJpa2Fub3JnLmlzby43MzY3LjGB2BhYVqRoZGlnZXN0SUQAZnJhbmRvbVAfo5zosEBd-DTT7nslgsm0cWVsZW1lbnRJZGVudGlmaWVybnZlaGljbGVfaG9sZGVybGVsZW1lbnRWYWx1ZWRURVNUamlzc3VlckF1dGiEQ6EBJqEYIVkCSzCCAkcwggHtoAMCAQICFEpAUl8Bop1k6ULksH_28N-kXlS9MAoGCCqGSM49BAMCMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MB4XDTI1MDIxMjIxMjYxNVoXDTM1MDEzMTIxMjYxNVoweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATNlRQLjYPmxDS7aeZmXoeet_Y5GnLHiDkqhonwpbHuVGYxDTyi4ZXIh1Ivh8wNjHpwgUKsi-cNatQRsmguEfxRo1MwUTAdBgNVHQ4EFgQUE0SXtnFNGzseUmMVXac9_sO-QGkwHwYDVR0jBBgwFoAUE0SXtnFNGzseUmMVXac9_sO-QGkwDwYDVR0TAQH_BAUwAwEB_zAKBggqhkjOPQQDAgNIADBFAiBloB1bzbHipRxuY4hN96F8KH8LjEJc4maHolFzIAOj5wIhAJcMUi4psy26pJEE_eQGV_Ys6AVvtkNnQY8K1u49Su7JWQHI2BhZAcOmZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGVzb3JnLmlzby43MzY3LjEubVZSQ2x2YWx1ZURpZ2VzdHOicW9yZy5pc28uMTgwMTMuNS4xogBYIHbeDAnirnwQOSCXEZ2kh6TgWJW-Mwmzt4_ROzILmwUPAVggtKeuIou5k0r5uItvsLUiW1kwnr62lW0InVgYndhHhBRub3JnLmlzby43MzY3LjGhAFggeIHEqc0J88ipuEbQBXYE9Ozg56ijFYPyGfeymmir2XhtZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCAPElfyYj2vTNBtKAHtdQG552LjOI1yxCcTmtyp_wZo2yJYICnPhxf6kQZBJqBlzWUq2KHsQJU-uHW18qMuN3ASpNE6bHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wMi0xMlQyMToyMzoxMy41MTQyOTZaaXZhbGlkRnJvbcB4GzIwMjUtMDItMTJUMjE6MjM6MTMuNTE0MzA1Wmp2YWxpZFVudGlswHgbMjAzNS0wMS0zMVQyMToyMzoxMy41MTQzMDZaWEBJv-RgG3Ins-jIXfVElHFPsSQHlaj4_YjH-U_Au3s_6Jp7WKDYPGE968sNgxD_TSxP2FTaQde1Rff9c1NliPo5"
+      }
+    ]
   }
 ]
