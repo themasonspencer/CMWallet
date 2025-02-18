@@ -17,98 +17,107 @@
           "description": "Mobile Driving License"
         }
       ],
-      "claims": {
-        "org.iso.18013.5.1": {
-          "family_name": {
-            "display": [
-              {
-                "name": "Family Name",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "given_name": {
-            "display": [
-              {
-                "name": "Given names",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "driving_privileges": {
-            "display": [
-              {
-                "name": "Driving Privs",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "issue_date": {
-            "display": [
-              {
-                "name": "Issue Date",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "expiry_date": {
-            "display": [
-              {
-                "name": "Expiry Date",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "birth_date": {
-            "display": [
-              {
-                "name": "Birth Date",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "document_number": {
-            "display": [
-              {
-                "name": "Document Number",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "issuing_authority": {
-            "display": [
-              {
-                "name": "Issuing Authority",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "issuing_jurisdiction": {
-            "display": [
-              {
-                "name": "Issuing Jurisdiction",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "portrait": {
-            "display": [
-              {
-                "name": "Portrait",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "age_over_21": {
-            "display": [
-              {
-                "name": "Age Over 21",
-                "locale": "en-US"
-              }
-            ]
-          }
+      "claims": [
+        {
+          "path": ["org.iso.18013.5.1", "family_name"],
+          "display": [
+            {
+              "name": "Family Name",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "given_name"],
+          "display": [
+            {
+              "name": "Given Name",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "driving_privileges"],
+          "display": [
+            {
+              "name": "Driving Privs",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "issue_date"],
+          "display": [
+            {
+              "name": "Issue Date",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "expiry_date"],
+          "display": [
+            {
+              "name": "Expiry Date",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "birth_date"],
+          "display": [
+            {
+              "name": "Birth Date",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "document_number"],
+          "display": [
+            {
+              "name": "Document Number",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "issuing_authority"],
+          "display": [
+            {
+              "name": "Issuing Authority",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "issuing_jurisdiction"],
+          "display": [
+            {
+              "name": "Issuing Jurisdiction",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "portrait"],
+          "display": [
+            {
+              "name": "Portrait",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.18013.5.1", "age_over_21"],
+          "display": [
+            {
+              "name": "Age Over 21",
+              "locale": "en-US"
+            }
+          ]
         }
-      }
+      ]
     },
     "displayData": {
       "title": "Jon's Driving License",
@@ -142,84 +151,89 @@
           "locale": "en-US"
         }
       ],
-      "claims": {
-        "com.emvco.payment_card.1": {
-          "holder_name": {
-            "display": [
-              {
-                "name": "Holder Name",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "card_number": {
-            "display": [
-              {
-                "name": "Card Number",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "expiry_month": {
-            "display": [
-              {
-                "name": "Month of Expiry",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "expiry_year": {
-            "display": [
-              {
-                "name": "Year of Expiry",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "card_network": {
-            "display": [
-              {
-                "name": "Card Network",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "card_issuer": {
-            "display": [
-              {
-                "name": "Card issuer",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "par": {
-            "display": [
-              {
-                "name": "Payment Account Reference",
-                "locale": "en-US"
-              }
-            ]
-          }
+      "claims": [
+        {
+          "path": ["com.emvco.payment_card.1", "holder_name"],
+          "display": [
+            {
+              "name": "Holder Name",
+              "locale": "en-US"
+            }
+          ]
         },
-        "com.example.1": {
-          "age_over_21": {
-            "display": [
-              {
-                "name": "Age over 21",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "email": {
-            "display": [
-              {
-                "name": "Email Address",
-                "locale": "en-US"
-              }
-            ]
-          }
+        {
+          "path": ["com.emvco.payment_card.1", "card_number"],
+          "display": [
+            {
+              "name": "Card Number",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "expiry_month"],
+          "display": [
+            {
+              "name": "Month of Expiry",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "expiry_year"],
+          "display": [
+            {
+              "name": "Year of Expiry",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "card_network"],
+          "display": [
+            {
+              "name": "Card Network",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "card_issuer"],
+          "display": [
+            {
+              "name": "Card issuer",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "par"],
+          "display": [
+            {
+              "name": "Payment Account Reference",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.example.1", "age_over_21"],
+          "display": [
+            {
+              "name": "Age over 21",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.example.1", "email"],
+          "display": [
+            {
+              "name": "Email Address",
+              "locale": "en-US"
+            }
+          ]
         }
-      }
+      ]
     },
     "displayData": {
       "title": "Jon's Card 2312",
@@ -254,84 +268,89 @@
           "locale": "en-US"
         }
       ],
-      "claims": {
-        "com.emvco.payment_card.1": {
-          "holder_name": {
-            "display": [
-              {
-                "name": "Holder Name",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "card_number": {
-            "display": [
-              {
-                "name": "Card Number",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "expiry_month": {
-            "display": [
-              {
-                "name": "Month of Expiry",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "expiry_year": {
-            "display": [
-              {
-                "name": "Year of Expiry",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "card_network": {
-            "display": [
-              {
-                "name": "Card Network",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "card_issuer": {
-            "display": [
-              {
-                "name": "Card issuer",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "par": {
-            "display": [
-              {
-                "name": "Payment Account Reference",
-                "locale": "en-US"
-              }
-            ]
-          }
+      "claims": [
+        {
+          "path": ["com.emvco.payment_card.1", "holder_name"],
+          "display": [
+            {
+              "name": "Holder Name",
+              "locale": "en-US"
+            }
+          ]
         },
-        "com.example.1": {
-          "age_over_21": {
-            "display": [
-              {
-                "name": "Age over 21",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "email": {
-            "display": [
-              {
-                "name": "Email Address",
-                "locale": "en-US"
-              }
-            ]
-          }
+        {
+          "path": ["com.emvco.payment_card.1", "card_number"],
+          "display": [
+            {
+              "name": "Card Number",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "expiry_month"],
+          "display": [
+            {
+              "name": "Month of Expiry",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "expiry_year"],
+          "display": [
+            {
+              "name": "Year of Expiry",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "card_network"],
+          "display": [
+            {
+              "name": "Card Network",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "card_issuer"],
+          "display": [
+            {
+              "name": "Card issuer",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.emvco.payment_card.1", "par"],
+          "display": [
+            {
+              "name": "Payment Account Reference",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.example.1", "age_over_21"],
+          "display": [
+            {
+              "name": "Age over 21",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["com.example.1", "email"],
+          "display": [
+            {
+              "name": "Email Address",
+              "locale": "en-US"
+            }
+          ]
         }
-      }
+      ]
     },
     "displayData": {
       "title": "Jon's Card 9012",
@@ -367,36 +386,35 @@
           "description": "Vehicle Registration"
         }
       ],
-      "claims": {
-        "org.iso.18013.5.1": {
-          "family_name": {
-            "display": [
-              {
-                "name": "Family Name",
-                "locale": "en-US"
-              }
-            ]
-          },
-          "first_name": {
-            "display": [
-              {
-                "name": "Given names",
-                "locale": "en-US"
-              }
-            ]
-          }
+      "claims": [
+        {
+          "path": ["org.iso.18013.5.1", "family_name"],
+          "display": [
+            {
+              "name": "Family Name",
+              "locale": "en-US"
+            }
+          ]
         },
-        "org.iso.7367.1": {
-          "vehicle_holder": {
-            "display": [
-              {
-                "name": "Vehicle Holder Information",
-                "locale": "en-US"
-              }
-            ]
-          }
+        {
+          "path": ["org.iso.18013.5.1", "first_name"],
+          "display": [
+            {
+              "name": "Given Name",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["org.iso.7367.1", "vehicle_holder"],
+          "display": [
+            {
+              "name": "Vehicle Holder Information",
+              "locale": "en-US"
+            }
+          ]
         }
-      }
+      ]
     },
     "displayData": {
       "title": "Erika's Vehicle Registration",
@@ -410,6 +428,78 @@
           "privateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg-bu-9SO_hnjBt5BZ__3WaY4FZ5eKMECZS7Ashf_OXh-hRANCAAQhxAMHe9Dpt3PdhQyWfpXefWdUI7mO2R4DJcMXY8QdxCLPE6oO3sIQ8vW7gHpYsdJkpE-GhIenFKVX4W66gqfz"
         },
         "credential": "ompuYW1lU3BhY2VzonFvcmcuaXNvLjE4MDEzLjUuMYLYGFhZpGhkaWdlc3RJRABmcmFuZG9tUIgPJ9wKpudQ7Y1d1GyYocxxZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlak11c3Rlcm1hbm7YGFhTpGhkaWdlc3RJRAFmcmFuZG9tUPFkUVe6xylchmQAFyfNsVVxZWxlbWVudElkZW50aWZpZXJqZmlyc3RfbmFtZWxlbGVtZW50VmFsdWVlRXJpa2Fub3JnLmlzby43MzY3LjGB2BhYVqRoZGlnZXN0SUQAZnJhbmRvbVAfo5zosEBd-DTT7nslgsm0cWVsZW1lbnRJZGVudGlmaWVybnZlaGljbGVfaG9sZGVybGVsZW1lbnRWYWx1ZWRURVNUamlzc3VlckF1dGiEQ6EBJqEYIVkCSzCCAkcwggHtoAMCAQICFEpAUl8Bop1k6ULksH_28N-kXlS9MAoGCCqGSM49BAMCMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MB4XDTI1MDIxMjIxMjYxNVoXDTM1MDEzMTIxMjYxNVoweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATNlRQLjYPmxDS7aeZmXoeet_Y5GnLHiDkqhonwpbHuVGYxDTyi4ZXIh1Ivh8wNjHpwgUKsi-cNatQRsmguEfxRo1MwUTAdBgNVHQ4EFgQUE0SXtnFNGzseUmMVXac9_sO-QGkwHwYDVR0jBBgwFoAUE0SXtnFNGzseUmMVXac9_sO-QGkwDwYDVR0TAQH_BAUwAwEB_zAKBggqhkjOPQQDAgNIADBFAiBloB1bzbHipRxuY4hN96F8KH8LjEJc4maHolFzIAOj5wIhAJcMUi4psy26pJEE_eQGV_Ys6AVvtkNnQY8K1u49Su7JWQHI2BhZAcOmZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGVzb3JnLmlzby43MzY3LjEubVZSQ2x2YWx1ZURpZ2VzdHOicW9yZy5pc28uMTgwMTMuNS4xogBYIHbeDAnirnwQOSCXEZ2kh6TgWJW-Mwmzt4_ROzILmwUPAVggtKeuIou5k0r5uItvsLUiW1kwnr62lW0InVgYndhHhBRub3JnLmlzby43MzY3LjGhAFggeIHEqc0J88ipuEbQBXYE9Ozg56ijFYPyGfeymmir2XhtZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCAPElfyYj2vTNBtKAHtdQG552LjOI1yxCcTmtyp_wZo2yJYICnPhxf6kQZBJqBlzWUq2KHsQJU-uHW18qMuN3ASpNE6bHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wMi0xMlQyMToyMzoxMy41MTQyOTZaaXZhbGlkRnJvbcB4GzIwMjUtMDItMTJUMjE6MjM6MTMuNTE0MzA1Wmp2YWxpZFVudGlswHgbMjAzNS0wMS0zMVQyMToyMzoxMy41MTQzMDZaWEBJv-RgG3Ins-jIXfVElHFPsSQHlaj4_YjH-U_Au3s_6Jp7WKDYPGE968sNgxD_TSxP2FTaQde1Rff9c1NliPo5"
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "config": {
+      "format": "dc+sd-jwt",
+      "vct": "https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/1.4.0/annexes/annex-3/annex-3.01-pid-rulebook",
+      "cryptographic_binding_methods_supported": [
+        "jwk"
+      ],
+      "credential_signing_alg_values_supported": [
+        "ES256"
+      ],
+      "display": [
+        {
+          "name": "PID",
+          "locale": "en-US",
+          "description": "PID"
+        }
+      ],
+      "claims": [
+        {
+          "path": ["is_over_65"],
+          "display": [
+            {
+              "name": "Age Over 65",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["given_name"],
+          "display": [
+            {
+              "name": "Given Name",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["family_name"],
+          "display": [
+            {
+              "name": "Surname",
+              "locale": "en-US"
+            }
+          ]
+        },
+        {
+          "path": ["age_over_18"],
+          "display": [
+            {
+              "name": "Age Over 18",
+              "locale": "en-US"
+            }
+          ]
+        }
+      ]
+    },
+    "displayData": {
+      "title": "Erika's PID",
+      "subtitle": "Utopia Government"
+    },
+    "credentials": [
+      {
+        "key": {
+          "type": "SOFTWARE",
+          "publicKey": "123",
+          "privateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg-bu-9SO_hnjBt5BZ__3WaY4FZ5eKMECZS7Ashf_OXh-hRANCAAQhxAMHe9Dpt3PdhQyWfpXefWdUI7mO2R4DJcMXY8QdxCLPE6oO3sIQ8vW7gHpYsdJkpE-GhIenFKVX4W66gqfz"
+        },
+        "credential": "eyJhbGciOiAiRVMyNTYiLCAidHlwIjogImRjK3NkLWp3dCJ9.eyJfc2QiOiBbIkhYMDU5NkVIRE95alg4ay1PWld0bHpIcWZvY0pWMHpzRV9oWV9vOG1HMEEiXSwgImlzcyI6ICJodHRwczovL2V4YW1wbGUuY29tL2lzc3VlciIsICJpYXQiOiAxNjgzMDAwMDAwLCAiZXhwIjogMTg4MzAwMDAwMCwgInZjdCI6ICJodHRwczovL2V1LWRpZ2l0YWwtaWRlbnRpdHktd2FsbGV0LmdpdGh1Yi5pby9ldWRpLWRvYy1hcmNoaXRlY3R1cmUtYW5kLXJlZmVyZW5jZS1mcmFtZXdvcmsvMS40LjAvYW5uZXhlcy9hbm5leC0zL2FubmV4LTMuMDEtcGlkLXJ1bGVib29rIiwgIl9zZF9hbGciOiAic2hhLTI1NiJ9.DsiLHFyRoAgNWjLDdi50Rn6G50tyFtRcMMvFl9sk5qb0YaPN3-I0xwlJiUet9O808ok-R56ydHxKp0EEVaEveA~WyJJRFZwNWw0OERRWFRtZTJ3ODNheTJBIiwgImdpdmVuX25hbWUiLCAiRWxpc2EiXQ~"
       }
     ]
   }

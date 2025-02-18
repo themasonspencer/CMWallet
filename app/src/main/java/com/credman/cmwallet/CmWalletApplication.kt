@@ -10,6 +10,7 @@ import androidx.room.Room
 import com.credman.cmwallet.data.repository.CredentialRepository
 import com.credman.cmwallet.data.room.CredentialDatabase
 import com.credman.cmwallet.mdoc.MDoc
+import com.credman.cmwallet.sdjwt.SdJwt
 import com.google.android.gms.identitycredentials.IdentityCredentialClient
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
 import com.google.android.gms.identitycredentials.RegisterCreationOptionsRequest

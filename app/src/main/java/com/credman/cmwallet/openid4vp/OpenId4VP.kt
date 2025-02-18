@@ -25,7 +25,6 @@ class OpenId4VP(val request: String, origin: String?) {
 
     init {
         // Parse required params
-//        require(requestJson.has("client_id")) { "Authorization Request must contain a client_id" }
         clientId = "web-origin:$origin" // TODO: handle native app as origin
         require(requestJson.has("nonce")) { "Authorization Request must contain a nonce" }
         require(requestJson.has("dcql_query")) { "Authorization Request must contain a dcql_query" }

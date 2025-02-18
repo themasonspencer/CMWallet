@@ -33,6 +33,7 @@ import com.credman.cmwallet.mdoc.createSessionTranscript
 import com.credman.cmwallet.mdoc.filterIssuerSigned
 import com.credman.cmwallet.mdoc.generateDeviceResponse
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
+import com.credman.cmwallet.openid4vci.data.CredentialConfigurationSdJwtVc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
 import com.credman.cmwallet.openid4vp.OpenId4VP
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedCredential
@@ -53,6 +54,9 @@ fun createOpenID4VPResponse(
     // Create the response
     val vpToken = JSONObject()
     when (selectedCredential.config) {
+        is CredentialConfigurationSdJwtVc -> {
+
+        }
         is CredentialConfigurationMDoc -> {
             val matchedClaims =
                 matchedCredential.matchedClaims as OpenId4VPMatchedMDocClaims
