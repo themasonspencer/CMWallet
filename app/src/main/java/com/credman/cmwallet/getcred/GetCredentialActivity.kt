@@ -22,6 +22,7 @@ import androidx.credentials.registry.provider.selectedEntryId
 import androidx.fragment.app.FragmentActivity
 import com.credman.cmwallet.CmWalletApplication
 import com.credman.cmwallet.CmWalletApplication.Companion.TAG
+import com.credman.cmwallet.CmWalletApplication.Companion.computeClientId
 import com.credman.cmwallet.createcred.CreateCredentialActivity
 import com.credman.cmwallet.createcred.CreateCredentialViewModel
 import com.credman.cmwallet.data.model.CredentialItem
@@ -160,7 +161,7 @@ class GetCredentialActivity : FragmentActivity() {
                     if (entryId == "ISSUANCE") {
                         val openId4VPRequest = OpenId4VP(
                             digitalCredentialRequestOptions.providers[0].request,
-                            origin
+                            computeClientId(request.callingAppInfo)
                         )
                         startActivityForResult(
                             Intent(this, CreateCredentialActivity::class.java).apply {
@@ -322,7 +323,7 @@ class GetCredentialActivity : FragmentActivity() {
         )
         when (provider.protocol) {
             "openid4vp" -> {
-                val openId4VPRequest = OpenId4VP(provider.request, origin)
+                val openId4VPRequest = OpenId4VP(provider.request, computeClientId(request!!.callingAppInfo))
                 Log.i("GetCredentialActivity", "nonce ${openId4VPRequest.nonce}")
                 val matchedCredential =
                     openId4VPRequest.performQueryOnCredential(selectedCredential)

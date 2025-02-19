@@ -14,18 +14,17 @@ data class TransactionData(
     val data: JSONObject
 )
 
-class OpenId4VP(val request: String, origin: String?) {
+class OpenId4VP(val request: String, val clientId: String) {
     val requestJson: JSONObject = JSONObject(request)
 
     val nonce: String
-    val clientId: String
+
     val dcqlQuery: JSONObject
     val transactionData: List<TransactionData>
     val issuanceOffer: JSONObject?
 
     init {
         // Parse required params
-        clientId = "web-origin:$origin" // TODO: handle native app as origin
         require(requestJson.has("nonce")) { "Authorization Request must contain a nonce" }
         require(requestJson.has("dcql_query")) { "Authorization Request must contain a dcql_query" }
 
