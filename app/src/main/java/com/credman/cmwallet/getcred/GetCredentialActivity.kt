@@ -11,6 +11,7 @@ import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCustomCredentialRequest
 import androidx.credentials.DigitalCredential
 import androidx.credentials.ExperimentalDigitalCredentialApi
+import androidx.credentials.GetCredentialResponse
 import androidx.credentials.GetDigitalCredentialOption
 import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.provider.PendingIntentHandler
@@ -240,19 +241,9 @@ class GetCredentialActivity : FragmentActivity() {
                                 // the top level DC DigitalCredential json structure.
                                 // Long term, this should be replaced by a simple
                                 // `PendingIntentHandler.setGetCredentialResponse(intent, DigitalCredential(response.responseJson))` call.
-                                IntentHelper.setGetCredentialResponse(
+                                PendingIntentHandler.setGetCredentialResponse(
                                     resultData,
-                                    com.google.android.gms.identitycredentials.GetCredentialResponse(
-                                        com.google.android.gms.identitycredentials.Credential(
-                                            DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
-                                            Bundle().apply {
-                                                putByteArray(
-                                                    CHROME_RESPONSE_TOKEN_KEY_LEGACY,
-                                                    response.responseJson.toByteArray()
-                                                )
-                                            }
-                                        )
-                                    )
+                                    GetCredentialResponse(DigitalCredential(response.responseJson))
                                 )
 
                                 setResult(RESULT_OK, resultData)

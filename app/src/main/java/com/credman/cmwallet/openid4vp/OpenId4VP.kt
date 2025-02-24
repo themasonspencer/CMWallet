@@ -167,7 +167,8 @@ class OpenId4VP(val request: String, val clientId: String) {
                         encryptionJwk = jwk
                     }
                 }
-                jweSerialization(encryptionJwk, responseJson)
+                val jwe = jweSerialization(encryptionJwk, responseJson)
+                JSONObject().put("response", jwe).toString()
             } else {
                 throw UnsupportedOperationException("Response should be signed and / or encrypted but it's not supported yet")
             }
