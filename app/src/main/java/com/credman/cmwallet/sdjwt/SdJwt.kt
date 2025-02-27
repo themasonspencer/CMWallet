@@ -13,8 +13,10 @@ import java.security.MessageDigest
 import java.security.Signature
 import java.security.cert.CertificateFactory
 import android.util.Base64
+import com.credman.cmwallet.createJWTES256
 import com.credman.cmwallet.loadECPrivateKey
-import com.credman.cmwallet.newJwt
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.security.PrivateKey
 import java.security.cert.X509Certificate
 import java.time.Instant
@@ -66,17 +68,17 @@ class SdJwt(
 
         val md = MessageDigest.getInstance("SHA-256")
         val digest = md.digest(sdJwt.encodeToByteArray()).toBase64UrlNoPadding()
-        val kbHeader = JSONObject().apply {
+        val kbHeader = buildJsonObject {
             put("typ", "kb+jwt")
             put("alg", "ES256")
         }
-        val kbPayload = JSONObject().apply {
+        val kbPayload = buildJsonObject {
             put("iat", Instant.now().epochSecond)
             put("aud", clientId)
             put("nonce", nonce)
             put("sd_hash", digest)
         }
-        val kbJwt = newJwt(kbHeader, kbPayload, holderKey)
+        val kbJwt = createJWTES256(kbHeader, kbPayload, holderKey)
         return sdJwt + kbJwt
     }
 }

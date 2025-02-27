@@ -209,33 +209,3 @@ fun jweSerialization(recipientKeyJwk: JSONObject, plainText: String): String {
     val tagEncoded = tag.toBase64UrlNoPadding()
     return "${headerEncoded}..${ivEncoded}.${ctEncoded}.${tagEncoded}"
 }
-
-fun newJwt(header: JSONObject, payload: JSONObject, signingKey: PrivateKey): String {
-    val headerAndPayload = header.toString().toByteArray().toBase64UrlNoPadding() +
-            "." +
-            payload.toString().toByteArray().toBase64UrlNoPadding()
-    val signInput = headerAndPayload.toByteArray()
-    val signature = Signature.getInstance("SHA256withECDSA")
-    signature.initSign(signingKey)
-    signature.update(signInput)
-    val sigDer = signature.sign()
-    return headerAndPayload + "." + convertDerSignatureToJws(sigDer).toBase64UrlNoPadding()
-}
-
-fun convertDerSignatureToJws(der: ByteArray): ByteArray {
-    val rLength = der[3]
-    val r = Arrays.copyOfRange(der, 4, 4 + rLength)
-    val s = Arrays.copyOfRange(der, 6 + rLength, der.size)
-    return derVariableLengthIntToFixedLength(r) + derVariableLengthIntToFixedLength(s)
-}
-
-private fun derVariableLengthIntToFixedLength(bigEndian: ByteArray): ByteArray {
-    val len = 32
-    val buffer = ByteArray(len)
-    if (bigEndian.size <= len) {
-        System.arraycopy(bigEndian, 0, buffer, len - bigEndian.size, bigEndian.size)
-    } else {
-        System.arraycopy(bigEndian, 1, buffer, 0, len)
-    }
-    return buffer
-}
