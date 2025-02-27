@@ -47,7 +47,12 @@ fun performQueryOnCredential(
     if (claims == null) {
         Log.i("DCQL", "Matching without claims")
         when (selectedCredential.config) {
-            is CredentialConfigurationSdJwtVc -> TODO()
+            is CredentialConfigurationSdJwtVc -> {
+                return OpenId4VPMatchedCredential(
+                    dcqlId = dcqlId,
+                    matchedClaims = OpenId4VPMatchedSdJwtClaims(null)
+                )
+            }
             is CredentialConfigurationMDoc -> {
                 val mdoc =
                     MDoc(selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding())
@@ -68,7 +73,12 @@ fun performQueryOnCredential(
         if (claimSets == null) {
             Log.i("DCQL", "Matching without claim_sets")
             when (selectedCredential.config) {
-                is CredentialConfigurationSdJwtVc -> TODO()
+                is CredentialConfigurationSdJwtVc -> {
+                    return OpenId4VPMatchedCredential(
+                        dcqlId = dcqlId,
+                        matchedClaims = OpenId4VPMatchedSdJwtClaims(claims)
+                    )
+                }
                 is CredentialConfigurationMDoc -> {
                     val mdoc =
                         MDoc(selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding())

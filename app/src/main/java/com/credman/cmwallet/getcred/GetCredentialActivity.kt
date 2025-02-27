@@ -37,6 +37,8 @@ import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
 import com.credman.cmwallet.openid4vp.OpenId4VP
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedCredential
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
+import com.credman.cmwallet.openid4vp.OpenId4VPMatchedSdJwtClaims
+import com.credman.cmwallet.sdjwt.SdJwt
 import com.credman.cmwallet.toBase64UrlNoPadding
 import com.google.android.gms.identitycredentials.IntentHelper
 import kotlinx.serialization.Serializable
@@ -56,7 +58,20 @@ fun createOpenID4VPResponse(
     val vpToken = JSONObject()
     when (selectedCredential.config) {
         is CredentialConfigurationSdJwtVc -> {
-
+            val claims =
+                (matchedCredential.matchedClaims as OpenId4VPMatchedSdJwtClaims).claims
+            val sdJwtVc = SdJwt(
+                selectedCredential.credentials.first().credential,
+                (selectedCredential.credentials.first().key as CredentialKeySoftware).privateKey
+            )
+            vpToken.put(
+                matchedCredential.dcqlId,
+                sdJwtVc.present(
+                    claims,
+                    nonce = openId4VPRequest.nonce,
+                    clientId = openId4VPRequest.clientId
+                )
+            )
         }
         is CredentialConfigurationMDoc -> {
             val matchedClaims =
@@ -99,7 +114,6 @@ fun createOpenID4VPResponse(
                 deviceNamespaces = deviceNamespaces
 
             )
-            // Encrypt response, if applicable
             val encodedDeviceResponse = deviceResponse.toBase64UrlNoPadding()
             vpToken.put(matchedCredential.dcqlId, encodedDeviceResponse)
         }

@@ -3,6 +3,7 @@ package com.credman.cmwallet.data.repository
 import android.os.Build
 import android.util.Log
 import com.credman.cmwallet.data.model.CredentialItem
+import com.credman.cmwallet.data.model.CredentialKeySoftware
 import com.credman.cmwallet.data.source.CredentialDatabaseDataSource
 import com.credman.cmwallet.data.source.TestCredentialsDataSource
 import com.credman.cmwallet.decodeBase64
@@ -166,7 +167,7 @@ class CredentialRepository {
                 is CredentialConfigurationSdJwtVc -> {
                     val credJson = JSONObject()
                     credJson.putCommon(item, iconMap)
-                    val sdJwtVc = SdJwt(item.credentials.first().credential)
+                    val sdJwtVc = SdJwt(item.credentials.first().credential, (item.credentials.first().key as CredentialKeySoftware).privateKey)
                     val rawJwt = sdJwtVc.verifiedResult.processedJwt
                     val jwtWithDisplay = constructJwtForRegistry(rawJwt, item.config, JSONArray())
                     // TODO: what do we do with non-user-friendly claims such as iss, aud?
