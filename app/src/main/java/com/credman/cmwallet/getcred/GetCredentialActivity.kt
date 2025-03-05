@@ -31,6 +31,7 @@ import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.mdoc.createSessionTranscript
 import com.credman.cmwallet.mdoc.filterIssuerSigned
 import com.credman.cmwallet.mdoc.generateDeviceResponse
+import com.credman.cmwallet.mdoc.webOriginOrAppOrigin
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationSdJwtVc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
@@ -158,9 +159,9 @@ class GetCredentialActivity : FragmentActivity() {
     fun handleRequest(entryId: String?, request: ProviderGetCredentialRequest) {
         var origin = request.callingAppInfo.getOrigin(
             CmWalletApplication.credentialRepo.privAppsJson
-        ) ?: ""
+        )
         Log.i("GetCredentialActivity", "origin $origin")
-        if (origin.endsWith(":443")) {
+        if (origin != null && origin.endsWith(":443")) {
             origin = origin.substringBefore(":443")
             Log.i("GetCredentialActivity", "new origin $origin")
         }
@@ -237,7 +238,10 @@ class GetCredentialActivity : FragmentActivity() {
                         digitalCredentialRequestOptions,
                         providerIdx,
                         selectedId,
-                        origin
+                        webOriginOrAppOrigin(
+                            origin,
+                            request.callingAppInfo.signingInfoCompat.signingCertificateHistory[0].toByteArray()
+                        )
                     )
 
                     val biometricPrompt = BiometricPrompt(

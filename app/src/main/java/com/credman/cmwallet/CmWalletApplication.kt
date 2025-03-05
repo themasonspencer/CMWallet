@@ -1,7 +1,6 @@
 package com.credman.cmwallet
 
 import android.app.Application
-import android.util.Base64
 import android.util.Log
 import androidx.credentials.DigitalCredential
 import androidx.credentials.ExperimentalDigitalCredentialApi
@@ -19,7 +18,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.security.MessageDigest
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class CmWalletApplication : Application() {
@@ -30,10 +28,7 @@ class CmWalletApplication : Application() {
         fun computeClientId(callingAppInfo: CallingAppInfo): String {
             val origin = callingAppInfo.getOrigin(credentialRepo.privAppsJson)
             return if (origin == null) {
-                val cert = callingAppInfo.signingInfoCompat.signingCertificateHistory[0].toByteArray()
-                val md = MessageDigest.getInstance("SHA-256")
-                val certHash = Base64.encodeToString(md.digest(cert), Base64.NO_WRAP or Base64.NO_PADDING)
-                "android:apk-key-hash:$certHash"
+                "android-origin:${callingAppInfo.packageName}"
             } else {
                 "web-origin:$origin"
             }

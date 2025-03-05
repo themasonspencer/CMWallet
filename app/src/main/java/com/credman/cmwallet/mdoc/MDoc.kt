@@ -1,9 +1,11 @@
 package com.credman.cmwallet.mdoc
 
+import android.util.Base64
 import com.credman.cmwallet.cbor.CborTag
 import com.credman.cmwallet.cbor.cborDecode
 import com.credman.cmwallet.cbor.cborEncode
 import com.credman.cmwallet.convertDerToRaw
+import java.security.MessageDigest
 import java.security.PrivateKey
 import java.security.Signature
 
@@ -13,6 +15,16 @@ fun createSessionTranscript(handover: Any): List<Any?> {
         null,
         handover
     )
+}
+
+fun webOriginOrAppOrigin(webOrigin: String?, appSigningInfo: ByteArray): String {
+    if (webOrigin != null) {
+        return webOrigin
+    }
+    val md = MessageDigest.getInstance("SHA-256")
+    val certHash = Base64.encodeToString(md.digest(appSigningInfo), Base64.NO_WRAP or Base64.NO_PADDING)
+    // Similar to how passkey does it
+    return "android:apk-key-hash:$certHash"
 }
 
 class MDoc(
