@@ -435,7 +435,7 @@
     "id": "5",
     "config": {
       "format": "dc+sd-jwt",
-      "vct": "https://eu-digital-identity-wallet.github.io/eudi-doc-architecture-and-reference-framework/1.4.0/annexes/annex-3/annex-3.01-pid-rulebook",
+      "vct": "urn:eu.europa.ec.eudi:pid:1",
       "cryptographic_binding_methods_supported": [
         "jwk"
       ],
