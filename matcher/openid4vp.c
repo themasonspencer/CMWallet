@@ -66,6 +66,19 @@ int main() {
             // TODO: Won't need to do this conversion in the latest spec.
             char* data_json_string = cJSON_GetStringValue(data);
             cJSON* data_json = cJSON_Parse(data_json_string);
+            if (cJSON_HasObjectItem(data_json, "request")) {
+                // Until the spec has an official definition, treat the "request" key as the identifier for a signed request 
+                cJSON* signed_request = cJSON_GetObjectItem(data_json, "request");
+                char* signed_request_string = cJSON_GetStringValue(signed_request);
+                int delimiter = '.';
+                char* payload_start = strchr(signed_request_string, delimiter);
+                payload_start++;
+                char* payload_end = strchr(payload_start, delimiter);
+                *payload_end = '\0';
+                char* decoded_request_json;
+                int decoded_request_json_len = B64DecodeURL(payload_start, &decoded_request_json);
+                data_json = cJSON_Parse(decoded_request_json);
+            }
             cJSON* query = cJSON_GetObjectItem(data_json, "dcql_query");
             if (cJSON_HasObjectItem(data_json, "offer")) {
                 should_offer_issuance = 1;
