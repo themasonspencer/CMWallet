@@ -102,18 +102,19 @@ class CredentialRepository {
         val result = JSONObject()
         for (key in rawJwt.keys()) {
             val v = rawJwt[key]
-            path.put(key)
+            val currPath = JSONArray(path.toString()) // Make a copy
+            currPath.put(key)
             if (v is JSONObject) {
                 result.put(
                     key,
-                    constructJwtForRegistry(v, displayConfig, JSONArray(path.toString()))
+                    constructJwtForRegistry(v, displayConfig, currPath)
                 )
             } else {
                 result.put(
                     key,
                     JSONObject().apply {
                         val displayName = displayConfig.claims?.firstOrNull{
-                            JSONArray(it.path) == path
+                            JSONArray(it.path) == currPath
                         }?.display?.first()?.name
                         putOpt(DISPLAY, displayName)
                         putOpt(VALUE, v)
