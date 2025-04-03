@@ -47,7 +47,13 @@ int main() {
     printf("Request JSON %s\n", cJSON_Print(dc_request));
 
     // Parse each top level request looking for OpenID4VP requests
-    cJSON* requests = cJSON_GetObjectItem(dc_request, "providers"); // TODO: This has changed in the latest spec
+    cJSON_bool is_modern_request = cJSON_HasObjectItem(dc_request, "requests");
+    cJSON* requests;
+    if (is_modern_request) {
+        requests = cJSON_GetObjectItem(dc_request, "requests");
+    } else {
+        requests = cJSON_GetObjectItem(dc_request, "providers");
+    }
     int requests_size = cJSON_GetArraySize(requests);
 
     int matched = 0;
@@ -61,13 +67,22 @@ int main() {
         char* protocol = cJSON_GetStringValue(cJSON_GetObjectItem(request, "protocol"));
         if (strcmp(protocol, PROTOCOL_OPENID4VP_1_0) == 0) {
             // We have an OpenID4VP request
-            cJSON* data = cJSON_GetObjectItem(request, "request"); // TODO: This has changed in the latest spec
+            cJSON* data_json;
+            if (is_modern_request) {
+                data_json = cJSON_GetObjectItem(request, "data");
+                if (cJSON_IsString(data_json)) { // Legacy spec
+                    char* data_json_string = cJSON_GetStringValue(data_json);
+                    data_json = cJSON_Parse(data_json_string);
+                }
+            } else { // Legacy spec
+                cJSON* data = cJSON_GetObjectItem(request, "request");
+                char* data_json_string = cJSON_GetStringValue(data);
+                data_json = cJSON_Parse(data_json_string);
+            }
 
-            // TODO: Won't need to do this conversion in the latest spec.
-            char* data_json_string = cJSON_GetStringValue(data);
-            cJSON* data_json = cJSON_Parse(data_json_string);
             if (cJSON_HasObjectItem(data_json, "request")) {
                 // Until the spec has an official definition, treat the "request" key as the identifier for a signed request 
+                // In 1.0 this will be replaced by the protocol identifier.
                 cJSON* signed_request = cJSON_GetObjectItem(data_json, "request");
                 char* signed_request_string = cJSON_GetStringValue(signed_request);
                 int delimiter = '.';

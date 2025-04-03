@@ -231,7 +231,7 @@ class CreateCredentialViewModel : ViewModel() {
                 Log.d(TAG, "Grant: $grant")
                 if (grant.vpRequest != null) {
                     val openId4VPRequest = OpenId4VP(
-                        grant.vpRequest,
+                        JSONObject(grant.vpRequest),
                         computeClientId(request.callingAppInfo)
                     )
                     val selectedCredential = CmWalletApplication.credentialRepo.getCredential("1")

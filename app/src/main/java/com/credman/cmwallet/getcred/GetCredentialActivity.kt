@@ -41,9 +41,6 @@ import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedSdJwtClaims
 import com.credman.cmwallet.sdjwt.SdJwt
 import com.credman.cmwallet.toBase64UrlNoPadding
-import com.google.android.gms.identitycredentials.IntentHelper
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import org.json.JSONObject
 
 
@@ -172,11 +169,11 @@ class GetCredentialActivity : FragmentActivity() {
                 Log.i(TAG, "Request ${it.requestJson}")
 
                 try {
-                    val digitalCredentialRequestOptions =
-                        Json.decodeFromString<DigitalCredentialRequestOptions>(it.requestJson)
                     if (entryId == "ISSUANCE") {
                         val openId4VPRequest = OpenId4VP(
-                            digitalCredentialRequestOptions.providers[0].request,
+                            DigitalCredentialRequestOptions.createFrom(it.requestJson).let {
+                                DigitalCredentialRequestOptions.getRequestDataAtIndex(it, 0)
+                            },
                             computeClientId(request.callingAppInfo)
                         )
                         startActivityForResult(
@@ -235,7 +232,7 @@ class GetCredentialActivity : FragmentActivity() {
                     val selectedId = selectedEntryId.getString("id")
 
                     val response = processDigitalCredentialOption(
-                        digitalCredentialRequestOptions,
+                        it.requestJson,
                         providerIdx,
                         selectedId,
                         webOriginOrAppOrigin(
@@ -312,40 +309,105 @@ class GetCredentialActivity : FragmentActivity() {
         val authenticationSubtitle: CharSequence?
     )
 
-    @Serializable
-    data class DigitalCredentialRequestOptions(
-        val providers: List<DigitalCredentialRequest>
-    )
+    sealed class DigitalCredentialRequestOptions {
+        companion object {
+            fun getRequestProtocolAtIndex(digitalCredentialOptions: DigitalCredentialRequestOptions, index: Int): String {
+                return when (digitalCredentialOptions) {
+                    is DigitalCredentialRequestOptionsModern -> digitalCredentialOptions.requests[index].protocol
+                    is DigitalCredentialRequestOptionsLegacy -> digitalCredentialOptions.providers[index].protocol
+                }
+            }
 
-    @Serializable
-    data class DigitalCredentialRequest(
+            fun getRequestDataAtIndex(digitalCredentialOptions: DigitalCredentialRequestOptions, index: Int): JSONObject {
+                return when (digitalCredentialOptions) {
+                    is DigitalCredentialRequestOptionsModern -> digitalCredentialOptions.requests[index].data
+                    is DigitalCredentialRequestOptionsLegacy -> JSONObject(digitalCredentialOptions.providers[index].request)
+                }
+            }
+
+            fun createFrom(request: String): DigitalCredentialRequestOptions {
+                val requestJson = JSONObject(request)
+                return if (requestJson.has("requests")) {
+                    val requestsJson = requestJson.getJSONArray("requests")
+                    DigitalCredentialRequestOptionsModern(
+                        requests = mutableListOf<DigitalCredentialRequestModern>().apply {
+                            for (i in 0..<requestsJson.length()) {
+                                add(
+                                    DigitalCredentialRequestModern(
+                                        requestsJson.getJSONObject(i).getString("protocol"),
+                                        requestsJson.getJSONObject(i).let {
+                                            val data = it.get("data")
+                                            return@let when (data) {
+                                                is String -> JSONObject(data)
+                                                else -> data as JSONObject
+                                            }
+                                        }
+                                    )
+                                )
+                            }
+                        }
+                    )
+                } else {
+                    val providersJson = requestJson.getJSONArray("providers")
+                    DigitalCredentialRequestOptionsLegacy(
+                        providers = mutableListOf<DigitalCredentialRequestLegacy>().apply {
+                            for (i in 0..<providersJson.length()) {
+                                add(
+                                    DigitalCredentialRequestLegacy(
+                                        providersJson.getJSONObject(i).getString("protocol"),
+                                        providersJson.getJSONObject(i).getString("request")
+                                    )
+                                )
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    data class DigitalCredentialRequestOptionsLegacy(
+        val providers: List<DigitalCredentialRequestLegacy>
+    ) : DigitalCredentialRequestOptions()
+
+    data class DigitalCredentialRequestLegacy(
         val protocol: String,
         val request: String
     )
 
+    data class DigitalCredentialRequestOptionsModern(
+        val requests: List<DigitalCredentialRequestModern>
+    ): DigitalCredentialRequestOptions()
+
+    data class DigitalCredentialRequestModern(
+        val protocol: String,
+        val data: JSONObject
+    )
+
     private fun processDigitalCredentialOption(
-        digitalCredentialRequestOptions: DigitalCredentialRequestOptions,
+        requestJson: String,
         providerIdx: Int,
         selectedID: String,
         origin: String
     ): DigitalCredentialResult {
         val selectedCredential = CmWalletApplication.credentialRepo.getCredential(selectedID)
             ?: throw RuntimeException("Selected credential not found")
+        val digitalCredentialOptions = DigitalCredentialRequestOptions.createFrom(requestJson)
+
+        val requestProtocol = DigitalCredentialRequestOptions.getRequestProtocolAtIndex(
+            digitalCredentialOptions, providerIdx
+        )
+        val requestData: JSONObject = DigitalCredentialRequestOptions.getRequestDataAtIndex(
+            digitalCredentialOptions, providerIdx
+        )
 
         Log.i(
             "GetCredentialActivity",
-            "digitalCredentialRequestOptions $digitalCredentialRequestOptions"
+            "processDigitalCredentialOption protocol ${requestProtocol}"
         )
-
-        val provider = digitalCredentialRequestOptions.providers[providerIdx]
-
-        Log.i(
-            "GetCredentialActivity",
-            "processDigitalCredentialOption protocol ${provider.protocol}"
-        )
-        when (provider.protocol) {
+        when (requestProtocol) {
             "openid4vp" -> {
-                val openId4VPRequest = OpenId4VP(provider.request, computeClientId(request!!.callingAppInfo))
+                val openId4VPRequest = OpenId4VP(requestData, computeClientId(request!!.callingAppInfo))
                 Log.i("GetCredentialActivity", "nonce ${openId4VPRequest.nonce}")
                 val matchedCredential =
                     openId4VPRequest.performQueryOnCredential(selectedCredential)
