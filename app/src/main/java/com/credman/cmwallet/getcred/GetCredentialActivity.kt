@@ -41,6 +41,8 @@ import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedSdJwtClaims
 import com.credman.cmwallet.sdjwt.SdJwt
 import com.credman.cmwallet.toBase64UrlNoPadding
+import com.google.android.gms.identitycredentials.Credential
+import com.google.android.gms.identitycredentials.IntentHelper
 import org.json.JSONObject
 
 
@@ -123,9 +125,13 @@ fun createOpenID4VPResponse(
     val response = openId4VPRequest.generateResponse(vpToken)
     Log.d(TAG, "Returning $response")
     return DigitalCredentialResult(
-        responseJson = response,
+        responseJsonLegacy = response,
         authenticationTitle = authenticationTitle,
         authenticationSubtitle = authenticationSubtitle,
+        responseJsonModern = JSONObject().apply {
+            put("protocol", "openid4vp")
+            put("data", JSONObject(response))
+        }.toString()
     )
 }
 
@@ -256,9 +262,20 @@ class GetCredentialActivity : FragmentActivity() {
                                 // the top level DC DigitalCredential json structure.
                                 // Long term, this should be replaced by a simple
                                 // `PendingIntentHandler.setGetCredentialResponse(intent, DigitalCredential(response.responseJson))` call.
+                                IntentHelper.setGetCredentialResponse(
+                                    resultData,
+                                    com.google.android.gms.identitycredentials.GetCredentialResponse(
+                                        Credential(
+                                            DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
+                                            Bundle().apply {
+                                                putByteArray("identityToken", response.responseJsonLegacy.toByteArray())
+                                            }
+                                        )
+                                    )
+                                )
                                 PendingIntentHandler.setGetCredentialResponse(
                                     resultData,
-                                    GetCredentialResponse(DigitalCredential(response.responseJson))
+                                    GetCredentialResponse(DigitalCredential(response.responseJsonModern))
                                 )
 
                                 setResult(RESULT_OK, resultData)
@@ -304,9 +321,11 @@ class GetCredentialActivity : FragmentActivity() {
     }
 
     data class DigitalCredentialResult(
-        val responseJson: String,
+        // New integration should no longer need this legacy setup
+        val responseJsonLegacy: String,
         val authenticationTitle: CharSequence,
-        val authenticationSubtitle: CharSequence?
+        val authenticationSubtitle: CharSequence?,
+        val responseJsonModern: String, // Now we need to include the full DigitalCredential (i.e. {"protocol": ..., "data": ...}
     )
 
     sealed class DigitalCredentialRequestOptions {

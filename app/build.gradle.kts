@@ -79,6 +79,6 @@ dependencies {
 
 configurations.all {
     resolutionStrategy {
-        force("com.google.android.gms:play-services-identity-credentials:16.0.0-alpha05")
+        force("com.google.android.gms:play-services-identity-credentials:16.0.0-alpha06")
     }
 }
