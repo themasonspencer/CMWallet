@@ -3,6 +3,7 @@ package com.credman.cmwallet.openid4vp
 import android.util.Base64
 import com.credman.cmwallet.cbor.cborEncode
 import com.credman.cmwallet.data.model.CredentialItem
+import com.credman.cmwallet.decodeBase64UrlNoPadding
 import com.credman.cmwallet.jweSerialization
 import org.json.JSONObject
 import java.security.MessageDigest
@@ -14,7 +15,7 @@ data class TransactionData(
     val data: JSONObject
 )
 
-class OpenId4VP(val requestJson: JSONObject, val clientId: String) {
+class OpenId4VP(var requestJson: JSONObject, val clientId: String) {
 
     val nonce: String
 
@@ -25,6 +26,12 @@ class OpenId4VP(val requestJson: JSONObject, val clientId: String) {
     val responseMode: String?
 
     init {
+        // If the request is signed
+        if (requestJson.has("request")) {
+            val signedRequest = requestJson.getString("request")
+            requestJson = JSONObject(String(signedRequest.split(".")[1].decodeBase64UrlNoPadding()))
+        }
+
         // Parse required params
         require(requestJson.has("nonce")) { "Authorization Request must contain a nonce" }
         require(requestJson.has("dcql_query")) { "Authorization Request must contain a dcql_query" }
