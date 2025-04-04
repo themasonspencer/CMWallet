@@ -5,6 +5,7 @@ import com.credman.cmwallet.cbor.cborEncode
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.decodeBase64UrlNoPadding
 import com.credman.cmwallet.jweSerialization
+import com.credman.cmwallet.jwsDeserialization
 import org.json.JSONObject
 import java.security.MessageDigest
 
@@ -29,7 +30,7 @@ class OpenId4VP(var requestJson: JSONObject, var clientId: String) {
         // If the request is signed
         if (requestJson.has("request")) {
             val signedRequest = requestJson.getString("request")
-            requestJson = JSONObject(String(signedRequest.split(".")[1].decodeBase64UrlNoPadding()))
+            requestJson = jwsDeserialization(signedRequest).second
             clientId = requestJson.getString("client_id")
         }
 

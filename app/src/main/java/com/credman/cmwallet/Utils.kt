@@ -1,11 +1,15 @@
 package com.credman.cmwallet
 
+import android.util.Log
+import com.credman.cmwallet.sdjwt.jwsSignatureToDer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.encodeToJsonElement
 import org.jose4j.jwe.kdf.ConcatKeyDerivationFunction
+import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayInputStream
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -16,6 +20,8 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SecureRandom
 import java.security.Signature
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.ECParameterSpec
@@ -145,6 +151,28 @@ fun convertDerToRaw(signature: ByteArray): ByteArray {
     signature.copyInto(ret, 32 + sPad, sOffset, sOffset + sLen)
 
     return ret
+}
+
+/** Return pair of header and payload, if valid. Else throws if signature validation fails. */
+fun jwsDeserialization(jws: String): Pair<JSONObject, JSONObject> {
+    val parts = jws.split(".")
+    val header = JSONObject(String(parts[0].decodeBase64UrlNoPadding()))
+    val payload = String(parts[1].decodeBase64UrlNoPadding())
+    val signature = jwsSignatureToDer(parts[2], 256)
+
+    Log.d("Utils", "Header: $header")
+    Log.d("Utils", "Payload: $payload")
+
+    val certificate = header["x5c"] as JSONArray
+    val factory = CertificateFactory.getInstance("X.509")
+    val cert = factory.generateCertificate(ByteArrayInputStream((certificate[0] as String).decodeBase64())) as X509Certificate
+    val sig = Signature.getInstance("SHA256withECDSA")
+    sig.initVerify(cert.publicKey)
+    val signingInput = jws.substringBeforeLast('.')
+    sig.update(signingInput.toByteArray())
+    require(sig.verify(signature)) { "Signature validation failed" }
+
+    return Pair(header, JSONObject(payload))
 }
 
 /** ECDH-ES key agreement, A128GCM encryption, JWE Compact Serialization */

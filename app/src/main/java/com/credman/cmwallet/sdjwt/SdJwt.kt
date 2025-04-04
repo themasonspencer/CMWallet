@@ -14,6 +14,7 @@ import java.security.Signature
 import java.security.cert.CertificateFactory
 import android.util.Base64
 import com.credman.cmwallet.createJWTES256
+import com.credman.cmwallet.jwsDeserialization
 import com.credman.cmwallet.loadECPrivateKey
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
@@ -200,14 +201,7 @@ class Jwt {
         require(payload.has("cnf"))
         require(payload.has("vct"))
 
-        val certificate = header["x5c"] as JSONArray
-        val factory = CertificateFactory.getInstance("X.509")
-        val cert = factory.generateCertificate(ByteArrayInputStream((certificate[0] as String).decodeBase64())) as X509Certificate
-        val sig = Signature.getInstance("SHA256withECDSA")
-        sig.initVerify(cert.publicKey)
-        val signingInput = sourceCompactSerialization!!.substringBeforeLast('.')
-        sig.update(signingInput.toByteArray())
-        require(sig.verify(signature)) { "Signature validation failed" }
+        jwsDeserialization(sourceCompactSerialization!!)
 
         // TODO: The iss value MUST be an URL with a FQDN matching a dNSName Subject Alternative Name
         // (SAN) [RFC5280] entry in the leaf certificate.
