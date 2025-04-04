@@ -15,7 +15,7 @@ data class TransactionData(
     val data: JSONObject
 )
 
-class OpenId4VP(var requestJson: JSONObject, val clientId: String) {
+class OpenId4VP(var requestJson: JSONObject, var clientId: String) {
 
     val nonce: String
 
@@ -30,6 +30,7 @@ class OpenId4VP(var requestJson: JSONObject, val clientId: String) {
         if (requestJson.has("request")) {
             val signedRequest = requestJson.getString("request")
             requestJson = JSONObject(String(signedRequest.split(".")[1].decodeBase64UrlNoPadding()))
+            clientId = requestJson.getString("client_id")
         }
 
         // Parse required params
