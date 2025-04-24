@@ -19,6 +19,11 @@
                         "value": true,
                         "display": "Age Over 21",
                         "display_value": "True"
+                    },
+                    "age_over_18": {
+                        "value": true,
+                        "display": "Age Over 18",
+                        "display_value": "True"
                     }
                 }
             }
