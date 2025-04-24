@@ -206,7 +206,8 @@ cJSON* dcql_query(cJSON* query, cJSON* credential_store) {
             cJSON_AddItemReferenceToObject(candidate_matched_credentials, id, m);
         }
 
-        if (cJSON_GetArraySize(credentials) == cJSON_GetArraySize(candidate_matched_credentials)) {
+        // Only support matching 1 credential for now
+        if (cJSON_GetArraySize(candidate_matched_credentials) > 0) {
             matched_credentials = candidate_matched_credentials;
         }
     }

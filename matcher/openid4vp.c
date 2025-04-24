@@ -135,6 +135,7 @@ int main() {
                 cJSON* matched_id = cJSON_GetObjectItem(c, "id");
 
                 cJSON_AddItemReferenceToObject(id_obj, "id", matched_id);
+                cJSON_AddItemReferenceToObject(id_obj, "dcql_cred_id", doc_id);
                 cJSON_AddItemReferenceToObject(id_obj, "provider_idx", cJSON_CreateNumber(i));
                 char* id = cJSON_PrintUnformatted(id_obj);
 

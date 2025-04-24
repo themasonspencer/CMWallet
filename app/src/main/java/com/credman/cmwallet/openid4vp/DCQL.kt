@@ -21,12 +21,25 @@ data class MatchedCredential(
 
 fun performQueryOnCredential(
     query: JSONObject,
-    selectedCredential: CredentialItem
+    selectedCredential: CredentialItem,
+    dcqlCredId: String? // Only support a single document
 ): OpenId4VPMatchedCredential {
     require(query.has("credentials")) { "dcql_query must contain a credentials" }
     val credentials = query.getJSONArray("credentials")
-    require(credentials.length() == 1) { "Only support returning a single document" }
-    val credential = credentials.getJSONObject(0)!!
+    val credential = if (dcqlCredId == null) {
+        require(credentials.length() == 1) { "Only support a single document" }
+        credentials.getJSONObject(0)!!
+    } else {
+        credentials.let {
+            for (i in 0..<it.length()) {
+                val dcqlCred = it.getJSONObject(i)
+                if (dcqlCred.optString("id") == dcqlCredId) {
+                    return@let dcqlCred
+                }
+            }
+            throw IllegalStateException("Could not find a matching dcql credential query")
+        }
+    }
 
     require(credential.has("id")) { "dcql_query credential must contain an id" }
     val dcqlId = credential.getString(("id"))

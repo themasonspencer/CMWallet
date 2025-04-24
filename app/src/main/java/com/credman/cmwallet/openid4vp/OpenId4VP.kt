@@ -123,8 +123,8 @@ class OpenId4VP(var requestJson: JSONObject, var clientId: String) {
         return DCQLQuery(dcqlQuery, credentialStore)
     }
 
-    fun performQueryOnCredential(selectedCredential: CredentialItem): OpenId4VPMatchedCredential {
-        return performQueryOnCredential(dcqlQuery, selectedCredential)
+    fun performQueryOnCredential(selectedCredential: CredentialItem, dcqlCredId: String? = null): OpenId4VPMatchedCredential {
+        return performQueryOnCredential(dcqlQuery, selectedCredential, dcqlCredId)
     }
 
     fun getHandover(origin: String): List<Any> {

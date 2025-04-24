@@ -236,11 +236,13 @@ class GetCredentialActivity : FragmentActivity() {
                     val selectedEntryId = JSONObject(entryId!!)
                     val providerIdx = selectedEntryId.getInt("provider_idx")
                     val selectedId = selectedEntryId.getString("id")
+                    val dqclCredId = selectedEntryId.getString("dcql_cred_id")
 
                     val response = processDigitalCredentialOption(
                         it.requestJson,
                         providerIdx,
                         selectedId,
+                        dqclCredId,
                         webOriginOrAppOrigin(
                             origin,
                             request.callingAppInfo.signingInfoCompat.signingCertificateHistory[0].toByteArray()
@@ -407,6 +409,7 @@ class GetCredentialActivity : FragmentActivity() {
         requestJson: String,
         providerIdx: Int,
         selectedID: String,
+        dcqlCredId: String,
         origin: String
     ): DigitalCredentialResult {
         val selectedCredential = CmWalletApplication.credentialRepo.getCredential(selectedID)
@@ -429,7 +432,7 @@ class GetCredentialActivity : FragmentActivity() {
                 val openId4VPRequest = OpenId4VP(requestData, computeClientId(request!!.callingAppInfo))
                 Log.i("GetCredentialActivity", "nonce ${openId4VPRequest.nonce}")
                 val matchedCredential =
-                    openId4VPRequest.performQueryOnCredential(selectedCredential)
+                    openId4VPRequest.performQueryOnCredential(selectedCredential, dcqlCredId)
                 Log.i("GetCredentialActivity", "matchedCredential $matchedCredential")
 
 
