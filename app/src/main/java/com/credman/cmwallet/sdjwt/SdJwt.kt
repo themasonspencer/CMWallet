@@ -13,6 +13,7 @@ import java.security.MessageDigest
 import java.security.Signature
 import java.security.cert.CertificateFactory
 import android.util.Base64
+import android.util.Log
 import com.credman.cmwallet.createJWTES256
 import com.credman.cmwallet.jwsDeserialization
 import com.credman.cmwallet.loadECPrivateKey
