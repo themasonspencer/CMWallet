@@ -19,10 +19,18 @@ for cred_id, cred in database.items():
         mdoc_credential = cred["credential"]
         doctype = mdoc_credential["docType"]
         print("Creating {}".format(doctype))
+        claims = []
         mdoc = create_mdoc(doctype, ds_cert_chain, ds_private_key)
         for namespace, elements in mdoc_credential["nameSpaces"].items():
             for element, value in elements.items():
-                mdoc.add_data_item(namespace, element, value["value"])
+                path = [namespace, element]
+                display = [{"name": value["display"], "locale": "en-US"}]
+                claims.append({"path": path, "display": display})
+                if element == "portrait":
+                    mdoc.add_data_item(namespace, element, base64.urlsafe_b64decode(value["value"]))
+                else:
+                    mdoc.add_data_item(namespace, element, value["value"])
+        cred["claims"] = claims
         device_private_key = ec.generate_private_key(ec.SECP256R1())
         device_public_key = device_private_key.public_key()
         cred["issuerSigned"] = base64.urlsafe_b64encode(

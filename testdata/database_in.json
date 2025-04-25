@@ -24,6 +24,55 @@
                         "value": true,
                         "display": "Age Over 18",
                         "display_value": "True"
+                    },
+                    "birth_date": {
+                        "value": "1988-09-01",
+                        "display": "Date of birth",
+                        "display_value": "1988-09-01"
+                    },
+                    "issue_date": {
+                        "value": "2022-01-01",
+                        "display": "Date of issue",
+                        "display_value": "2022-01-01"
+                    },
+                    "expiry_date": {
+                        "value": "2026-01-01",
+                        "display": "Date of expiry",
+                        "display_value": "2026-01-01"
+                    },
+                    "issuing_country": {
+                        "value": "US",
+                        "display": "Issuing country",
+                        "display_value": "US"
+                    },
+                    "issuing_authority": {
+                        "value": "Gotham City DMV",
+                        "display": "Issuing  authority",
+                        "display_value": "Gotham City DMV"
+                    },
+                    "document_number": {
+                        "value": "90001234",
+                        "display": "License number",
+                        "display_value": "90001234"
+                    },
+                    "portrait": {
+                        "value": "_9j_4AAQSkZJRgABAQAAAQABAAD_2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH_2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH_wAARCAABAAEDASIAAhEBAxEB_8QAHwAAAQUBAQEBAQEAAAAAAAAAAQIDBAUGBwgJCgv_xACMQACAQMDAgYiAgAAAAAAAABgQCAwUDBAcBAgQICQoRFRYf_xAAgEQACAQIEBgEBAAAAAAAAAAABAgMRBAAhBRIgQVFh_xAAiEQACAgIBAwQCAAAAAAAAAAABEQIDABIhMQVBUSNhcf_aAAwDAQACEQMRAD8A_cn+A_iP8OI_+v1f+gH_AD0r_9k===",
+                        "display": "Portrait",
+                        "display_value": "Portrait"
+                    },
+                    "driving_privileges": {
+                        "value": [{
+                            "vehicle_category_code": "A",
+                            "issue_date": "2020-10-10",
+                            "expiry_date": "2028-10-10"
+                            }],
+                        "display": "Vehicle category",
+                        "display_value": "A"
+                    },
+                    "un_distinguishing_sign": {
+                        "value": "USA",
+                        "display": "UN distinguishing sign",
+                        "display_value": "USA"
                     }
                 }
             }

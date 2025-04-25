@@ -19,112 +19,160 @@
       ],
       "claims": [
         {
-          "path": ["org.iso.18013.5.1", "family_name"],
-          "display": [
-            {
-              "name": "Family Name",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "family_name"
+            ],
+            "display": [
+                {
+                    "name": "Family Name",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "given_name"],
-          "display": [
-            {
-              "name": "Given Name",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "given_name"
+            ],
+            "display": [
+                {
+                    "name": "Given Name",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "driving_privileges"],
-          "display": [
-            {
-              "name": "Driving Privs",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "age_over_21"
+            ],
+            "display": [
+                {
+                    "name": "Age Over 21",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "issue_date"],
-          "display": [
-            {
-              "name": "Issue Date",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "age_over_18"
+            ],
+            "display": [
+                {
+                    "name": "Age Over 18",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "expiry_date"],
-          "display": [
-            {
-              "name": "Expiry Date",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "birth_date"
+            ],
+            "display": [
+                {
+                    "name": "Date of birth",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "birth_date"],
-          "display": [
-            {
-              "name": "Birth Date",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "issue_date"
+            ],
+            "display": [
+                {
+                    "name": "Date of issue",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "document_number"],
-          "display": [
-            {
-              "name": "Document Number",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "expiry_date"
+            ],
+            "display": [
+                {
+                    "name": "Date of expiry",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "issuing_authority"],
-          "display": [
-            {
-              "name": "Issuing Authority",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "issuing_country"
+            ],
+            "display": [
+                {
+                    "name": "Issuing country",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "issuing_jurisdiction"],
-          "display": [
-            {
-              "name": "Issuing Jurisdiction",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "issuing_authority"
+            ],
+            "display": [
+                {
+                    "name": "Issuing  authority",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "portrait"],
-          "display": [
-            {
-              "name": "Portrait",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "document_number"
+            ],
+            "display": [
+                {
+                    "name": "License number",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "age_over_21"],
-          "display": [
-            {
-              "name": "Age Over 21",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "portrait"
+            ],
+            "display": [
+                {
+                    "name": "Portrait",
+                    "locale": "en-US"
+                }
+            ]
         },
         {
-          "path": ["org.iso.18013.5.1", "age_over_18"],
-          "display": [
-            {
-              "name": "Age Over 18",
-              "locale": "en-US"
-            }
-          ]
+            "path": [
+                "org.iso.18013.5.1",
+                "driving_privileges"
+            ],
+            "display": [
+                {
+                    "name": "Vehicle category",
+                    "locale": "en-US"
+                }
+            ]
+        },
+        {
+            "path": [
+                "org.iso.18013.5.1",
+                "un_distinguishing_sign"
+            ],
+            "display": [
+                {
+                    "name": "UN distinguishing sign",
+                    "locale": "en-US"
+                }
+            ]
         }
       ]
     },
@@ -137,9 +185,9 @@
         "key": {
           "type": "SOFTWARE",
           "publicKey": "123",
-          "privateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgCR8tEaAtvtXVEa2fM7aMpxUZRhyu5Y2SR0_Bp1E8UHuhRANCAASp0QHrqBt9BpxGbKH1P80cVxPaBSBhQM4sLe29LENHzJ2-R1C_PPrVXVNXeyvz7pgfw_w11MtYB7uyIfLHhq0H"
+          "privateKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgK9eN0SFpsfFDBlJUjKRj5Xo1pwwctzuCSGQExYs80GyhRANCAAQDfSFivQvB-8kfezlFgl9UAFYiSGlJp7X28ud2Uc9TmPhU-5btTfT206ni-nDACc5r4ei9RQlYmLhrGRFSMtMQ"
         },
-        "credential": "ompuYW1lU3BhY2VzoXFvcmcuaXNvLjE4MDEzLjUuMYTYGFhUpGhkaWdlc3RJRABmcmFuZG9tUMjGRP7AuIsZirpicOFvERdxZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlZVNtaXRo2BhYUaRoZGlnZXN0SUQBZnJhbmRvbVCsBdFdbZfNIfp9rn_CzT6hcWVsZW1lbnRJZGVudGlmaWVyamdpdmVuX25hbWVsZWxlbWVudFZhbHVlY0pvbtgYWE-kaGRpZ2VzdElEAmZyYW5kb21QgCyMOQ_4783Qbny735jzMHFlbGVtZW50SWRlbnRpZmllcmthZ2Vfb3Zlcl8yMWxlbGVtZW50VmFsdWX12BhYT6RoZGlnZXN0SUQDZnJhbmRvbVBfjaNWdsrrnrAP_OwpaLEKcWVsZW1lbnRJZGVudGlmaWVya2FnZV9vdmVyXzE4bGVsZW1lbnRWYWx1ZfVqaXNzdWVyQXV0aIRDoQEmoRghWQLEMIICwDCCAmegAwIBAgIUHn8bMq1PNO_ksMwHt7DjM6cLGE0wCgYIKoZIzj0EAwIweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwHhcNMjUwMjE5MjMzMDE4WhcNMjYwMjE5MjMzMDE4WjB5MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNTW91bnRhaW4gVmlldzEcMBoGA1UECgwTRGlnaXRhbCBDcmVkZW50aWFsczEfMB0GA1UEAwwWZGlnaXRhbGNyZWRlbnRpYWxzLmRldjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABOt5Nivi1_OXw1AEfYPh42Is41VrNg9qaMdYuw3cavhsCa-aXV0NmTl2EsNaJ5GWmMoAD8ikwAFszYhIeNgF42mjgcwwgckwHwYDVR0jBBgwFoAUok_0idl8Ruhuo4bZR0jOzL7cz_UwHQYDVR0OBBYEFN_-aloS6cBixLyYpyXS2XD3emAoMDQGA1UdHwQtMCswKaAnoCWGI2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYvY3JsMCoGA1UdEgQjMCGGH2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYwDgYDVR0PAQH_BAQDAgeAMBUGA1UdJQEB_wQLMAkGByiBjF0FAQIwCgYIKoZIzj0EAwIDRwAwRAIgYcXL9XzB43vy4LEz2h8gMQRdcJtaIRQOemgwm8sHQucCIHCvouHEm_unjBXMCeUZ7QR_ympjGyHITw25_B9H9QsCWQHd2BhZAdimZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGV1b3JnLmlzby4xODAxMy41LjEubURMbHZhbHVlRGlnZXN0c6Fxb3JnLmlzby4xODAxMy41LjGkAFggKbLb5DjtD0SKhZAnbnCbrtqIPvkEtVgZWXRLuiiYrSABWCCBZuuCm-uwy8LHdRKKwIj5ID-8YZ1EeGUg8FO6Qwwl3wJYIBLdLQ-o_8VTfDWrE2Vtw9cplJclvY_30g8jBjKO84xUA1ggCx-A7ME13-EqjPwAVmk1C2_6xt1jO9tK7gC_MjtduW1tZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCCp0QHrqBt9BpxGbKH1P80cVxPaBSBhQM4sLe29LENHzCJYIJ2-R1C_PPrVXVNXeyvz7pgfw_w11MtYB7uyIfLHhq0HbHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wNC0yNFQxODoyNToxOS4zMTU4MzlaaXZhbGlkRnJvbcB4GzIwMjUtMDQtMjRUMTg6MjU6MTkuMzE1ODQ3Wmp2YWxpZFVudGlswHgbMjAzNS0wNC0xMlQxODoyNToxOS4zMTU4NDhaWEAui6i2kw7uqJK77oL-zYBOGWbBkuZ5uRCOxSBGN-_-feDHwsczIFRgZBdYN2YoHh-OSn9dQd4_nvimhlB2DMRl"
+        "credential": "ompuYW1lU3BhY2VzoXFvcmcuaXNvLjE4MDEzLjUuMY3YGFhUpGhkaWdlc3RJRABmcmFuZG9tUKMCBuwPbpFaVG3-CUJN_I1xZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlZVNtaXRo2BhYUaRoZGlnZXN0SUQBZnJhbmRvbVDM4_B2jFL3QBTAByembduXcWVsZW1lbnRJZGVudGlmaWVyamdpdmVuX25hbWVsZWxlbWVudFZhbHVlY0pvbtgYWE-kaGRpZ2VzdElEAmZyYW5kb21QhLmFI7eqg2Ro4OsM62bog3FlbGVtZW50SWRlbnRpZmllcmthZ2Vfb3Zlcl8yMWxlbGVtZW50VmFsdWX12BhYT6RoZGlnZXN0SUQDZnJhbmRvbVBKKu2QEC4vpVzVAL56_ctBcWVsZW1lbnRJZGVudGlmaWVya2FnZV9vdmVyXzE4bGVsZW1lbnRWYWx1ZfXYGFhYpGhkaWdlc3RJRARmcmFuZG9tUCGjIK4ViH3Uiw2Tpjz3OvlxZWxlbWVudElkZW50aWZpZXJqYmlydGhfZGF0ZWxlbGVtZW50VmFsdWVqMTk4OC0wOS0wMdgYWFikaGRpZ2VzdElEBWZyYW5kb21QIeQKxRxi_zMb6k8t7If_lXFlbGVtZW50SWRlbnRpZmllcmppc3N1ZV9kYXRlbGVsZW1lbnRWYWx1ZWoyMDIyLTAxLTAx2BhYWaRoZGlnZXN0SUQGZnJhbmRvbVDwnupoFrZDt_IqbLg3xrqIcWVsZW1lbnRJZGVudGlmaWVya2V4cGlyeV9kYXRlbGVsZW1lbnRWYWx1ZWoyMDI2LTAxLTAx2BhYVaRoZGlnZXN0SUQHZnJhbmRvbVDXgeGjvYD1Pc-P3ZgbmCk5cWVsZW1lbnRJZGVudGlmaWVyb2lzc3VpbmdfY291bnRyeWxlbGVtZW50VmFsdWViVVPYGFhkpGhkaWdlc3RJRAhmcmFuZG9tUDDlm0YtJFNDA3qlfXWwNztxZWxlbWVudElkZW50aWZpZXJxaXNzdWluZ19hdXRob3JpdHlsZWxlbWVudFZhbHVlb0dvdGhhbSBDaXR5IERNVtgYWFukaGRpZ2VzdElECWZyYW5kb21Q2_ud3u0Ys7W1y4BU37KHcXFlbGVtZW50SWRlbnRpZmllcm9kb2N1bWVudF9udW1iZXJsZWxlbWVudFZhbHVlaDkwMDAxMjM02BhZAaukaGRpZ2VzdElECmZyYW5kb21QH0UZQ72t6FFX679NzH77hnFlbGVtZW50SWRlbnRpZmllcmhwb3J0cmFpdGxlbGVtZW50VmFsdWVZAV3_2P_gABBKRklGAAEBAAABAAEAAP_bAEMAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf_bAEMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf_AABEIAAEAAQMBIgACEQEDEQH_xAAfAAABBQEBAQEBAQAAAAAAAAABAgMEBQYHCAkKC__EAIxAAIBAwMCBiICAAAAAAAAAGBAIDBQMEBwECBAgJChEVFh__EACARAAIBAgQGAQEAAAAAAAAAAAECAxEEACEFEiBBUWH_EACIRAAICAgEDBAIAAAAAAAAAAAERAgMAEiExBUFRI2Fx_9oADAMBAAIRAxEAPwD9yf4D-I_w4j_6_V_6Af8APSv_22BhYnKRoZGlnZXN0SUQLZnJhbmRvbVDUDGDiHCln69zmsfP4ORF0cWVsZW1lbnRJZGVudGlmaWVycmRyaXZpbmdfcHJpdmlsZWdlc2xlbGVtZW50VmFsdWWBo3V2ZWhpY2xlX2NhdGVnb3J5X2NvZGVhQWppc3N1ZV9kYXRlajIwMjAtMTAtMTBrZXhwaXJ5X2RhdGVqMjAyOC0xMC0xMNgYWF2kaGRpZ2VzdElEDGZyYW5kb21QhQ6rpMYPElbVssaOhx6mH3FlbGVtZW50SWRlbnRpZmllcnZ1bl9kaXN0aW5ndWlzaGluZ19zaWdubGVsZW1lbnRWYWx1ZWNVU0FqaXNzdWVyQXV0aIRDoQEmoRghWQLEMIICwDCCAmegAwIBAgIUHn8bMq1PNO_ksMwHt7DjM6cLGE0wCgYIKoZIzj0EAwIweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwHhcNMjUwMjE5MjMzMDE4WhcNMjYwMjE5MjMzMDE4WjB5MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNTW91bnRhaW4gVmlldzEcMBoGA1UECgwTRGlnaXRhbCBDcmVkZW50aWFsczEfMB0GA1UEAwwWZGlnaXRhbGNyZWRlbnRpYWxzLmRldjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABOt5Nivi1_OXw1AEfYPh42Is41VrNg9qaMdYuw3cavhsCa-aXV0NmTl2EsNaJ5GWmMoAD8ikwAFszYhIeNgF42mjgcwwgckwHwYDVR0jBBgwFoAUok_0idl8Ruhuo4bZR0jOzL7cz_UwHQYDVR0OBBYEFN_-aloS6cBixLyYpyXS2XD3emAoMDQGA1UdHwQtMCswKaAnoCWGI2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYvY3JsMCoGA1UdEgQjMCGGH2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYwDgYDVR0PAQH_BAQDAgeAMBUGA1UdJQEB_wQLMAkGByiBjF0FAQIwCgYIKoZIzj0EAwIDRwAwRAIgYcXL9XzB43vy4LEz2h8gMQRdcJtaIRQOemgwm8sHQucCIHCvouHEm_unjBXMCeUZ7QR_ympjGyHITw25_B9H9QsCWQMY2BhZAxOmZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGV1b3JnLmlzby4xODAxMy41LjEubURMbHZhbHVlRGlnZXN0c6Fxb3JnLmlzby4xODAxMy41LjGtAFggu7mJu4AHvHPlMDUnfVhLTVemHwK6a4e9TE6pQTY5YVgBWCCeDBELoQjZs5NrVPO_FUnnKz5TSPxUFGbzD7Ou1c7d1wJYIFnzJnPcGcImfSN-Yg7J3G2PA7venkNzxCstWfThNYbfA1ggds_dNhFknnD6h65mFncwqvPSlCdqxCQtNvfTq9NJ9RoEWCAJ_rcn6OdpBlXxOsl_tgIZDadkwOV9BO2vlE8z_HjVvwVYINuVCyf8HNFwqRCLCNIY9cl-iiOh1yk-4pELe61Y2vjnBlggGZZmsGIP0CG2Fz2Pcjgf7Mjn0rKfAe_fIrR2b7oD1LIHWCAkXQFZrFn-bidGLQFFvEzLja9ZFx_m6vQcCwywyquLpAhYIMlemdhs4zoTxmGMyZl8OAIPSQo1k2lY4Ysftk8kIoxCCVggk55YvqvQkUzkUdPMKi7SHDIk_5tEsX65xfxRYaB5OjIKWCCzvd5Rt7yZeINClt9F8LwO2oB6L5DiV3ELQw2UhC-orAtYIICTgJoDCFJ2aaYRR73ZFyX-idRP5lZrFYAuw9o-4kDxDFgglfbbi0P8j3Sv4LcqkpD3H1LJEMhCQGKtarFGd3yeZ1ZtZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCADfSFivQvB-8kfezlFgl9UAFYiSGlJp7X28ud2Uc9TmCJYIPhU-5btTfT206ni-nDACc5r4ei9RQlYmLhrGRFSMtMQbHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wNC0yNVQwNjo0NToxMS45NjUwMDJaaXZhbGlkRnJvbcB4GzIwMjUtMDQtMjVUMDY6NDU6MTEuOTY1MDA5Wmp2YWxpZFVudGlswHgbMjAzNS0wNC0xM1QwNjo0NToxMS45NjUwMTBaWECzBfuK9V7ZJoJU9Gt0x7ZlYhLCQEVVJh6mJGh9WwEa1OUsYvbqIAPxHZF9agvFtiY173EJeBMMYWwWyZ9frGCf"
       }
     ]
   },

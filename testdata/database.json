@@ -24,6 +24,57 @@
                         "value": true,
                         "display": "Age Over 18",
                         "display_value": "True"
+                    },
+                    "birth_date": {
+                        "value": "1988-09-01",
+                        "display": "Date of birth",
+                        "display_value": "1988-09-01"
+                    },
+                    "issue_date": {
+                        "value": "2022-01-01",
+                        "display": "Date of issue",
+                        "display_value": "2022-01-01"
+                    },
+                    "expiry_date": {
+                        "value": "2026-01-01",
+                        "display": "Date of expiry",
+                        "display_value": "2026-01-01"
+                    },
+                    "issuing_country": {
+                        "value": "US",
+                        "display": "Issuing country",
+                        "display_value": "US"
+                    },
+                    "issuing_authority": {
+                        "value": "Gotham City DMV",
+                        "display": "Issuing  authority",
+                        "display_value": "Gotham City DMV"
+                    },
+                    "document_number": {
+                        "value": "90001234",
+                        "display": "License number",
+                        "display_value": "90001234"
+                    },
+                    "portrait": {
+                        "value": "_9j_4AAQSkZJRgABAQAAAQABAAD_2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH_2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH_wAARCAABAAEDASIAAhEBAxEB_8QAHwAAAQUBAQEBAQEAAAAAAAAAAQIDBAUGBwgJCgv_xACMQACAQMDAgYiAgAAAAAAAABgQCAwUDBAcBAgQICQoRFRYf_xAAgEQACAQIEBgEBAAAAAAAAAAABAgMRBAAhBRIgQVFh_xAAiEQACAgIBAwQCAAAAAAAAAAABEQIDABIhMQVBUSNhcf_aAAwDAQACEQMRAD8A_cn+A_iP8OI_+v1f+gH_AD0r_9k===",
+                        "display": "Portrait",
+                        "display_value": "Portrait"
+                    },
+                    "driving_privileges": {
+                        "value": [
+                            {
+                                "vehicle_category_code": "A",
+                                "issue_date": "2020-10-10",
+                                "expiry_date": "2028-10-10"
+                            }
+                        ],
+                        "display": "Vehicle category",
+                        "display_value": "A"
+                    },
+                    "un_distinguishing_sign": {
+                        "value": "USA",
+                        "display": "UN distinguishing sign",
+                        "display_value": "USA"
                     }
                 }
             }
@@ -34,8 +85,166 @@
                 "subtitle": "Gotham City DMV"
             }
         },
-        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgCR8tEaAtvtXVEa2fM7aMpxUZRhyu5Y2SR0_Bp1E8UHuhRANCAASp0QHrqBt9BpxGbKH1P80cVxPaBSBhQM4sLe29LENHzJ2-R1C_PPrVXVNXeyvz7pgfw_w11MtYB7uyIfLHhq0H",
-        "issuerSigned": "ompuYW1lU3BhY2VzoXFvcmcuaXNvLjE4MDEzLjUuMYTYGFhUpGhkaWdlc3RJRABmcmFuZG9tUMjGRP7AuIsZirpicOFvERdxZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlZVNtaXRo2BhYUaRoZGlnZXN0SUQBZnJhbmRvbVCsBdFdbZfNIfp9rn_CzT6hcWVsZW1lbnRJZGVudGlmaWVyamdpdmVuX25hbWVsZWxlbWVudFZhbHVlY0pvbtgYWE-kaGRpZ2VzdElEAmZyYW5kb21QgCyMOQ_4783Qbny735jzMHFlbGVtZW50SWRlbnRpZmllcmthZ2Vfb3Zlcl8yMWxlbGVtZW50VmFsdWX12BhYT6RoZGlnZXN0SUQDZnJhbmRvbVBfjaNWdsrrnrAP_OwpaLEKcWVsZW1lbnRJZGVudGlmaWVya2FnZV9vdmVyXzE4bGVsZW1lbnRWYWx1ZfVqaXNzdWVyQXV0aIRDoQEmoRghWQLEMIICwDCCAmegAwIBAgIUHn8bMq1PNO_ksMwHt7DjM6cLGE0wCgYIKoZIzj0EAwIweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwHhcNMjUwMjE5MjMzMDE4WhcNMjYwMjE5MjMzMDE4WjB5MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNTW91bnRhaW4gVmlldzEcMBoGA1UECgwTRGlnaXRhbCBDcmVkZW50aWFsczEfMB0GA1UEAwwWZGlnaXRhbGNyZWRlbnRpYWxzLmRldjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABOt5Nivi1_OXw1AEfYPh42Is41VrNg9qaMdYuw3cavhsCa-aXV0NmTl2EsNaJ5GWmMoAD8ikwAFszYhIeNgF42mjgcwwgckwHwYDVR0jBBgwFoAUok_0idl8Ruhuo4bZR0jOzL7cz_UwHQYDVR0OBBYEFN_-aloS6cBixLyYpyXS2XD3emAoMDQGA1UdHwQtMCswKaAnoCWGI2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYvY3JsMCoGA1UdEgQjMCGGH2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYwDgYDVR0PAQH_BAQDAgeAMBUGA1UdJQEB_wQLMAkGByiBjF0FAQIwCgYIKoZIzj0EAwIDRwAwRAIgYcXL9XzB43vy4LEz2h8gMQRdcJtaIRQOemgwm8sHQucCIHCvouHEm_unjBXMCeUZ7QR_ympjGyHITw25_B9H9QsCWQHd2BhZAdimZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGV1b3JnLmlzby4xODAxMy41LjEubURMbHZhbHVlRGlnZXN0c6Fxb3JnLmlzby4xODAxMy41LjGkAFggKbLb5DjtD0SKhZAnbnCbrtqIPvkEtVgZWXRLuiiYrSABWCCBZuuCm-uwy8LHdRKKwIj5ID-8YZ1EeGUg8FO6Qwwl3wJYIBLdLQ-o_8VTfDWrE2Vtw9cplJclvY_30g8jBjKO84xUA1ggCx-A7ME13-EqjPwAVmk1C2_6xt1jO9tK7gC_MjtduW1tZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCCp0QHrqBt9BpxGbKH1P80cVxPaBSBhQM4sLe29LENHzCJYIJ2-R1C_PPrVXVNXeyvz7pgfw_w11MtYB7uyIfLHhq0HbHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wNC0yNFQxODoyNToxOS4zMTU4MzlaaXZhbGlkRnJvbcB4GzIwMjUtMDQtMjRUMTg6MjU6MTkuMzE1ODQ3Wmp2YWxpZFVudGlswHgbMjAzNS0wNC0xMlQxODoyNToxOS4zMTU4NDhaWEAui6i2kw7uqJK77oL-zYBOGWbBkuZ5uRCOxSBGN-_-feDHwsczIFRgZBdYN2YoHh-OSn9dQd4_nvimhlB2DMRl"
+        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgK9eN0SFpsfFDBlJUjKRj5Xo1pwwctzuCSGQExYs80GyhRANCAAQDfSFivQvB-8kfezlFgl9UAFYiSGlJp7X28ud2Uc9TmPhU-5btTfT206ni-nDACc5r4ei9RQlYmLhrGRFSMtMQ",
+        "issuerSigned": "ompuYW1lU3BhY2VzoXFvcmcuaXNvLjE4MDEzLjUuMY3YGFhUpGhkaWdlc3RJRABmcmFuZG9tUKMCBuwPbpFaVG3-CUJN_I1xZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlZVNtaXRo2BhYUaRoZGlnZXN0SUQBZnJhbmRvbVDM4_B2jFL3QBTAByembduXcWVsZW1lbnRJZGVudGlmaWVyamdpdmVuX25hbWVsZWxlbWVudFZhbHVlY0pvbtgYWE-kaGRpZ2VzdElEAmZyYW5kb21QhLmFI7eqg2Ro4OsM62bog3FlbGVtZW50SWRlbnRpZmllcmthZ2Vfb3Zlcl8yMWxlbGVtZW50VmFsdWX12BhYT6RoZGlnZXN0SUQDZnJhbmRvbVBKKu2QEC4vpVzVAL56_ctBcWVsZW1lbnRJZGVudGlmaWVya2FnZV9vdmVyXzE4bGVsZW1lbnRWYWx1ZfXYGFhYpGhkaWdlc3RJRARmcmFuZG9tUCGjIK4ViH3Uiw2Tpjz3OvlxZWxlbWVudElkZW50aWZpZXJqYmlydGhfZGF0ZWxlbGVtZW50VmFsdWVqMTk4OC0wOS0wMdgYWFikaGRpZ2VzdElEBWZyYW5kb21QIeQKxRxi_zMb6k8t7If_lXFlbGVtZW50SWRlbnRpZmllcmppc3N1ZV9kYXRlbGVsZW1lbnRWYWx1ZWoyMDIyLTAxLTAx2BhYWaRoZGlnZXN0SUQGZnJhbmRvbVDwnupoFrZDt_IqbLg3xrqIcWVsZW1lbnRJZGVudGlmaWVya2V4cGlyeV9kYXRlbGVsZW1lbnRWYWx1ZWoyMDI2LTAxLTAx2BhYVaRoZGlnZXN0SUQHZnJhbmRvbVDXgeGjvYD1Pc-P3ZgbmCk5cWVsZW1lbnRJZGVudGlmaWVyb2lzc3VpbmdfY291bnRyeWxlbGVtZW50VmFsdWViVVPYGFhkpGhkaWdlc3RJRAhmcmFuZG9tUDDlm0YtJFNDA3qlfXWwNztxZWxlbWVudElkZW50aWZpZXJxaXNzdWluZ19hdXRob3JpdHlsZWxlbWVudFZhbHVlb0dvdGhhbSBDaXR5IERNVtgYWFukaGRpZ2VzdElECWZyYW5kb21Q2_ud3u0Ys7W1y4BU37KHcXFlbGVtZW50SWRlbnRpZmllcm9kb2N1bWVudF9udW1iZXJsZWxlbWVudFZhbHVlaDkwMDAxMjM02BhZAaukaGRpZ2VzdElECmZyYW5kb21QH0UZQ72t6FFX679NzH77hnFlbGVtZW50SWRlbnRpZmllcmhwb3J0cmFpdGxlbGVtZW50VmFsdWVZAV3_2P_gABBKRklGAAEBAAABAAEAAP_bAEMAAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf_bAEMBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf_AABEIAAEAAQMBIgACEQEDEQH_xAAfAAABBQEBAQEBAQAAAAAAAAABAgMEBQYHCAkKC__EAIxAAIBAwMCBiICAAAAAAAAAGBAIDBQMEBwECBAgJChEVFh__EACARAAIBAgQGAQEAAAAAAAAAAAECAxEEACEFEiBBUWH_EACIRAAICAgEDBAIAAAAAAAAAAAERAgMAEiExBUFRI2Fx_9oADAMBAAIRAxEAPwD9yf4D-I_w4j_6_V_6Af8APSv_22BhYnKRoZGlnZXN0SUQLZnJhbmRvbVDUDGDiHCln69zmsfP4ORF0cWVsZW1lbnRJZGVudGlmaWVycmRyaXZpbmdfcHJpdmlsZWdlc2xlbGVtZW50VmFsdWWBo3V2ZWhpY2xlX2NhdGVnb3J5X2NvZGVhQWppc3N1ZV9kYXRlajIwMjAtMTAtMTBrZXhwaXJ5X2RhdGVqMjAyOC0xMC0xMNgYWF2kaGRpZ2VzdElEDGZyYW5kb21QhQ6rpMYPElbVssaOhx6mH3FlbGVtZW50SWRlbnRpZmllcnZ1bl9kaXN0aW5ndWlzaGluZ19zaWdubGVsZW1lbnRWYWx1ZWNVU0FqaXNzdWVyQXV0aIRDoQEmoRghWQLEMIICwDCCAmegAwIBAgIUHn8bMq1PNO_ksMwHt7DjM6cLGE0wCgYIKoZIzj0EAwIweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwHhcNMjUwMjE5MjMzMDE4WhcNMjYwMjE5MjMzMDE4WjB5MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNTW91bnRhaW4gVmlldzEcMBoGA1UECgwTRGlnaXRhbCBDcmVkZW50aWFsczEfMB0GA1UEAwwWZGlnaXRhbGNyZWRlbnRpYWxzLmRldjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABOt5Nivi1_OXw1AEfYPh42Is41VrNg9qaMdYuw3cavhsCa-aXV0NmTl2EsNaJ5GWmMoAD8ikwAFszYhIeNgF42mjgcwwgckwHwYDVR0jBBgwFoAUok_0idl8Ruhuo4bZR0jOzL7cz_UwHQYDVR0OBBYEFN_-aloS6cBixLyYpyXS2XD3emAoMDQGA1UdHwQtMCswKaAnoCWGI2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYvY3JsMCoGA1UdEgQjMCGGH2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYwDgYDVR0PAQH_BAQDAgeAMBUGA1UdJQEB_wQLMAkGByiBjF0FAQIwCgYIKoZIzj0EAwIDRwAwRAIgYcXL9XzB43vy4LEz2h8gMQRdcJtaIRQOemgwm8sHQucCIHCvouHEm_unjBXMCeUZ7QR_ympjGyHITw25_B9H9QsCWQMY2BhZAxOmZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGV1b3JnLmlzby4xODAxMy41LjEubURMbHZhbHVlRGlnZXN0c6Fxb3JnLmlzby4xODAxMy41LjGtAFggu7mJu4AHvHPlMDUnfVhLTVemHwK6a4e9TE6pQTY5YVgBWCCeDBELoQjZs5NrVPO_FUnnKz5TSPxUFGbzD7Ou1c7d1wJYIFnzJnPcGcImfSN-Yg7J3G2PA7venkNzxCstWfThNYbfA1ggds_dNhFknnD6h65mFncwqvPSlCdqxCQtNvfTq9NJ9RoEWCAJ_rcn6OdpBlXxOsl_tgIZDadkwOV9BO2vlE8z_HjVvwVYINuVCyf8HNFwqRCLCNIY9cl-iiOh1yk-4pELe61Y2vjnBlggGZZmsGIP0CG2Fz2Pcjgf7Mjn0rKfAe_fIrR2b7oD1LIHWCAkXQFZrFn-bidGLQFFvEzLja9ZFx_m6vQcCwywyquLpAhYIMlemdhs4zoTxmGMyZl8OAIPSQo1k2lY4Ysftk8kIoxCCVggk55YvqvQkUzkUdPMKi7SHDIk_5tEsX65xfxRYaB5OjIKWCCzvd5Rt7yZeINClt9F8LwO2oB6L5DiV3ELQw2UhC-orAtYIICTgJoDCFJ2aaYRR73ZFyX-idRP5lZrFYAuw9o-4kDxDFgglfbbi0P8j3Sv4LcqkpD3H1LJEMhCQGKtarFGd3yeZ1ZtZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCADfSFivQvB-8kfezlFgl9UAFYiSGlJp7X28ud2Uc9TmCJYIPhU-5btTfT206ni-nDACc5r4ei9RQlYmLhrGRFSMtMQbHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wNC0yNVQwNjo0NToxMS45NjUwMDJaaXZhbGlkRnJvbcB4GzIwMjUtMDQtMjVUMDY6NDU6MTEuOTY1MDA5Wmp2YWxpZFVudGlswHgbMjAzNS0wNC0xM1QwNjo0NToxMS45NjUwMTBaWECzBfuK9V7ZJoJU9Gt0x7ZlYhLCQEVVJh6mJGh9WwEa1OUsYvbqIAPxHZF9agvFtiY173EJeBMMYWwWyZ9frGCf",
+        "claims": [
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "family_name"
+                ],
+                "display": [
+                    {
+                        "name": "Family Name",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "given_name"
+                ],
+                "display": [
+                    {
+                        "name": "Given Name",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "age_over_21"
+                ],
+                "display": [
+                    {
+                        "name": "Age Over 21",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "age_over_18"
+                ],
+                "display": [
+                    {
+                        "name": "Age Over 18",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "birth_date"
+                ],
+                "display": [
+                    {
+                        "name": "Date of birth",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "issue_date"
+                ],
+                "display": [
+                    {
+                        "name": "Date of issue",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "expiry_date"
+                ],
+                "display": [
+                    {
+                        "name": "Date of expiry",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "issuing_country"
+                ],
+                "display": [
+                    {
+                        "name": "Issuing country",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "issuing_authority"
+                ],
+                "display": [
+                    {
+                        "name": "Issuing  authority",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "document_number"
+                ],
+                "display": [
+                    {
+                        "name": "License number",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "portrait"
+                ],
+                "display": [
+                    {
+                        "name": "Portrait",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "driving_privileges"
+                ],
+                "display": [
+                    {
+                        "name": "Vehicle category",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "un_distinguishing_sign"
+                ],
+                "display": [
+                    {
+                        "name": "UN distinguishing sign",
+                        "locale": "en-US"
+                    }
+                ]
+            }
+        ]
     },
     "card1": {
         "format": "mso_mdoc",
@@ -84,8 +293,82 @@
                 "subtitle": "Mastercard | Card Holder: Jon Smith"
             }
         },
-        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgEypNXLm_m4M_SbbLG9SjGWxElcehO9k8ERzhjTJCboqhRANCAAQJIPWXXozhj-nBCEsT1W_h15yZWNpuQGQSWkw1WAUla-3Hd_JAt_AZg8Iwt3Kj6f1yoCDVrIXPLDxUPBN3bjwA",
-        "issuerSigned": "ompuYW1lU3BhY2VzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xhtgYWFikaGRpZ2VzdElEAGZyYW5kb21QSXnTfarAKLOe15sqeFjZAHFlbGVtZW50SWRlbnRpZmllcmtob2xkZXJfbmFtZWxlbGVtZW50VmFsdWVpSm9uIFNtaXRo2BhYV6RoZGlnZXN0SUQBZnJhbmRvbVBI4Y7UyJEIEz7SuNGcUGqscWVsZW1lbnRJZGVudGlmaWVya2NhcmRfbnVtYmVybGVsZW1lbnRWYWx1ZRsAE2tMT6dJONgYWFCkaGRpZ2VzdElEAmZyYW5kb21QofraY9P4L-o0Gi2qdF63nHFlbGVtZW50SWRlbnRpZmllcmxleHBpcnlfbW9udGhsZWxlbWVudFZhbHVlB9gYWFGkaGRpZ2VzdElEA2ZyYW5kb21QEcxv3XZHanOPomjZRc3rMXFlbGVtZW50SWRlbnRpZmllcmtleHBpcnlfeWVhcmxlbGVtZW50VmFsdWUZB-vYGFhapGhkaWdlc3RJRARmcmFuZG9tUAF7GJdZ2ttHR0_8FsY1YSdxZWxlbWVudElkZW50aWZpZXJsY2FyZF9uZXR3b3JrbGVsZW1lbnRWYWx1ZWpNYXN0ZXJjYXJk2BhYVqRoZGlnZXN0SUQFZnJhbmRvbVDEci5hTs5JfOULoyg1A_qZcWVsZW1lbnRJZGVudGlmaWVya2NhcmRfaXNzdWVybGVsZW1lbnRWYWx1ZWdUcmliYW5ramlzc3VlckF1dGiEQ6EBJqEYIVkCxDCCAsAwggJnoAMCAQICFB5_GzKtTzTv5LDMB7ew4zOnCxhNMAoGCCqGSM49BAMCMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MB4XDTI1MDIxOTIzMzAxOFoXDTI2MDIxOTIzMzAxOFoweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATreTYr4tfzl8NQBH2D4eNiLONVazYPamjHWLsN3Gr4bAmvml1dDZk5dhLDWieRlpjKAA_IpMABbM2ISHjYBeNpo4HMMIHJMB8GA1UdIwQYMBaAFKJP9InZfEbobqOG2UdIzsy-3M_1MB0GA1UdDgQWBBTf_mpaEunAYsS8mKcl0tlw93pgKDA0BgNVHR8ELTArMCmgJ6AlhiNodHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2L2NybDAqBgNVHRIEIzAhhh9odHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2MA4GA1UdDwEB_wQEAwIHgDAVBgNVHSUBAf8ECzAJBgcogYxdBQECMAoGCCqGSM49BAMCA0cAMEQCIGHFy_V8weN78uCxM9ofIDEEXXCbWiEUDnpoMJvLB0LnAiBwr6LhxJv7p4wVzAnlGe0Ef8pqYxshyE8NufwfR_ULAlkCLNgYWQInpmd2ZXJzaW9uYzEuMG9kaWdlc3RBbGdvcml0aG1nU0hBLTI1Nmdkb2NUeXBldmNvbS5lbXZjby5wYXltZW50X2NhcmRsdmFsdWVEaWdlc3RzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xpgBYIKOKUSCumBaRQz-TA8ipmtHrFVQTddE2l37P4UaAbNuiAVggfTUOUOev6NbGhUrLRMNUGwIg_-RzPhe93fM36mLQsgMCWCAPrY7I3cPbXSveBdDK3Im7Ro_RAvfjv1dU8YhU9ljDcQNYIB6_l-uafAyEDkMJfrSOEPPz8M62zvpJ4Wh_NwmsagZkBFggSAuc3QzGU5dA3FLSy8vX34vhD4tok0shVfNjDqHWRwYFWCB9SmWUvoxJ605HSif2NVQ-Zq-ftqhrH92LXn1-fe9o-G1kZXZpY2VLZXlJbmZvoWlkZXZpY2VLZXmkAQIgASFYIAkg9ZdejOGP6cEISxPVb-HXnJlY2m5AZBJaTDVYBSVrIlgg7cd38kC38BmDwjC3cqPp_XKgINWshc8sPFQ8E3duPABsdmFsaWRpdHlJbmZvo2ZzaWduZWTAeBsyMDI1LTA0LTI0VDE4OjI1OjE5LjMxNTgzOVppdmFsaWRGcm9twHgbMjAyNS0wNC0yNFQxODoyNToxOS4zMTU4NDdaanZhbGlkVW50aWzAeBsyMDM1LTA0LTEyVDE4OjI1OjE5LjMxNTg0OFpYQCtpGH1aY5B4CAKsDSFfYMEwAWnizpw2oVqquq2NE4K0MQd3ICuBl8cIIQyV9XFkoyGtUpudJMmE9nZCCGyMqa8="
+        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQghKtVjPgqxnd6-x6QcTpYBFuIxob_jWEEBO-MDr7aB_OhRANCAAQKmKgRdjJpGdhtso-aJYwE0BlnFqfTB2X5q7syKqHtYE5tISAZVGQhj5o8ghpIIhfFv3Y5RSr_BAlClMcwj2tB",
+        "issuerSigned": "ompuYW1lU3BhY2VzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xhtgYWFikaGRpZ2VzdElEAGZyYW5kb21QMlqPZPIwL9Q9do4hYezamnFlbGVtZW50SWRlbnRpZmllcmtob2xkZXJfbmFtZWxlbGVtZW50VmFsdWVpSm9uIFNtaXRo2BhYV6RoZGlnZXN0SUQBZnJhbmRvbVBfSr04yhf32LOnajIRqxLKcWVsZW1lbnRJZGVudGlmaWVya2NhcmRfbnVtYmVybGVsZW1lbnRWYWx1ZRsAE2tMT6dJONgYWFCkaGRpZ2VzdElEAmZyYW5kb21Qcyhvi2iyFtapHgON-NXzFHFlbGVtZW50SWRlbnRpZmllcmxleHBpcnlfbW9udGhsZWxlbWVudFZhbHVlB9gYWFGkaGRpZ2VzdElEA2ZyYW5kb21QS8x8R16FaEoleziCn5EBJ3FlbGVtZW50SWRlbnRpZmllcmtleHBpcnlfeWVhcmxlbGVtZW50VmFsdWUZB-vYGFhapGhkaWdlc3RJRARmcmFuZG9tUGEuk5o1eF0HkzIsSBZJYSdxZWxlbWVudElkZW50aWZpZXJsY2FyZF9uZXR3b3JrbGVsZW1lbnRWYWx1ZWpNYXN0ZXJjYXJk2BhYVqRoZGlnZXN0SUQFZnJhbmRvbVDCm1WXr7SXIA5tTJv_Fe7BcWVsZW1lbnRJZGVudGlmaWVya2NhcmRfaXNzdWVybGVsZW1lbnRWYWx1ZWdUcmliYW5ramlzc3VlckF1dGiEQ6EBJqEYIVkCxDCCAsAwggJnoAMCAQICFB5_GzKtTzTv5LDMB7ew4zOnCxhNMAoGCCqGSM49BAMCMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MB4XDTI1MDIxOTIzMzAxOFoXDTI2MDIxOTIzMzAxOFoweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATreTYr4tfzl8NQBH2D4eNiLONVazYPamjHWLsN3Gr4bAmvml1dDZk5dhLDWieRlpjKAA_IpMABbM2ISHjYBeNpo4HMMIHJMB8GA1UdIwQYMBaAFKJP9InZfEbobqOG2UdIzsy-3M_1MB0GA1UdDgQWBBTf_mpaEunAYsS8mKcl0tlw93pgKDA0BgNVHR8ELTArMCmgJ6AlhiNodHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2L2NybDAqBgNVHRIEIzAhhh9odHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2MA4GA1UdDwEB_wQEAwIHgDAVBgNVHSUBAf8ECzAJBgcogYxdBQECMAoGCCqGSM49BAMCA0cAMEQCIGHFy_V8weN78uCxM9ofIDEEXXCbWiEUDnpoMJvLB0LnAiBwr6LhxJv7p4wVzAnlGe0Ef8pqYxshyE8NufwfR_ULAlkCLNgYWQInpmd2ZXJzaW9uYzEuMG9kaWdlc3RBbGdvcml0aG1nU0hBLTI1Nmdkb2NUeXBldmNvbS5lbXZjby5wYXltZW50X2NhcmRsdmFsdWVEaWdlc3RzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xpgBYIHg5z6_on8cMOoYUjFVQsq2Y4MMIMMEz179oTzVmgbm9AVgg_kxR6FSLAI0nAvyVanyUT1gTbFmbAvA7rKtBkgyeYZkCWCA8YBzpHEM6xDgxhVUPbAork9pZ_enYp2LhEWm2I8BgegNYIBEr_eGffGRAR1oZ0sm4GZkdLUUsoipscGi7Pk8AhKrLBFgg-dvn0v7mlOBiyccO4dY0Y1nY1qjDwsX8Ro9UkAjWiMIFWCDNzSDlnxzLyX9yuxvg50QLajIrbrBW1O7er0aOfMzR7m1kZXZpY2VLZXlJbmZvoWlkZXZpY2VLZXmkAQIgASFYIAqYqBF2MmkZ2G2yj5oljATQGWcWp9MHZfmruzIqoe1gIlggTm0hIBlUZCGPmjyCGkgiF8W_djlFKv8ECUKUxzCPa0FsdmFsaWRpdHlJbmZvo2ZzaWduZWTAeBsyMDI1LTA0LTI1VDA2OjQ1OjExLjk2NTAwMlppdmFsaWRGcm9twHgbMjAyNS0wNC0yNVQwNjo0NToxMS45NjUwMDlaanZhbGlkVW50aWzAeBsyMDM1LTA0LTEzVDA2OjQ1OjExLjk2NTAxMFpYQACrdTTjMr6xZlUYKFJxAbKqqdnEbADowkeSxseLLGn48VpAptXUrtSXiyF06hb1JR1CYNBYjXazl_nGuCFQzV8=",
+        "claims": [
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "holder_name"
+                ],
+                "display": [
+                    {
+                        "name": "Holder Name",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "card_number"
+                ],
+                "display": [
+                    {
+                        "name": "Card Number",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "expiry_month"
+                ],
+                "display": [
+                    {
+                        "name": "Month of Expiry",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "expiry_year"
+                ],
+                "display": [
+                    {
+                        "name": "Year of Expiry",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "card_network"
+                ],
+                "display": [
+                    {
+                        "name": "Card Network",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "card_issuer"
+                ],
+                "display": [
+                    {
+                        "name": "Card issuer",
+                        "locale": "en-US"
+                    }
+                ]
+            }
+        ]
     },
     "card2": {
         "format": "mso_mdoc",
@@ -134,8 +417,82 @@
                 "subtitle": "Visa | Card Holder: Jon Smith"
             }
         },
-        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQghr1e69SrkwK_SBJUGfuQ35TG5amr9V7hYPmUGO1WDwehRANCAASQ0oFzdrBUMqwbLBAkNrGpyvQQ-49w4L3BLw6oXLn20H12l_4GZU9MKKS6jDqwzzcoGPhwPpsLP5rjol3kQBv6",
-        "issuerSigned": "ompuYW1lU3BhY2VzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xhtgYWFikaGRpZ2VzdElEAGZyYW5kb21Q0nCSLhaO6koE-xpIIHgZrXFlbGVtZW50SWRlbnRpZmllcmtob2xkZXJfbmFtZWxlbGVtZW50VmFsdWVpSm9uIFNtaXRo2BhYV6RoZGlnZXN0SUQBZnJhbmRvbVBm8vqjXYiX9QF9YTQILjX3cWVsZW1lbnRJZGVudGlmaWVya2NhcmRfbnVtYmVybGVsZW1lbnRWYWx1ZRsADjYXUbMaFNgYWFCkaGRpZ2VzdElEAmZyYW5kb21QFLKO4O8rgBH7vPBA7mljBXFlbGVtZW50SWRlbnRpZmllcmxleHBpcnlfbW9udGhsZWxlbWVudFZhbHVlB9gYWFGkaGRpZ2VzdElEA2ZyYW5kb21QE_Y961KyWxgfOWi20hT8E3FlbGVtZW50SWRlbnRpZmllcmtleHBpcnlfeWVhcmxlbGVtZW50VmFsdWUZB-zYGFhUpGhkaWdlc3RJRARmcmFuZG9tUHYiC_sjvAG2_GalklxJFD5xZWxlbWVudElkZW50aWZpZXJsY2FyZF9uZXR3b3JrbGVsZW1lbnRWYWx1ZWRWaXNh2BhYVqRoZGlnZXN0SUQFZnJhbmRvbVDF97DNVo_2bboEjcj3JRrLcWVsZW1lbnRJZGVudGlmaWVya2NhcmRfaXNzdWVybGVsZW1lbnRWYWx1ZWdUcmliYW5ramlzc3VlckF1dGiEQ6EBJqEYIVkCxDCCAsAwggJnoAMCAQICFB5_GzKtTzTv5LDMB7ew4zOnCxhNMAoGCCqGSM49BAMCMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MB4XDTI1MDIxOTIzMzAxOFoXDTI2MDIxOTIzMzAxOFoweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATreTYr4tfzl8NQBH2D4eNiLONVazYPamjHWLsN3Gr4bAmvml1dDZk5dhLDWieRlpjKAA_IpMABbM2ISHjYBeNpo4HMMIHJMB8GA1UdIwQYMBaAFKJP9InZfEbobqOG2UdIzsy-3M_1MB0GA1UdDgQWBBTf_mpaEunAYsS8mKcl0tlw93pgKDA0BgNVHR8ELTArMCmgJ6AlhiNodHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2L2NybDAqBgNVHRIEIzAhhh9odHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2MA4GA1UdDwEB_wQEAwIHgDAVBgNVHSUBAf8ECzAJBgcogYxdBQECMAoGCCqGSM49BAMCA0cAMEQCIGHFy_V8weN78uCxM9ofIDEEXXCbWiEUDnpoMJvLB0LnAiBwr6LhxJv7p4wVzAnlGe0Ef8pqYxshyE8NufwfR_ULAlkCLNgYWQInpmd2ZXJzaW9uYzEuMG9kaWdlc3RBbGdvcml0aG1nU0hBLTI1Nmdkb2NUeXBldmNvbS5lbXZjby5wYXltZW50X2NhcmRsdmFsdWVEaWdlc3RzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xpgBYIE5JrXGlO0y5XOCATMq__Mwo_ccpIJYigO9kaTHDOksAAVgg0gk1GiP0AUpEYmX-iyShfT6w9RflErjMTi5plhoDah8CWCAfSnwz85p4dFEvXoWpwxiyT-uPfR056vXAJrQ4d9PsLANYICbw8f_R_NeBLtBmGHL4EYW20dELvbS4mwk-bve5wAVkBFgg7Qy0-aFjg99nq4Y5-Xmavt6bYEIZRP9TcpZqpNb6aAsFWCDDLUDJ17DqYBCxY2M4HUKQy9KniBhbCHwAivzJKi9SkW1kZXZpY2VLZXlJbmZvoWlkZXZpY2VLZXmkAQIgASFYIJDSgXN2sFQyrBssECQ2sanK9BD7j3DgvcEvDqhcufbQIlggfXaX_gZlT0wopLqMOrDPNygY-HA-mws_muOiXeRAG_psdmFsaWRpdHlJbmZvo2ZzaWduZWTAeBsyMDI1LTA0LTI0VDE4OjI1OjE5LjMxNTgzOVppdmFsaWRGcm9twHgbMjAyNS0wNC0yNFQxODoyNToxOS4zMTU4NDdaanZhbGlkVW50aWzAeBsyMDM1LTA0LTEyVDE4OjI1OjE5LjMxNTg0OFpYQJlbi8CL_zJ00ajAdhxj3nyQnHFnDqUoInTJDCwO4Zg0R3WKikcN7WykAUfUfkp15AOrTdgSEqU_rDmcPptt__s="
+        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg8kBt3c8U0n5Ll1pHqBdn6p99yjACPkVM5TwDlnR0qfShRANCAATNFEr7ZmR9dYy3wXYbzt0R_hQF462tdJ0TdDKBp_2uecPXn7uFVoMB2BHDfVS5L1liISEltO-yBThABK9bPe9J",
+        "issuerSigned": "ompuYW1lU3BhY2VzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xhtgYWFikaGRpZ2VzdElEAGZyYW5kb21QUaDbjHbyne8i6DfMCDunhXFlbGVtZW50SWRlbnRpZmllcmtob2xkZXJfbmFtZWxlbGVtZW50VmFsdWVpSm9uIFNtaXRo2BhYV6RoZGlnZXN0SUQBZnJhbmRvbVDOJuv1mF5DZI9i-YYk6FwJcWVsZW1lbnRJZGVudGlmaWVya2NhcmRfbnVtYmVybGVsZW1lbnRWYWx1ZRsADjYXUbMaFNgYWFCkaGRpZ2VzdElEAmZyYW5kb21QdmQTk7w4YBZd7dGdHaRHcHFlbGVtZW50SWRlbnRpZmllcmxleHBpcnlfbW9udGhsZWxlbWVudFZhbHVlB9gYWFGkaGRpZ2VzdElEA2ZyYW5kb21QqxGcKIFHbyYZw7Dw9y9h5XFlbGVtZW50SWRlbnRpZmllcmtleHBpcnlfeWVhcmxlbGVtZW50VmFsdWUZB-zYGFhUpGhkaWdlc3RJRARmcmFuZG9tUCWanzcdThtZJt31n9cg9LxxZWxlbWVudElkZW50aWZpZXJsY2FyZF9uZXR3b3JrbGVsZW1lbnRWYWx1ZWRWaXNh2BhYVqRoZGlnZXN0SUQFZnJhbmRvbVBxUGuCSUQ7W31UBHSXPJvjcWVsZW1lbnRJZGVudGlmaWVya2NhcmRfaXNzdWVybGVsZW1lbnRWYWx1ZWdUcmliYW5ramlzc3VlckF1dGiEQ6EBJqEYIVkCxDCCAsAwggJnoAMCAQICFB5_GzKtTzTv5LDMB7ew4zOnCxhNMAoGCCqGSM49BAMCMHkxCzAJBgNVBAYTAlVTMRMwEQYDVQQIDApDYWxpZm9ybmlhMRYwFAYDVQQHDA1Nb3VudGFpbiBWaWV3MRwwGgYDVQQKDBNEaWdpdGFsIENyZWRlbnRpYWxzMR8wHQYDVQQDDBZkaWdpdGFsY3JlZGVudGlhbHMuZGV2MB4XDTI1MDIxOTIzMzAxOFoXDTI2MDIxOTIzMzAxOFoweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATreTYr4tfzl8NQBH2D4eNiLONVazYPamjHWLsN3Gr4bAmvml1dDZk5dhLDWieRlpjKAA_IpMABbM2ISHjYBeNpo4HMMIHJMB8GA1UdIwQYMBaAFKJP9InZfEbobqOG2UdIzsy-3M_1MB0GA1UdDgQWBBTf_mpaEunAYsS8mKcl0tlw93pgKDA0BgNVHR8ELTArMCmgJ6AlhiNodHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2L2NybDAqBgNVHRIEIzAhhh9odHRwczovL2RpZ2l0YWwtY3JlZGVudGlhbHMuZGV2MA4GA1UdDwEB_wQEAwIHgDAVBgNVHSUBAf8ECzAJBgcogYxdBQECMAoGCCqGSM49BAMCA0cAMEQCIGHFy_V8weN78uCxM9ofIDEEXXCbWiEUDnpoMJvLB0LnAiBwr6LhxJv7p4wVzAnlGe0Ef8pqYxshyE8NufwfR_ULAlkCLNgYWQInpmd2ZXJzaW9uYzEuMG9kaWdlc3RBbGdvcml0aG1nU0hBLTI1Nmdkb2NUeXBldmNvbS5lbXZjby5wYXltZW50X2NhcmRsdmFsdWVEaWdlc3RzoXgYY29tLmVtdmNvLnBheW1lbnRfY2FyZC4xpgBYIJhFlZkjIDVDrAZolxGwEN53EKAwNYs1qXpFq_DB8plyAVggraj0g9DnpXuVaTwhGFH0VnGUzU2FNchsC5RRu0VBNdwCWCCQDudBx3hV7OhyZfmi5U491f3NUbDqh-AxsWhcRx98ewNYIHndaeV0ayjFm__d-MRQZTbiOnAWwOT3ZFA4ut4mlgptBFggvtuO-wsZtHqKindrYADRCy78zhGG5FCKrTU6qiUWUe8FWCDTP94RylpmzHjnyo_tf6Ux9pFZ_1UJW-EjcImCsEd_Wm1kZXZpY2VLZXlJbmZvoWlkZXZpY2VLZXmkAQIgASFYIM0USvtmZH11jLfBdhvO3RH-FAXjra10nRN0MoGn_a55Ilggw9efu4VWgwHYEcN9VLkvWWIhISW077IFOEAEr1s970lsdmFsaWRpdHlJbmZvo2ZzaWduZWTAeBsyMDI1LTA0LTI1VDA2OjQ1OjExLjk2NTAwMlppdmFsaWRGcm9twHgbMjAyNS0wNC0yNVQwNjo0NToxMS45NjUwMDlaanZhbGlkVW50aWzAeBsyMDM1LTA0LTEzVDA2OjQ1OjExLjk2NTAxMFpYQAaTstOkWFJeGHHNFQs5c41RhOZXMWOTbCZt3E4u_1bY_qrUCXzgn_r-VcjBU8CRQbqDdbLWymjnY259_nT7v70=",
+        "claims": [
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "holder_name"
+                ],
+                "display": [
+                    {
+                        "name": "Holder Name",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "card_number"
+                ],
+                "display": [
+                    {
+                        "name": "Card Number",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "expiry_month"
+                ],
+                "display": [
+                    {
+                        "name": "Month of Expiry",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "expiry_year"
+                ],
+                "display": [
+                    {
+                        "name": "Year of Expiry",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "card_network"
+                ],
+                "display": [
+                    {
+                        "name": "Card Network",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "com.emvco.payment_card.1",
+                    "card_issuer"
+                ],
+                "display": [
+                    {
+                        "name": "Card issuer",
+                        "locale": "en-US"
+                    }
+                ]
+            }
+        ]
     },
     "vr2": {
         "format": "mso_mdoc",
@@ -169,7 +526,45 @@
                 "subtitle": "Utopia DMV"
             }
         },
-        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgz1V_U5pnQmHC9XyBzBbfSzxnExw0m0VboGDbL8wDl9OhRANCAAQwMi4-naeA_vKPaveVgfVea0Rri_LNsoauWVVF-XXTrpCfClrNmAUYTE6ro6cvM4ioj5aKaJ_DhKDUTc5jrA8e",
-        "issuerSigned": "ompuYW1lU3BhY2VzonFvcmcuaXNvLjE4MDEzLjUuMYLYGFhUpGhkaWdlc3RJRABmcmFuZG9tUPVul1MWyKC6MlbbCXd3t8txZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlZVNtaXRo2BhYU6RoZGlnZXN0SUQBZnJhbmRvbVAKcJKwpRait8aIy2mmw4TrcWVsZW1lbnRJZGVudGlmaWVyamZpcnN0X25hbWVsZWxlbWVudFZhbHVlZUVyaWthbm9yZy5pc28uNzM2Ny4xgdgYWFekaGRpZ2VzdElEAGZyYW5kb21QNiZRBmeENT9PIiIkK4K2MHFlbGVtZW50SWRlbnRpZmllcm52ZWhpY2xlX2hvbGRlcmxlbGVtZW50VmFsdWVlOTQwNDNqaXNzdWVyQXV0aIRDoQEmoRghWQLEMIICwDCCAmegAwIBAgIUHn8bMq1PNO_ksMwHt7DjM6cLGE0wCgYIKoZIzj0EAwIweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwHhcNMjUwMjE5MjMzMDE4WhcNMjYwMjE5MjMzMDE4WjB5MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNTW91bnRhaW4gVmlldzEcMBoGA1UECgwTRGlnaXRhbCBDcmVkZW50aWFsczEfMB0GA1UEAwwWZGlnaXRhbGNyZWRlbnRpYWxzLmRldjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABOt5Nivi1_OXw1AEfYPh42Is41VrNg9qaMdYuw3cavhsCa-aXV0NmTl2EsNaJ5GWmMoAD8ikwAFszYhIeNgF42mjgcwwgckwHwYDVR0jBBgwFoAUok_0idl8Ruhuo4bZR0jOzL7cz_UwHQYDVR0OBBYEFN_-aloS6cBixLyYpyXS2XD3emAoMDQGA1UdHwQtMCswKaAnoCWGI2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYvY3JsMCoGA1UdEgQjMCGGH2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYwDgYDVR0PAQH_BAQDAgeAMBUGA1UdJQEB_wQLMAkGByiBjF0FAQIwCgYIKoZIzj0EAwIDRwAwRAIgYcXL9XzB43vy4LEz2h8gMQRdcJtaIRQOemgwm8sHQucCIHCvouHEm_unjBXMCeUZ7QR_ympjGyHITw25_B9H9QsCWQHI2BhZAcOmZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGVzb3JnLmlzby43MzY3LjEubVZSQ2x2YWx1ZURpZ2VzdHOicW9yZy5pc28uMTgwMTMuNS4xogBYIPd4hHiyeUecgQaBLru4bWaxl_4jlufTqFTsm_Ca4W2hAVggLqYYjLueOIJMIrk2_tp53hholy4BPydxVuJsFW7fVflub3JnLmlzby43MzY3LjGhAFggG8th9xa-qkwXV7V4It_wma-WqgNjMVUOI-FcoLB1SH1tZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCAwMi4-naeA_vKPaveVgfVea0Rri_LNsoauWVVF-XXTriJYIJCfClrNmAUYTE6ro6cvM4ioj5aKaJ_DhKDUTc5jrA8ebHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wNC0yNFQxODoyNToxOS4zMTU4MzlaaXZhbGlkRnJvbcB4GzIwMjUtMDQtMjRUMTg6MjU6MTkuMzE1ODQ3Wmp2YWxpZFVudGlswHgbMjAzNS0wNC0xMlQxODoyNToxOS4zMTU4NDhaWECt7RnsYq4idr13R52XYdgsYn1dCJCm_EZ5DrfMjJ9M0eGo488ufz7Nva7niYc3siWZ68G0V11hzkslTtHBH5d5"
+        "deviceKey": "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQgB3J7wK3K4Z6HisNHpqZiTWPLI_qIhSUKHl5HL0BMwnOhRANCAARIErzSVydphRRShs1IC8sdNra60fofazBnq4zsFOnF7aZVwiRdk2QRrdZYeBH-Zc7OeDHRpuI5oFWazacfVD8z",
+        "issuerSigned": "ompuYW1lU3BhY2VzonFvcmcuaXNvLjE4MDEzLjUuMYLYGFhUpGhkaWdlc3RJRABmcmFuZG9tUNzxF1czWCHKWMbidBZKRApxZWxlbWVudElkZW50aWZpZXJrZmFtaWx5X25hbWVsZWxlbWVudFZhbHVlZVNtaXRo2BhYU6RoZGlnZXN0SUQBZnJhbmRvbVAmAOWgFShmjHPFX_SSUV3BcWVsZW1lbnRJZGVudGlmaWVyamZpcnN0X25hbWVsZWxlbWVudFZhbHVlZUVyaWthbm9yZy5pc28uNzM2Ny4xgdgYWFekaGRpZ2VzdElEAGZyYW5kb21Q3LaPRvrTzZxHA8LerU4BQ3FlbGVtZW50SWRlbnRpZmllcm52ZWhpY2xlX2hvbGRlcmxlbGVtZW50VmFsdWVlOTQwNDNqaXNzdWVyQXV0aIRDoQEmoRghWQLEMIICwDCCAmegAwIBAgIUHn8bMq1PNO_ksMwHt7DjM6cLGE0wCgYIKoZIzj0EAwIweTELMAkGA1UEBhMCVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExFjAUBgNVBAcMDU1vdW50YWluIFZpZXcxHDAaBgNVBAoME0RpZ2l0YWwgQ3JlZGVudGlhbHMxHzAdBgNVBAMMFmRpZ2l0YWxjcmVkZW50aWFscy5kZXYwHhcNMjUwMjE5MjMzMDE4WhcNMjYwMjE5MjMzMDE4WjB5MQswCQYDVQQGEwJVUzETMBEGA1UECAwKQ2FsaWZvcm5pYTEWMBQGA1UEBwwNTW91bnRhaW4gVmlldzEcMBoGA1UECgwTRGlnaXRhbCBDcmVkZW50aWFsczEfMB0GA1UEAwwWZGlnaXRhbGNyZWRlbnRpYWxzLmRldjBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABOt5Nivi1_OXw1AEfYPh42Is41VrNg9qaMdYuw3cavhsCa-aXV0NmTl2EsNaJ5GWmMoAD8ikwAFszYhIeNgF42mjgcwwgckwHwYDVR0jBBgwFoAUok_0idl8Ruhuo4bZR0jOzL7cz_UwHQYDVR0OBBYEFN_-aloS6cBixLyYpyXS2XD3emAoMDQGA1UdHwQtMCswKaAnoCWGI2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYvY3JsMCoGA1UdEgQjMCGGH2h0dHBzOi8vZGlnaXRhbC1jcmVkZW50aWFscy5kZXYwDgYDVR0PAQH_BAQDAgeAMBUGA1UdJQEB_wQLMAkGByiBjF0FAQIwCgYIKoZIzj0EAwIDRwAwRAIgYcXL9XzB43vy4LEz2h8gMQRdcJtaIRQOemgwm8sHQucCIHCvouHEm_unjBXMCeUZ7QR_ympjGyHITw25_B9H9QsCWQHI2BhZAcOmZ3ZlcnNpb25jMS4wb2RpZ2VzdEFsZ29yaXRobWdTSEEtMjU2Z2RvY1R5cGVzb3JnLmlzby43MzY3LjEubVZSQ2x2YWx1ZURpZ2VzdHOicW9yZy5pc28uMTgwMTMuNS4xogBYIIdzxbVPzZGkVYt7_FP9__5UzMe6ICww0wUd8c13t1uOAVggF7z57MnWfd4cIXO8ixVjSggwH5wxJ94BHEPQaZClzSpub3JnLmlzby43MzY3LjGhAFggfEAaHdHyWYkfqpKgtSy3VDHUszA7dOQa4l5Ijz7jqPptZGV2aWNlS2V5SW5mb6FpZGV2aWNlS2V5pAECIAEhWCBIErzSVydphRRShs1IC8sdNra60fofazBnq4zsFOnF7SJYIKZVwiRdk2QRrdZYeBH-Zc7OeDHRpuI5oFWazacfVD8zbHZhbGlkaXR5SW5mb6Nmc2lnbmVkwHgbMjAyNS0wNC0yNVQwNjo0NToxMS45NjUwMDJaaXZhbGlkRnJvbcB4GzIwMjUtMDQtMjVUMDY6NDU6MTEuOTY1MDA5Wmp2YWxpZFVudGlswHgbMjAzNS0wNC0xM1QwNjo0NToxMS45NjUwMTBaWECX0XeSdkFdUajxjFT5_NYx9g-G2Dr-a6jR6XrHaHLfVorunVnx2ivzGnqlgxz-Z3miGl-PPBS2dvx91r9zQ6R6",
+        "claims": [
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "family_name"
+                ],
+                "display": [
+                    {
+                        "name": "Family Name",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.18013.5.1",
+                    "first_name"
+                ],
+                "display": [
+                    {
+                        "name": "Given Name",
+                        "locale": "en-US"
+                    }
+                ]
+            },
+            {
+                "path": [
+                    "org.iso.7367.1",
+                    "vehicle_holder"
+                ],
+                "display": [
+                    {
+                        "name": "Vehicle Holder Information",
+                        "locale": "en-US"
+                    }
+                ]
+            }
+        ]
     }
 }
