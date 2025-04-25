@@ -20,8 +20,8 @@ static int B64Lookup(char x) {
 
 int B64DecodeURL(char* input, char** output) {
     int b64len = strlen(input);
-    int output_len = (b64len/4) * 3;
-    char* buffer = malloc(output_len);
+    int output_len = (b64len*3) / 4;
+    char* buffer = malloc(output_len+1);
     
     int count = 0;
     for(int i=0; i<b64len; i+=4) {
