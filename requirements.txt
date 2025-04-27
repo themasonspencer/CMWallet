@@ -1,0 +1,5 @@
+cryptography
+cbor2
+jwcrypto
+isomdoc
+git+https://github.com/openwallet-foundation-labs/sd-jwt-python.git
