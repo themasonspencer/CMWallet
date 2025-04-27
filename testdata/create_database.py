@@ -28,14 +28,17 @@ sdjwt_ds_private_key_jwk = json.load(open("testdata/ds_private_key_sdjwt.json"))
 database_in_json = open("testdata/database_in.json", "rb").read()
 database = json.loads(database_in_json)
 
-for cred_id, cred in database.items():
-    if cred["format"] == "mso_mdoc":
-        mdoc_credential = cred["credential"]
-        doctype = mdoc_credential["docType"]
+for cred in database:
+    cred_config = cred["config"]
+    cred_format = cred_config["format"]
+    issuer_signed = None
+    device_key = None
+    if cred_format == "mso_mdoc":
+        doctype = cred_config["doctype"]
         print("Creating {}".format(doctype))
         claims = []
         mdoc = create_mdoc(doctype, mdoc_ds_cert_chain, mdoc_ds_private_key)
-        for namespace, elements in mdoc_credential["nameSpaces"].items():
+        for namespace, elements in cred["nameSpaces"].items():
             for element, value in elements.items():
                 path = [namespace, element]
                 display = [{"name": value["display"], "locale": "en-US"}]
@@ -44,27 +47,26 @@ for cred_id, cred in database.items():
                     mdoc.add_data_item(namespace, element, base64.urlsafe_b64decode(value["value"]))
                 else:
                     mdoc.add_data_item(namespace, element, value["value"])
-        cred["claims"] = claims
+        cred["config"]["claims"] = claims
         device_private_key = ec.generate_private_key(ec.SECP256R1())
         device_public_key = device_private_key.public_key()
-        cred["issuerSigned"] = base64.urlsafe_b64encode(
+        issuer_signed = base64.urlsafe_b64encode(
             mdoc.generate_credential(device_public_key)
-        ).decode("utf-8")
-        cred["deviceKey"] = base64.urlsafe_b64encode(
+        ).decode("utf-8").replace("=", "")
+        device_key = base64.urlsafe_b64encode(
             device_private_key.private_bytes(
                 encoding=serialization.Encoding.DER,
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption(),
             )
         ).decode("utf-8")
-        print(cred["deviceKey"])
-    elif cred["format"] == "dc+sd-jwt":
-        sdjwt_credential = cred["credential"]
-        vct = sdjwt_credential["vct"]
+        print(device_key)
+    elif cred_format == "dc+sd-jwt":
+        vct = cred_config["vct"]
         claims = []
-        build_claims_for_display(claims, sdjwt_credential["paths"], [])
-        cred["claims"] = claims
-        user_claims = build_claims(sdjwt_credential["paths"])
+        build_claims_for_display(claims, cred["paths"], [])
+        cred["config"]["claims"] = claims
+        user_claims = build_claims(cred["paths"])
         user_claims["vct"] = vct
         device_private_key = ec.generate_private_key(ec.SECP256R1())
         device_public_key = device_private_key.public_key()
@@ -83,14 +85,23 @@ for cred_id, cred in database.items():
             holder_key=JWK.from_json(json.dumps(holder_jwk_public)),
             extra_header_parameters={"typ": "dc+sd-jwt", "x5c": [sdjwt_ds_cert_der_encoded, sdjwt_issuer_cert_der_encoded]}
         )
-        cred["issuerSigned"] = sdjwt_at_issuer.sd_jwt_issuance
-        cred["deviceKey"] = base64.urlsafe_b64encode(
+        issuer_signed = sdjwt_at_issuer.sd_jwt_issuance
+        device_key = base64.urlsafe_b64encode(
             device_private_key.private_bytes(
                 encoding=serialization.Encoding.DER,
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption(),
             )
         ).decode("utf-8")
+    credential = {"credential": issuer_signed}
+    key = {
+        "type": "SOFTWARE",
+        "publicKey": "123",
+        "privateKey": device_key
+    }
+    credential["key"] = key
+    credentials = [credential]
+    cred["credentials"] = credentials
 
 
 
