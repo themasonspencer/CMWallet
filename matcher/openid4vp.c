@@ -124,64 +124,65 @@ int main() {
 //            printf("matched_creds %s\n", cJSON_Print(cJSON_GetArrayItem(matched_creds,0)));
 
             // Only support one doc
+            cJSON* matched_doc;
+            cJSON_ArrayForEach(matched_doc, matched_docs) {
+                cJSON* matched_cred = cJSON_GetObjectItem(matched_doc, "matched");
+                cJSON* doc_id = cJSON_GetObjectItem(matched_doc, "id");
+                cJSON* c;
+                cJSON_ArrayForEach(c, matched_cred) {
+    //                printf("cred %s\n", cJSON_Print(c));
+                    cJSON* id_obj = cJSON_CreateObject();
+                    cJSON* matched_id = cJSON_GetObjectItem(c, "id");
 
-            cJSON* matched_doc = cJSON_GetArrayItem(matched_docs,0);
-            cJSON* matched_cred = cJSON_GetObjectItem(matched_doc, "matched");
-            cJSON* doc_id = cJSON_GetObjectItem(matched_doc, "id");
-            cJSON* c;
-            cJSON_ArrayForEach(c, matched_cred) {
-//                printf("cred %s\n", cJSON_Print(c));
-                cJSON* id_obj = cJSON_CreateObject();
-                cJSON* matched_id = cJSON_GetObjectItem(c, "id");
+                    cJSON_AddItemReferenceToObject(id_obj, "id", matched_id);
+                    cJSON_AddItemReferenceToObject(id_obj, "dcql_cred_id", doc_id);
+                    cJSON_AddItemReferenceToObject(id_obj, "provider_idx", cJSON_CreateNumber(i));
+                    char* id = cJSON_PrintUnformatted(id_obj);
 
-                cJSON_AddItemReferenceToObject(id_obj, "id", matched_id);
-                cJSON_AddItemReferenceToObject(id_obj, "dcql_cred_id", doc_id);
-                cJSON_AddItemReferenceToObject(id_obj, "provider_idx", cJSON_CreateNumber(i));
-                char* id = cJSON_PrintUnformatted(id_obj);
+                    if (transaction_credential_ids != NULL) {
+                        printf("transaction cred ids %s\n", cJSON_Print(transaction_credential_ids));
+                        cJSON* transaction_credential_id;
+                        cJSON_ArrayForEach(transaction_credential_id, transaction_credential_ids) {
+                            printf("comparing cred id %s with transaction cred id %s.\n", cJSON_Print(doc_id), cJSON_Print(transaction_credential_id));
+                            if (cJSON_Compare(transaction_credential_id, doc_id, cJSON_True)) {
 
-                if (transaction_credential_ids != NULL) {
-                    printf("transaction cred ids %s\n", cJSON_Print(transaction_credential_ids));
-                    cJSON* transaction_credential_id;
-                    cJSON_ArrayForEach(transaction_credential_id, transaction_credential_ids) {
-                        printf("comparing cred id %s with transaction cred id %s.\n", cJSON_Print(doc_id), cJSON_Print(transaction_credential_id));
-                        if (cJSON_Compare(transaction_credential_id, doc_id, cJSON_True)) {
+                                char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
+                                char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
+                                cJSON* icon = cJSON_GetObjectItem(c, "icon");
+                                printf("transaction cred ids %s\n", cJSON_Print(transaction_credential_ids));
 
-                            char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
-                            char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
-                            cJSON* icon = cJSON_GetObjectItem(c, "icon");
-                            printf("transaction cred ids %s\n", cJSON_Print(transaction_credential_ids));
+                                double icon_start = (cJSON_GetNumberValue(cJSON_GetObjectItem(icon, "start")));
+                                int icon_start_int = icon_start;
+                                printf("icon_start int %d, double %f\n", icon_start_int, icon_start);
+                                int icon_len = (int)(cJSON_GetNumberValue(cJSON_GetObjectItem(icon, "length")));
 
-                            double icon_start = (cJSON_GetNumberValue(cJSON_GetObjectItem(icon, "start")));
-                            int icon_start_int = icon_start;
-                            printf("icon_start int %d, double %f\n", icon_start_int, icon_start);
-                            int icon_len = (int)(cJSON_GetNumberValue(cJSON_GetObjectItem(icon, "length")));
-
-                            AddPaymentEntry(id, merchant_name, title, subtitle, creds_blob + icon_start_int, icon_len, transaction_amount, NULL, 0, NULL, 0);
-                            matched = 1;
-                            break;
+                                AddPaymentEntry(id, merchant_name, title, subtitle, creds_blob + icon_start_int, icon_len, transaction_amount, NULL, 0, NULL, 0);
+                                matched = 1;
+                                break;
+                            }
                         }
-                    }
-                } else {
-                    char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
-                    char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
-                    cJSON* icon = cJSON_GetObjectItem(c, "icon");
-                    int icon_start_int = 0;
-                    int icon_len = 0;
-                    if (icon != NULL) {
-                        cJSON* start = cJSON_GetObjectItem(icon, "start");
-                        cJSON* length = cJSON_GetObjectItem(icon, "length");
-                        if (start != NULL && length != NULL) {
-                            double icon_start = (cJSON_GetNumberValue(start));
-                            icon_start_int = icon_start;
-                            icon_len = (int)(cJSON_GetNumberValue(length));
+                    } else {
+                        char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
+                        char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
+                        cJSON* icon = cJSON_GetObjectItem(c, "icon");
+                        int icon_start_int = 0;
+                        int icon_len = 0;
+                        if (icon != NULL) {
+                            cJSON* start = cJSON_GetObjectItem(icon, "start");
+                            cJSON* length = cJSON_GetObjectItem(icon, "length");
+                            if (start != NULL && length != NULL) {
+                                double icon_start = (cJSON_GetNumberValue(start));
+                                icon_start_int = icon_start;
+                                icon_len = (int)(cJSON_GetNumberValue(length));
+                            }
                         }
-                    }
-                    matched = 1;
-                    AddStringIdEntry(id, creds_blob + icon_start_int, icon_len, title, subtitle, NULL, NULL);
-                    cJSON *matched_claim_names = cJSON_GetObjectItem(c, "matched_claim_names");
-                    cJSON *claim;
-                    cJSON_ArrayForEach(claim, matched_claim_names) {
-                        AddFieldForStringIdEntry(id, cJSON_GetStringValue(claim), NULL);
+                        matched = 1;
+                        AddStringIdEntry(id, creds_blob + icon_start_int, icon_len, title, subtitle, NULL, NULL);
+                        cJSON *matched_claim_names = cJSON_GetObjectItem(c, "matched_claim_names");
+                        cJSON *claim;
+                        cJSON_ArrayForEach(claim, matched_claim_names) {
+                            AddFieldForStringIdEntry(id, cJSON_GetStringValue(claim), NULL);
+                        }
                     }
                 }
             }
