@@ -58,7 +58,8 @@ class CmWalletApplication : Application() {
         ).allowMainThreadQueries().fallbackToDestructiveMigration().build()
         credentialRepo = CredentialRepository()
 
-        val openId4VPMatcher = loadOpenId4VPMatcher()
+        val openId4VPDraft24Matcher = loadOpenId4VPDraft24Matcher()
+        val openId4VP1_0Matcher = loadOpenId4VP1_0Matcher()
         val testCredentialsJson = loadTestCredentialsNew().decodeToString()
 
         // Add the test credentials from the included json
@@ -70,13 +71,14 @@ class CmWalletApplication : Application() {
         applicationScope.launch {
             credentialRepo.credentialRegistryDatabase.collect { credentialDatabase ->
                 Log.i(TAG, "Credentials changed $credentialDatabase")
+                // Oid4vp draft 24
                 // For backward compatibility with Chrome
                 registryManager.registerCredentials(
                     request = object : RegisterCredentialsRequest(
                         "com.credman.IdentityCredential",
                         "openid4vp",
                         credentialDatabase,
-                        openId4VPMatcher
+                        openId4VPDraft24Matcher
                     ) {}
                 )
                 // In the future, should only register this type
@@ -85,7 +87,27 @@ class CmWalletApplication : Application() {
                         DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
                         "openid4vp",
                         credentialDatabase,
-                        openId4VPMatcher
+                        openId4VPDraft24Matcher
+                    ) {}
+                )
+
+                // Oid4vp 1.0 Candidate
+                // For backward compatibility with Chrome
+                registryManager.registerCredentials(
+                    request = object : RegisterCredentialsRequest(
+                        "com.credman.IdentityCredential",
+                        "openid4vp1.0",
+                        credentialDatabase,
+                        openId4VP1_0Matcher
+                    ) {}
+                )
+                // In the future, should only register this type
+                registryManager.registerCredentials(
+                    request = object : RegisterCredentialsRequest(
+                        DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
+                        "openid4vp1.0",
+                        credentialDatabase,
+                        openId4VP1_0Matcher
                     ) {}
                 )
             }
@@ -123,8 +145,12 @@ class CmWalletApplication : Application() {
         return data
     }
 
-    private fun loadOpenId4VPMatcher(): ByteArray {
+    private fun loadOpenId4VPDraft24Matcher(): ByteArray {
         return readAsset("openid4vp.wasm")
+    }
+
+    private fun loadOpenId4VP1_0Matcher(): ByteArray {
+        return readAsset("openid4vp1_0.wasm")
     }
 
     private fun loadIssuanceMatcher(): ByteArray {

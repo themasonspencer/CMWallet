@@ -16,7 +16,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        maven(url = "${rootProject.projectDir}/sdk/identity_credentials_m2repo")
+        maven(url="https://androidx.dev/snapshots/latest/artifacts/repository")
     }
 }
 

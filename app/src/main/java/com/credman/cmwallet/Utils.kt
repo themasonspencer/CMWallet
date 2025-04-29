@@ -16,6 +16,7 @@ import java.nio.ByteOrder
 import java.security.AlgorithmParameters
 import java.security.KeyFactory
 import java.security.KeyPairGenerator
+import java.security.MessageDigest
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SecureRandom
@@ -66,6 +67,18 @@ fun BigInteger.toFixedByteArray(requiredLength: Int): ByteArray {
     }
     bytes.copyInto(fixedArray, pad, offset, offset + length)
     return fixedArray
+}
+
+fun ecJwkThumbprintSha256(jwk: JSONObject): ByteArray {
+    val jwkWithRequired = JSONObject().apply {
+        put("crv", jwk.get("crv"))
+        put("kty", jwk.get("kty"))
+        put("x", jwk.get("x"))
+        put("y", jwk.get("y"))
+    }
+    val md = MessageDigest.getInstance("SHA-256")
+    Log.d("helenqinn", jwkWithRequired.toString())
+    return md.digest(jwkWithRequired.toString().toByteArray())
 }
 
 fun PublicKey.toJWK(): JsonElement {
