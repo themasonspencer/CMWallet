@@ -20,14 +20,14 @@ int AddAllClaims(cJSON* matched_claim_names, cJSON* candidate_paths) {
 
 cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
     cJSON* matched_credentials = cJSON_CreateArray();
-    char* format = cJSON_GetStringValue(cJSON_GetObjectItem(credential, "format"));
+    char* format = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(credential, "format"));
 
     // check for optional params
-    cJSON* meta = cJSON_GetObjectItem(credential, "meta");
-    cJSON* claims = cJSON_GetObjectItem(credential, "claims");
-    cJSON* claim_sets = cJSON_GetObjectItem(credential, "claim_sets");
+    cJSON* meta = cJSON_GetObjectItemCaseSensitive(credential, "meta");
+    cJSON* claims = cJSON_GetObjectItemCaseSensitive(credential, "claims");
+    cJSON* claim_sets = cJSON_GetObjectItemCaseSensitive(credential, "claim_sets");
 
-    cJSON* candidates = cJSON_GetObjectItem(credential_store, format);
+    cJSON* candidates = cJSON_GetObjectItemCaseSensitive(credential_store, format);
 
     if (candidates == NULL) {
         return matched_credentials;
@@ -36,19 +36,19 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
     // Filter by meta
     if (meta != NULL) {
         if (strcmp(format, "mso_mdoc") == 0) {
-            cJSON* doctype_value_obj = cJSON_GetObjectItem(meta, "doctype_value");
+            cJSON* doctype_value_obj = cJSON_GetObjectItemCaseSensitive(meta, "doctype_value");
             if (doctype_value_obj != NULL) {
                 char* doctype_value = cJSON_GetStringValue(doctype_value_obj);
-                candidates = cJSON_GetObjectItem(candidates, doctype_value);
+                candidates = cJSON_GetObjectItemCaseSensitive(candidates, doctype_value);
                 //printf("candidates %s\n", cJSON_Print(candidates));
             }
         } else if (strcmp(format, "dc+sd-jwt") == 0) {
-            cJSON* vct_values_obj = cJSON_GetObjectItem(meta, "vct_values");
+            cJSON* vct_values_obj = cJSON_GetObjectItemCaseSensitive(meta, "vct_values");
             cJSON* cred_candidates = candidates;
             candidates = cJSON_CreateArray();
             cJSON* vct_value;
             cJSON_ArrayForEach(vct_value, vct_values_obj) {
-                cJSON* vct_candidates = cJSON_GetObjectItem(cred_candidates, cJSON_GetStringValue(vct_value));
+                cJSON* vct_candidates = cJSON_GetObjectItemCaseSensitive(cred_candidates, cJSON_GetStringValue(vct_value));
                 cJSON* curr_candidate;
                 cJSON_ArrayForEach(curr_candidate, vct_candidates) {
                     cJSON_AddItemReferenceToArray(candidates, curr_candidate);
@@ -69,13 +69,13 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
         cJSON* candidate;
         cJSON_ArrayForEach(candidate, candidates) {
             cJSON* matched_credential = cJSON_CreateObject();
-            cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItem(candidate, "id"));
-            cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItem(candidate, "title"));
-            cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItem(candidate, "subtitle"));
-            cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItem(candidate, "icon"));
+            cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItemCaseSensitive(candidate, "id"));
+            cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItemCaseSensitive(candidate, "title"));
+            cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItemCaseSensitive(candidate, "subtitle"));
+            cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItemCaseSensitive(candidate, "icon"));
             cJSON* matched_claim_names = cJSON_CreateArray();
             //printf("candidate %s\n", cJSON_Print(candidate));
-            AddAllClaims(matched_claim_names, cJSON_GetObjectItem(candidate, "paths"));
+            AddAllClaims(matched_claim_names, cJSON_GetObjectItemCaseSensitive(candidate, "paths"));
             cJSON_AddItemReferenceToObject(matched_credential, "matched_claim_names", matched_claim_names);
             cJSON_AddItemReferenceToArray(matched_credentials, matched_credential);
         }
@@ -84,24 +84,24 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
             cJSON* candidate;
             cJSON_ArrayForEach(candidate, candidates) {
                 cJSON* matched_credential = cJSON_CreateObject();
-                cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItem(candidate, "id"));
-                cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItem(candidate, "title"));
-                cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItem(candidate, "subtitle"));
-                cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItem(candidate, "icon"));
+                cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItemCaseSensitive(candidate, "id"));
+                cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItemCaseSensitive(candidate, "title"));
+                cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItemCaseSensitive(candidate, "subtitle"));
+                cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItemCaseSensitive(candidate, "icon"));
                 cJSON* matched_claim_names = cJSON_CreateArray();
 
                 cJSON* claim;
-                cJSON* candidate_claims = cJSON_GetObjectItem(candidate, "paths");
+                cJSON* candidate_claims = cJSON_GetObjectItemCaseSensitive(candidate, "paths");
                 cJSON_ArrayForEach(claim, claims) {
-                    cJSON* claim_values = cJSON_GetObjectItem(claim, "values");
-                    cJSON* paths = cJSON_GetObjectItem(claim, "path");
+                    cJSON* claim_values = cJSON_GetObjectItemCaseSensitive(claim, "values");
+                    cJSON* paths = cJSON_GetObjectItemCaseSensitive(claim, "path");
                     cJSON* curr_path;
                     cJSON* curr_claim = candidate_claims;
                     int matched = 1;
                     cJSON_ArrayForEach(curr_path, paths) {
                         char* path_value = cJSON_GetStringValue(curr_path);
                         if (cJSON_HasObjectItem(curr_claim, path_value)) {
-                            curr_claim = cJSON_GetObjectItem(curr_claim, path_value);
+                            curr_claim = cJSON_GetObjectItemCaseSensitive(curr_claim, path_value);
                         } else {
                             matched = 0;
                             break;
@@ -111,7 +111,7 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                         if (claim_values != NULL) {
                             cJSON* v;
                             cJSON_ArrayForEach(v, claim_values) {
-                                if (cJSON_Compare(v, cJSON_GetObjectItem(curr_claim, "value"), cJSON_True)) {
+                                if (cJSON_Compare(v, cJSON_GetObjectItemCaseSensitive(curr_claim, "value"), cJSON_True)) {
                                     cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItem(curr_claim, "display"));
                                     break;
                                 }
@@ -130,25 +130,25 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
             cJSON* candidate;
             cJSON_ArrayForEach(candidate, candidates) {
                 cJSON* matched_credential = cJSON_CreateObject();
-                cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItem(candidate, "id"));
-                cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItem(candidate, "title"));
-                cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItem(candidate, "subtitle"));
-                cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItem(candidate, "icon"));
+                cJSON_AddItemReferenceToObject(matched_credential, "id", cJSON_GetObjectItemCaseSensitive(candidate, "id"));
+                cJSON_AddItemReferenceToObject(matched_credential, "title", cJSON_GetObjectItemCaseSensitive(candidate, "title"));
+                cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItemCaseSensitive(candidate, "subtitle"));
+                cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItemCaseSensitive(candidate, "icon"));
                 cJSON* matched_claim_ids = cJSON_CreateObject();
 
                 cJSON* claim;
-                cJSON* candidate_claims = cJSON_GetObjectItem(candidate, "paths");
+                cJSON* candidate_claims = cJSON_GetObjectItemCaseSensitive(candidate, "paths");
                 cJSON_ArrayForEach(claim, claims) {
-                    cJSON* claim_values = cJSON_GetObjectItem(claim, "values");
-                    char* claim_id = cJSON_GetStringValue(cJSON_GetObjectItem(claim, "id"));
-                    cJSON* paths = cJSON_GetObjectItem(claim, "path");
+                    cJSON* claim_values = cJSON_GetObjectItemCaseSensitive(claim, "values");
+                    char* claim_id = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(claim, "id"));
+                    cJSON* paths = cJSON_GetObjectItemCaseSensitive(claim, "path");
                     cJSON* curr_path;
                     cJSON* curr_claim = candidate_claims;
                     int matched = 1;
                     cJSON_ArrayForEach(curr_path, paths) {
                         char* path_value = cJSON_GetStringValue(curr_path);
                         if (cJSON_HasObjectItem(curr_claim, path_value)) {
-                            curr_claim = cJSON_GetObjectItem(curr_claim, path_value);
+                            curr_claim = cJSON_GetObjectItemCaseSensitive(curr_claim, path_value);
                         } else {
                             matched = 0;
                             break;
@@ -158,7 +158,7 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                         if (claim_values != NULL) {
                             cJSON* v;
                             cJSON_ArrayForEach(v, claim_values) {
-                                if (cJSON_Compare(v, cJSON_GetObjectItem(curr_claim, "value"), cJSON_True)) {
+                                if (cJSON_Compare(v, cJSON_GetObjectItemCaseSensitive(curr_claim, "value"), cJSON_True)) {
                                     cJSON_AddItemReferenceToObject(matched_claim_ids, claim_id, cJSON_GetObjectItem(curr_claim, "display"));
                                     break;
                                 }
@@ -174,7 +174,7 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                     cJSON* c;
                     cJSON_ArrayForEach(c, claim_set) {
                         if (cJSON_HasObjectItem(matched_claim_ids, cJSON_GetStringValue(c))) {
-                            cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItem(matched_claim_ids, cJSON_GetStringValue(c)));
+                            cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItemCaseSensitive(matched_claim_ids, cJSON_GetStringValue(c)));
                         }
                     }
                     if (cJSON_GetArraySize(matched_claim_names) == cJSON_GetArraySize(claim_set)) {
@@ -193,15 +193,15 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
 cJSON* dcql_query(cJSON* query, cJSON* credential_store) {
     cJSON* matched_credentials = cJSON_CreateObject();
     cJSON* candidate_matched_credentials = cJSON_CreateObject();
-    cJSON* credentials = cJSON_GetObjectItem(query, "credentials");
+    cJSON* credentials = cJSON_GetObjectItemCaseSensitive(query, "credentials");
 
     cJSON* credential;
     cJSON_ArrayForEach(credential, credentials) {
-        char* id = cJSON_GetStringValue(cJSON_GetObjectItem(credential, "id"));
+        char* id = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(credential, "id"));
         cJSON* matched = MatchCredential(credential, credential_store);
         if (cJSON_GetArraySize(matched) > 0) {
             cJSON* m = cJSON_CreateObject();
-            cJSON_AddItemReferenceToObject(m, "id", cJSON_GetObjectItem(credential, "id"));
+            cJSON_AddItemReferenceToObject(m, "id", cJSON_GetObjectItemCaseSensitive(credential, "id"));
             cJSON_AddItemReferenceToObject(m, "matched", matched);
             cJSON_AddItemReferenceToObject(candidate_matched_credentials, id, m);
         }
