@@ -295,6 +295,21 @@
                 "display": "Nationality",
                 "display_value": "US"
             },
+            "resident_country": {
+                "value": "IT",
+                "display": "Resident Country",
+                "display_value": "Italy"
+            },
+            "resident_state": {
+                "value": "Lazio",
+                "display": "Resident State",
+                "display_value": "Lazio"
+            },
+            "resident_city": {
+                "value": "Rome",
+                "display": "Resident City",
+                "display_value": "Rome"
+            },
             "age_over_18": {
                 "value": true,
                 "display": "Age Over 18",
@@ -1072,6 +1087,45 @@
                 "display_value": "Age over 18: Yes",
                 "_sd": true
             },
+            "16": {
+                "value": true,
+                "display": "Age over 16",
+                "display_value": "Age over 16: Yes",
+                "_sd": true
+            },
+            "65": {
+                "value": true,
+                "display": "Age over 65",
+                "display_value": "Age over 65: Yes",
+                "_sd": true
+            },
+            "_sd": false
+        },
+        "address": {
+            "postal_code": {
+                "value": "90210",
+                "display": "Postal Code",
+                "display_value": "90210",
+                "_sd": true
+            },
+            "region": {
+                "value": "Lazio",
+                "display": "Resident State",
+                "display_value": "Lazio",
+                "_sd": true
+            },
+            "locality": {
+                "value": "Rome",
+                "display": "Resident City",
+                "display_value": "Rome",
+                "_sd": true
+            },
+            "country": {
+                "value": "IT",
+                "display": "Country",
+                "display_value": "Italy",
+                "_sd": true
+            },
             "_sd": false
         },
         "iss": {
@@ -1208,7 +1262,7 @@
       },
       "config": {
         "format": "mso_mdoc",
-        "doctype": "org.iso.23220.photoid.1",
+        "doctype": "org.iso.23220.photoID.1",
         "cryptographic_binding_methods_supported": [
           "cose_key"
         ],

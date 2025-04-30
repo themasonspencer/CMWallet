@@ -1,26 +1,20 @@
 package com.credman.cmwallet.sdjwt
 
-import com.credman.cmwallet.decodeBase64
 import com.credman.cmwallet.decodeBase64UrlNoPadding
 import com.credman.cmwallet.toBase64UrlNoPadding
 import org.json.JSONArray
 import org.json.JSONObject
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.math.BigInteger
 import java.nio.ByteBuffer
 import java.security.MessageDigest
-import java.security.Signature
-import java.security.cert.CertificateFactory
 import android.util.Base64
-import android.util.Log
 import com.credman.cmwallet.createJWTES256
 import com.credman.cmwallet.jwsDeserialization
 import com.credman.cmwallet.loadECPrivateKey
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import java.security.PrivateKey
-import java.security.cert.X509Certificate
 import java.time.Instant
 
 class SdJwt(
@@ -44,28 +38,48 @@ class SdJwt(
     }
 
     fun present(
-        claims: JSONArray?, // If null, match all
+        claimSets: JSONArray?, // If null, match all
         nonce: String,
         clientId: String
     ): String {
         val sdJwtComponents = mutableListOf(issuerJwt)
-        sdJwtComponents.addAll(if (claims == null) {
-            disclosures
+        if (claimSets == null) {
+            sdJwtComponents.addAll(disclosures)
         } else {
-            val ret = mutableListOf<String>()
-            for (claimIdx in 0 until claims.length()) {
-                val claim = claims.getJSONObject(claimIdx)!!
-                val path = claim.getJSONArray("path")
-                var sd = verifiedResult.sdMap
-                for (pathIdx in 0..< path.length()) {
-                    // TODO: handle path variants (null)
-                    sd = sd.getJSONObject(path.getString(pathIdx))
+            var claimSetMatched = true
+            for (i in 0..<claimSets.length()) {
+                claimSetMatched = true
+                val claimSet = claimSets[i] as JSONArray
+                val ret = mutableListOf<String>()
+                for (claimIdx in 0 until claimSet.length()) {
+                    // TODO: value match
+                    val claim = claimSet.getJSONObject(claimIdx)!!
+                    val path = claim.getJSONArray("path")
+                    var sd = verifiedResult.sdMap
+                    for (pathIdx in 0..<path.length()) {
+                        // TODO: handle path variants (null)
+                        val currPath = path.getString(pathIdx)
+                        if (sd.has(currPath)) {
+                            sd = sd.getJSONObject(currPath)
+                        } else {
+                            claimSetMatched = false
+                            break
+                        }
+                    }
+                    if (claimSetMatched) {
+                        val digest = sd.getString("_sd")
+                        ret.add(verifiedResult.digestDisclosureMap[digest]!!)
+                    } else {
+                        break
+                    }
                 }
-                val digest = sd.getString("_sd")
-                ret.add(verifiedResult.digestDisclosureMap[digest]!!)
+                if (claimSetMatched) {
+                    sdJwtComponents.addAll(ret)
+                    break
+                }
             }
-            ret
-        })
+            require(claimSetMatched) {"Could not match against any claim sets."}
+        }
         val sdJwt = sdJwtComponents.joinToString("~", postfix="~")
 
         val md = MessageDigest.getInstance("SHA-256")

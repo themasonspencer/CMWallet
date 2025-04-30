@@ -75,7 +75,7 @@ fun performQueryOnCredential(
                 }
                 return OpenId4VPMatchedCredential(
                     dcqlId = dcqlId,
-                    matchedClaims = OpenId4VPMatchedMDocClaims(ret)
+                    matchedClaims = OpenId4VPMatchedMDocClaims(listOf(ret))
                 )
             }
 
@@ -89,7 +89,7 @@ fun performQueryOnCredential(
                 is CredentialConfigurationSdJwtVc -> {
                     return OpenId4VPMatchedCredential(
                         dcqlId = dcqlId,
-                        matchedClaims = OpenId4VPMatchedSdJwtClaims(claims)
+                        matchedClaims = OpenId4VPMatchedSdJwtClaims(JSONArray().put(claims))
                     )
                 }
                 is CredentialConfigurationMDoc -> {
@@ -118,7 +118,7 @@ fun performQueryOnCredential(
                     }
                     return OpenId4VPMatchedCredential(
                         dcqlId = dcqlId,
-                        matchedClaims = OpenId4VPMatchedMDocClaims(ret)
+                        matchedClaims = OpenId4VPMatchedMDocClaims(listOf(ret))
                     )
                 }
 
@@ -126,9 +126,72 @@ fun performQueryOnCredential(
             }
         } else {
             Log.i("DCQL", "Matching with claim_sets")
-            throw NotImplementedError()
+            when (selectedCredential.config) {
+                is CredentialConfigurationSdJwtVc -> {
+                    val claimSetsRet = JSONArray()
+                    for (i in 0..<claimSets.length()) {
+                        val claimSet = claimSets.getJSONArray(i)
+                        val claimsRet = JSONArray()
+                        for (j in 0..<claimSet.length()) {
+                            val claimId = claimSet.getString(j)
+                            claimsRet.put(findClaim(claims, claimId)!!)
+                        }
+                        claimSetsRet.put(claimsRet)
+                    }
+                    return OpenId4VPMatchedCredential(
+                        dcqlId = dcqlId,
+                        matchedClaims = OpenId4VPMatchedSdJwtClaims(claimSetsRet)
+                    )
+                }
+                is CredentialConfigurationMDoc -> {
+                    val mdoc =
+                        MDoc(selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding())
+                    val claimSetsRet: MutableList<Map<String, List<String>>> = mutableListOf()
+                    for (i in 0..<claimSets.length()) {
+                        val claimSet = claimSets.getJSONArray(i)
+                        val ret = mutableMapOf<String, MutableList<String>>()
+                        for (j in 0 until claimSet.length()) {
+                            val claimId = claimSet.getString(j)
+                            val claim = findClaim(claims, claimId)!!
+                            val path = claim.getJSONArray("path")
+                            val claimNamespace = path.get(0)
+                            val claimName = path.getString(1)
+
+                            mdoc.issuerSignedNamespaces.forEach { (namespace, elements) ->
+                                if (namespace == claimNamespace) {
+                                    elements.forEach { (element, value) ->
+                                        if (claimName == element) {
+                                            if (ret.containsKey(namespace)) {
+                                                ret[namespace]?.add(claimName)
+                                            } else {
+                                                ret[namespace] = mutableListOf(claimName)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        claimSetsRet.add(ret)
+                    }
+                    return OpenId4VPMatchedCredential(
+                        dcqlId = dcqlId,
+                        matchedClaims = OpenId4VPMatchedMDocClaims(claimSetsRet)
+                    )
+                }
+                is CredentialConfigurationUnknownFormat -> TODO()
+            }
         }
     }
+}
+
+private fun findClaim(claims: JSONArray, claimId: String): JSONObject? {
+    for (i in 0..< claims.length()) {
+        val claim = claims.getJSONObject(i)
+        if (claim.has("id") && claim.getString("id") == claimId) {
+            return claim
+        }
+    }
+    return null
 }
 
 

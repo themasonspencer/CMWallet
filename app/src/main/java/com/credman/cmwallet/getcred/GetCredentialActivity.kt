@@ -59,7 +59,7 @@ fun createOpenID4VPResponse(
     when (selectedCredential.config) {
         is CredentialConfigurationSdJwtVc -> {
             val claims =
-                (matchedCredential.matchedClaims as OpenId4VPMatchedSdJwtClaims).claims
+                (matchedCredential.matchedClaims as OpenId4VPMatchedSdJwtClaims).claimSets
             val sdJwtVc = SdJwt(
                 selectedCredential.credentials.first().credential,
                 (selectedCredential.credentials.first().key as CredentialKeySoftware).privateKey
@@ -78,7 +78,7 @@ fun createOpenID4VPResponse(
                 matchedCredential.matchedClaims as OpenId4VPMatchedMDocClaims
             val filteredIssuerSigned = filterIssuerSigned(
                 selectedCredential.credentials.first().credential.decodeBase64UrlNoPadding(),
-                matchedClaims.claims
+                matchedClaims.claimSets
             )
             val deviceNamespaces = if (openId4VPRequest.transactionData.isEmpty()) {
                 emptyMap<String, Any>()

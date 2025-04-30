@@ -129,34 +129,52 @@ class MDoc(
 
 fun filterIssuerSigned(
     issuerSigned: ByteArray,
-    requiredElements: Map<String, List<String>>
+    requiredElementsOrderedList: List<Map<String, List<String>>> // This represents a `claim_sets`
+    // structure. That is, one set of claims has to matched and returned for a credential.
 ): ByteArray {
     val issuerSignedDict = cborDecode(issuerSigned) as Map<*, *>
     val ret = issuerSignedDict.toMutableMap()
     val namespaces = ret["nameSpaces"] as Map<*, *>
     val newNamespaces = mutableMapOf<String, List<CborTag>>()
-    requiredElements.forEach { (namespace, requiredElements) ->
-        if (namespaces.contains(namespace)) {
-            val newElements = mutableListOf<CborTag>()
-            requiredElements.forEach { requiredElement ->
-                val elements = namespaces[namespace] as List<*>
-                elements.forEach { element ->
-                    if (element is CborTag) {
-                        val elementDict = cborDecode(element.item as ByteArray) as Map<*, *>
-                        val elementIdentifier = elementDict[ELEMENT_IDENTIFYIER] as String
-                        if (elementIdentifier == requiredElement) {
-                            newElements.add(element)
+
+    requiredElementsOrderedList.forEach { requiredElements ->
+        newNamespaces.clear()
+        var claimSetMatched = true
+        requiredElements.forEach claim_set@{ (namespace, requiredElements) ->
+            if (namespaces.contains(namespace)) {
+                val newElements = mutableListOf<CborTag>()
+                var elementMatched = false
+                for (requiredElement in requiredElements) {
+                    val elements = namespaces[namespace] as List<*>
+                    elements.forEach { element ->
+                        if (element is CborTag) {
+                            val elementDict = cborDecode(element.item as ByteArray) as Map<*, *>
+                            val elementIdentifier = elementDict[ELEMENT_IDENTIFYIER] as String
+                            if (elementIdentifier == requiredElement) {
+                                newElements.add(element)
+                                elementMatched = true
+                            }
                         }
                     }
+                    if (!elementMatched) {
+                        claimSetMatched = false
+                        return@claim_set
+                    }
                 }
-            }
-            if (newElements.size > 0) {
-                newNamespaces[namespace] = newElements
+                if (newElements.size > 0) {
+                    newNamespaces[namespace] = newElements
+                }
+            } else {
+                claimSetMatched = false
+                return@claim_set
             }
         }
+        if (claimSetMatched) {
+            ret["nameSpaces"] = newNamespaces
+            return cborEncode(ret)
+        }
     }
-    ret["nameSpaces"] = newNamespaces
-    return cborEncode(ret)
+    throw IllegalArgumentException("Could not match against any claim sets.")
 }
 
 fun generateDeviceResponse(
