@@ -296,7 +296,7 @@ class CreateCredentialViewModel : ViewModel() {
             data = Bundle().apply {
                 putString(
                     "androidx.credentials.BUNDLE_KEY_RESPONSE_JSON",
-                    "successful response"
+                    JSONObject().put("protocol", "openid4vci").put("data", JSONObject()).toString()
                 )
             },
         )
