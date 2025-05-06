@@ -23,6 +23,12 @@ class OpenId4VP(
     val protocolIdentifier: String = "openid4vp",
 ) {
 
+    fun getSdJwtKbAud(origin: String) = when (protocolIdentifier) {
+        in IDENTIFIERS_1_0 -> "origin:$origin"
+        IDENTIFIER_DRAFT_24 -> clientId
+        else -> throw UnsupportedOperationException("Unsupported protocol idenfitier $protocolIdentifier")
+    }
+
     val nonce: String
 
     val dcqlQuery: JSONObject

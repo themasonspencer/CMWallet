@@ -69,7 +69,7 @@ fun createOpenID4VPResponse(
                 sdJwtVc.present(
                     claims,
                     nonce = openId4VPRequest.nonce,
-                    clientId = openId4VPRequest.clientId
+                    aud = openId4VPRequest.getSdJwtKbAud(origin)
                 )
             )
         }
@@ -129,7 +129,7 @@ fun createOpenID4VPResponse(
         authenticationTitle = authenticationTitle,
         authenticationSubtitle = authenticationSubtitle,
         responseJsonModern = JSONObject().apply {
-            put("protocol", "openid4vp")
+            put("protocol", openId4VPRequest.protocolIdentifier)
             put("data", JSONObject(response))
         }.toString()
     )

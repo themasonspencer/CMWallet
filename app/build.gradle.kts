@@ -48,7 +48,6 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.registry.digitalcredentials.mdoc)
-    implementation(libs.androidx.registry.digitalcredentials.preview)
     implementation(libs.androidx.registry.provider)
     implementation(libs.androidx.credentials)
     implementation(libs.play.services.identity.credentials)

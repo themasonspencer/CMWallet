@@ -40,7 +40,7 @@ class SdJwt(
     fun present(
         claimSets: JSONArray?, // If null, match all
         nonce: String,
-        clientId: String
+        aud: String,
     ): String {
         val sdJwtComponents = mutableListOf(issuerJwt)
         if (claimSets == null) {
@@ -90,7 +90,7 @@ class SdJwt(
         }
         val kbPayload = buildJsonObject {
             put("iat", Instant.now().epochSecond)
-            put("aud", clientId)
+            put("aud", aud)
             put("nonce", nonce)
             put("sd_hash", digest)
         }

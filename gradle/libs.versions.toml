@@ -22,7 +22,6 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-credentials = { module = "androidx.credentials:credentials" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
 androidx-registry-digitalcredentials-mdoc = { module = "androidx.credentials.registry:registry-digitalcredentials-mdoc", version.ref = "registryDigitalcredentialsMdoc" }
-androidx-registry-digitalcredentials-preview = { module = "androidx.credentials.registry:registry-digitalcredentials-preview", version.ref = "registryDigitalcredentialsMdoc" }
 androidx-registry-provider = { module = "androidx.credentials.registry:registry-provider", version.ref = "registryDigitalcredentialsMdoc" }
 androidx-registry-provider-play-services = { module = "androidx.credentials.registry:registry-provider-play-services", version.ref = "registryDigitalcredentialsMdoc" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
