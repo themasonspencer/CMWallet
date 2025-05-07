@@ -194,81 +194,87 @@ class CreateCredentialViewModel : ViewModel() {
             val requestJsonString: String = request.callingRequest.credentialData.getString(
                 "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
             )!!
+            Log.d(
+                TAG,
+                "Request json received: $requestJsonString"
+            )
             
             val requestJson = JSONObject(requestJsonString)
-            require(requestJson.has("protocol")) { "request json missing required field protocol" }
-            require(requestJson.has("data")) { "request json missing required field data" }
+            require(requestJson.has("requests")) { "request json missing required field `requests`" }
+            val requestsJson =requestJson.getJSONArray("requests")
 
-            Log.d(TAG, "Request json received: ${requestJson.getString("data")}")
+            for (i in 0..< requestsJson.length()) {
+                val digitalCredentialCreateRequest = requestsJson.getJSONObject(i)
+                require(digitalCredentialCreateRequest.has("protocol")) { "request json missing required field protocol" }
+                require(digitalCredentialCreateRequest.has("data")) { "request json missing required field data" }
 
-            openId4VCI = OpenId4VCI(requestJson.getString("data"))
+                if (setOf("openid4vci1.0", "openid4vci").contains(digitalCredentialCreateRequest.getString("protocol"))) {
+                    openId4VCI =
+                        OpenId4VCI(digitalCredentialCreateRequest.getJSONObject("data").toString())
+                    // Figure out auth server
+                    val authServer =
+                        if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null) {
+                            openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
+                        } else {
+                            "Can't do this yet"
+                        }
+                    require(openId4VCI.credentialOffer.grants != null)
 
+                    if (openId4VCI.credentialOffer.grants!!.preAuthorizedCode != null) {
+                        val grant = openId4VCI.credentialOffer.grants!!.preAuthorizedCode
 
+                        val tokenResponse = openId4VCI.requestTokenFromEndpoint(
+                            authServer, TokenRequest(
+                                grantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
+                                preAuthorizedCode = grant?.preAuthorizedCode
+                            )
+                        )
+                        Log.i(TAG, "tokenResponse $tokenResponse")
+                        processToken(tokenResponse)
 
-            // Figure out auth server
-            val authServer =
-                if (openId4VCI.credentialOffer.issuerMetadata.authorizationServers == null) {
-                    openId4VCI.credentialOffer.issuerMetadata.credentialIssuer
-                } else {
-                    "Can't do this yet"
+                    } else if (openId4VCI.credentialOffer.grants!!.authorizationCode != null) {
+                        val grant = openId4VCI.credentialOffer.grants!!.authorizationCode!!
+                        Log.d(TAG, "Grant: $grant")
+                        if (grant.vpRequest != null) {
+                            val openId4VPRequest = OpenId4VP(
+                                JSONObject(grant.vpRequest),
+                                computeClientId(request.callingAppInfo)
+                            )
+                            val selectedCredential = CmWalletApplication.credentialRepo.getCredential("id1")
+                                ?: throw RuntimeException("Selected credential not found")
+                            val matchedCredential =
+                                openId4VPRequest.performQueryOnCredential(selectedCredential)
+                            val vpResponse = createOpenID4VPResponse(
+                                openId4VPRequest,
+                                "wallet",
+                                selectedCredential,
+                                matchedCredential
+                            )
+                            uiState = uiState.copy(vpResponse = selectedCredential, tmpCode = grant)
+
+                        } else {
+                            val authServerUrl = Uri.parse(openId4VCI.authEndpoint(authServer))
+                                .buildUpon()
+                                .appendQueryParameter("response_type", "code")
+                                .appendQueryParameter("state", Uuid.random().toString())
+                                .appendQueryParameter("redirect_uri", "http://localhost")
+                                .appendQueryParameter("issuer_state", grant?.issuerState ?: "")
+                                .build()
+
+                            Log.d(TAG, "authServerUrl: $authServerUrl")
+                            uiState = uiState.copy(authServer = AuthServerUiState(
+                                url = authServerUrl.toString(),
+                                redirectUrl = "http://localhost",
+                                state = "state"
+                            ))
+                        }
+                    } else {
+                        throw IllegalArgumentException("Missing grants")
+                    }
+                    return
                 }
-            require(openId4VCI.credentialOffer.grants != null)
-
-            if (openId4VCI.credentialOffer.grants!!.preAuthorizedCode != null) {
-                val grant = openId4VCI.credentialOffer.grants!!.preAuthorizedCode
-
-                val tokenResponse = openId4VCI.requestTokenFromEndpoint(
-                    authServer, TokenRequest(
-                        grantType = "urn:ietf:params:oauth:grant-type:pre-authorized_code",
-                        preAuthorizedCode = grant?.preAuthorizedCode
-                    )
-                )
-                Log.i(TAG, "tokenResponse $tokenResponse")
-                processToken(tokenResponse)
-
-            } else if (openId4VCI.credentialOffer.grants!!.authorizationCode != null) {
-                val grant = openId4VCI.credentialOffer.grants!!.authorizationCode!!
-                Log.d(TAG, "Grant: $grant")
-                if (grant.vpRequest != null) {
-                    val openId4VPRequest = OpenId4VP(
-                        JSONObject(grant.vpRequest),
-                        computeClientId(request.callingAppInfo)
-                    )
-                    val selectedCredential = CmWalletApplication.credentialRepo.getCredential("1")
-                        ?: throw RuntimeException("Selected credential not found")
-                    val matchedCredential =
-                        openId4VPRequest.performQueryOnCredential(selectedCredential)
-                    val vpResponse = createOpenID4VPResponse(
-                        openId4VPRequest,
-                        "wallet",
-                        selectedCredential,
-                        matchedCredential
-                    )
-                    uiState = uiState.copy(vpResponse = selectedCredential, tmpCode = grant)
-
-                } else {
-                    val authServerUrl = Uri.parse(openId4VCI.authEndpoint(authServer))
-                        .buildUpon()
-                        .appendQueryParameter("response_type", "code")
-                        .appendQueryParameter("state", Uuid.random().toString())
-                        .appendQueryParameter("redirect_uri", "http://localhost")
-                        .appendQueryParameter("issuer_state", grant?.issuerState ?: "")
-                        .build()
-
-                    Log.d(TAG, "authServerUrl: $authServerUrl")
-                    uiState = uiState.copy(authServer = AuthServerUiState(
-                        url = authServerUrl.toString(),
-                        redirectUrl = "http://localhost",
-                        state = "state"
-                    ))
-                }
-            } else {
-                throw IllegalArgumentException("Missing grants")
             }
-
-
-
-
+            onError("Could not find any supported request protocol")
         } catch (e: Exception) {
             Log.e(TAG, "Exception processing request", e)
             onError("Invalid request")
