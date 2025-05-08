@@ -182,7 +182,7 @@ class OpenId4VP(
                     listOf(
                         origin,
                         nonce,
-                        cborEncode(ecJwkThumbprintSha256(encryptionJwk!!))
+                        ecJwkThumbprintSha256(encryptionJwk!!)
                     )
                 }
                 else -> throw IllegalArgumentException("Unsupported response mode: $responseMode")
