@@ -27,11 +27,12 @@ def build_claims_for_display(out: list, paths: dict, curr_path: list):
         new_path.append(path_name)
         if "value" not in path_value:
             build_claims_for_display(out, path_value, new_path)
-        elif "display" in path_value:
-            display = {"locale": "en-US"}
-            display["name"] = path_value["display"]
-            display = [display]
+        else:
             claim = {}
             claim["path"] = new_path
-            claim["display"] = display
+            if "display" in path_value:
+                display = {"locale": "en-US"}
+                display["name"] = path_value["display"]
+                display = [display]
+                claim["display"] = display
             out.append(claim)

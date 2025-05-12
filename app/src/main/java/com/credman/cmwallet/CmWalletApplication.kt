@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import org.json.JSONObject
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class CmWalletApplication : Application() {
@@ -110,6 +111,9 @@ class CmWalletApplication : Application() {
                         openId4VP1_0Matcher
                     ) {}
                 )
+
+                // Phone number verification demo
+                credentialRepo.registerPhoneNumberVerification(registryManager, loadPhoneNumberMatcher())
             }
         }
 
@@ -157,8 +161,8 @@ class CmWalletApplication : Application() {
         return readAsset("provision_hardcoded.wasm")
     }
 
-    private fun loadTestCredentials(): ByteArray {
-        return readAsset("database.json")
+    private fun loadPhoneNumberMatcher(): ByteArray {
+        return readAsset("pnv.wasm")
     }
 
     private fun loadTestCredentialsNew(): ByteArray {

@@ -2,6 +2,11 @@ package com.credman.cmwallet.data.repository
 
 import android.os.Build
 import android.util.Log
+import androidx.credentials.DigitalCredential
+import androidx.credentials.ExperimentalDigitalCredentialApi
+import androidx.credentials.registry.provider.RegisterCredentialsRequest
+import androidx.credentials.registry.provider.RegistryManager
+import com.credman.cmwallet.data.model.CredentialDisplayData
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.model.CredentialKeySoftware
 import com.credman.cmwallet.data.source.CredentialDatabaseDataSource
@@ -13,6 +18,7 @@ import com.credman.cmwallet.openid4vci.OpenId4VCI
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationSdJwtVc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
+import com.credman.cmwallet.pnv.PnvTokenRegistry
 import com.credman.cmwallet.sdjwt.SdJwt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -73,6 +79,24 @@ class CredentialRepository {
         privAppsJson = appsJson
     }
 
+    @OptIn(ExperimentalDigitalCredentialApi::class)
+    suspend fun registerPhoneNumberVerification(registryManager: RegistryManager, pnvMatcher: ByteArray) {
+        val testPhoneNumberTokens = listOf(
+            PnvTokenRegistry.TEST_PNV_1_GET_PHONE_NUMBER,
+            PnvTokenRegistry.TEST_PNV_1_VERIFY_PHONE_NUMBER,
+            PnvTokenRegistry.TEST_PNV_2_GET_PHONE_NUMBER
+        )
+
+        registryManager.registerCredentials(
+            request = object : RegisterCredentialsRequest(
+                DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
+                "openid4vp1.0-pnv",
+                PnvTokenRegistry.buildRegistryDatabase(testPhoneNumberTokens),
+                pnvMatcher
+            ) {}
+        )
+    }
+
     suspend fun issueCredential(requestJson: String) {
         val openId4VCI = OpenId4VCI(requestJson)
 
@@ -83,20 +107,20 @@ class CredentialRepository {
         var iconOffset: Int = 0
     )
 
-    private fun JSONObject.putCommon(item: CredentialItem, iconMap: Map<String, RegistryIcon>) {
-        put(ID, item.id)
-        put(TITLE, item.displayData.title)
-        putOpt(SUBTITLE, item.displayData.subtitle)
+    private fun JSONObject.putCommon(itemId: String, itemDisplayData: CredentialDisplayData, iconMap: Map<String, RegistryIcon>) {
+        put(ID, itemId)
+        put(TITLE, itemDisplayData.title)
+        putOpt(SUBTITLE, itemDisplayData.subtitle)
         val iconJson = JSONObject().apply {
-            put(START, iconMap[item.id]!!.iconOffset)
-            put(LENGTH, iconMap[item.id]!!.iconValue.size)
+            put(START, iconMap[itemId]!!.iconOffset)
+            put(LENGTH, iconMap[itemId]!!.iconValue.size)
         }
         put(ICON, iconJson)
     }
 
     private fun constructJwtForRegistry(
         rawJwt: JSONObject,
-        displayConfig: CredentialConfigurationSdJwtVc,
+        displayConfig: CredentialConfigurationSdJwtVc?,
         path: JSONArray,
     ): JSONObject {
         val result = JSONObject()
@@ -113,7 +137,7 @@ class CredentialRepository {
                 result.put(
                     key,
                     JSONObject().apply {
-                        val displayName = displayConfig.claims?.firstOrNull{
+                        val displayName = displayConfig?.claims?.firstOrNull{
                             JSONArray(it.path) == currPath
                         }?.display?.first()?.name
                         putOpt(DISPLAY, displayName)
@@ -167,7 +191,7 @@ class CredentialRepository {
             when (item.config) {
                 is CredentialConfigurationSdJwtVc -> {
                     val credJson = JSONObject()
-                    credJson.putCommon(item, iconMap)
+                    credJson.putCommon(item.id, item.displayData, iconMap)
                     val sdJwtVc = SdJwt(item.credentials.first().credential, (item.credentials.first().key as CredentialKeySoftware).privateKey)
                     val rawJwt = sdJwtVc.verifiedResult.processedJwt
                     val jwtWithDisplay = constructJwtForRegistry(rawJwt, item.config, JSONArray())
@@ -182,7 +206,7 @@ class CredentialRepository {
                 }
                 is CredentialConfigurationMDoc -> {
                     val credJson = JSONObject()
-                    credJson.putCommon(item, iconMap)
+                    credJson.putCommon(item.id, item.displayData, iconMap)
                     val mdoc = MDoc(item.credentials.first().credential.decodeBase64UrlNoPadding())
                     if (mdoc.issuerSignedNamespaces.isNotEmpty()) {
                         val pathJson = JSONObject()
