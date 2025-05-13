@@ -19,6 +19,18 @@ data class MatchedCredential(
     val matchedClaims: MutableList<MatchedClaim> = mutableListOf()
 )
 
+fun getDqclCredentialById(query: JSONObject, id: String): JSONObject? {
+    require(query.has("credentials")) { "dcql_query must contain a credentials" }
+    val credentials = query.getJSONArray("credentials")
+    for (i in 0..<credentials.length()) {
+        val dcqlCred = credentials.getJSONObject(i)
+        if (dcqlCred.optString("id") == id) {
+            return dcqlCred
+        }
+    }
+    return null
+}
+
 fun performQueryOnCredential(
     query: JSONObject,
     selectedCredential: CredentialItem,

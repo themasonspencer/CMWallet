@@ -151,6 +151,9 @@ class OpenId4VP(
         return DCQLQuery(dcqlQuery, credentialStore)
     }
 
+    fun getDcqlCredentialObject(dcqlId: String): JSONObject? = getDqclCredentialById(dcqlQuery, dcqlId)
+
+
     fun performQueryOnCredential(selectedCredential: CredentialItem, dcqlCredId: String? = null): OpenId4VPMatchedCredential {
         return performQueryOnCredential(dcqlQuery, selectedCredential, dcqlCredId)
     }

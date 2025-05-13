@@ -39,6 +39,7 @@ import com.credman.cmwallet.openid4vp.OpenId4VP
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedCredential
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedSdJwtClaims
+import com.credman.cmwallet.pnv.maybeHandlePnv
 import com.credman.cmwallet.sdjwt.SdJwt
 import com.credman.cmwallet.toBase64UrlNoPadding
 import com.google.android.gms.identitycredentials.Credential
@@ -238,6 +239,27 @@ class GetCredentialActivity : FragmentActivity() {
                     val selectedId = selectedEntryId.getString("id")
                     val dqclCredId = selectedEntryId.getString("dcql_cred_id")
 
+                    val pnvResponse = maybeHandlePnv(
+                        it.requestJson,
+                        providerIdx,
+                        selectedId,
+                        dqclCredId,
+                        webOriginOrAppOrigin(
+                            origin,
+                            request.callingAppInfo.signingInfoCompat.signingCertificateHistory[0].toByteArray()
+                        ),
+                        request.callingAppInfo
+                    )
+                    if (pnvResponse != null) {
+                        PendingIntentHandler.setGetCredentialResponse(
+                            resultData,
+                            GetCredentialResponse(DigitalCredential(pnvResponse.responseJsonModern))
+                        )
+                        setResult(RESULT_OK, resultData)
+                        finish()
+                        return
+                    }
+
                     val response = processDigitalCredentialOption(
                         it.requestJson,
                         providerIdx,
@@ -434,8 +456,6 @@ class GetCredentialActivity : FragmentActivity() {
                 val matchedCredential =
                     openId4VPRequest.performQueryOnCredential(selectedCredential, dcqlCredId)
                 Log.i("GetCredentialActivity", "matchedCredential $matchedCredential")
-
-
 
                 return createOpenID4VPResponse(
                     openId4VPRequest,
