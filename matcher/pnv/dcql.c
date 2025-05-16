@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../base64.h"
 #include "../dcql.h"
 
 #include "../cJSON/cJSON.h"
@@ -34,6 +35,9 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
     }
 
     // Filter by meta
+    cJSON* aggregator_consent = NULL;
+    cJSON* aggregator_policy_url = NULL;
+    cJSON* aggregator_policy_text = NULL;
     if (meta != NULL) {
         if (strcmp(format, "dc+sd-jwt-pnv") == 0) {
             cJSON* vct_values_obj = cJSON_GetObjectItemCaseSensitive(meta, "vct_values");
@@ -45,6 +49,26 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                 cJSON* curr_candidate;
                 cJSON_ArrayForEach(curr_candidate, vct_candidates) {
                     cJSON_AddItemReferenceToArray(candidates, curr_candidate);
+                }
+            }
+            if (cJSON_HasObjectItem(meta, "credential_authorization_jwt")) {
+                char* cred_auth_jwt = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(meta, "credential_authorization_jwt"));
+                int delimiter = '.';
+                char* payload_start = strchr(cred_auth_jwt, delimiter);
+                payload_start++;
+                char* payload_end = strchr(payload_start, delimiter);
+                *payload_end = '\0';
+                char* decoded_cred_auth_json;
+                int decoded_cred_auth_json_len = B64DecodeURL(payload_start, &decoded_cred_auth_json);
+                cJSON* cred_auth_json = cJSON_Parse(decoded_cred_auth_json);
+                if (cJSON_HasObjectItem(cred_auth_json, "consent_data")) {
+                    char* consent_data = cJSON_GetStringValue(cJSON_GetObjectItemCaseSensitive(cred_auth_json, "consent_data"));
+                    char* decoded_consent_data_json;
+                    int decoded_consent_data_json_len = B64DecodeURL(consent_data, &decoded_consent_data_json);
+                    cJSON* consent_data_json = cJSON_Parse(decoded_consent_data_json);
+                    aggregator_consent = cJSON_GetObjectItemCaseSensitive(consent_data_json, "consent_text");
+                    aggregator_policy_url = cJSON_GetObjectItemCaseSensitive(consent_data_json, "policy_link");
+                    aggregator_policy_text = cJSON_GetObjectItemCaseSensitive(consent_data_json, "policy_text");
                 }
             }
         } else  {
@@ -69,9 +93,12 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
             cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItemCaseSensitive(candidate, "subtitle"));
             cJSON_AddItemReferenceToObject(matched_credential, "disclaimer", cJSON_GetObjectItemCaseSensitive(candidate, "disclaimer"));
             cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItemCaseSensitive(candidate, "icon"));
+            cJSON_AddItemReferenceToObject(matched_credential, "aggregator_consent", aggregator_consent);
+            cJSON_AddItemReferenceToObject(matched_credential, "aggregator_policy_text", aggregator_policy_text);
+            cJSON_AddItemReferenceToObject(matched_credential, "aggregator_policy_url", aggregator_policy_url);
             cJSON* matched_claim_names = cJSON_CreateArray();
             //printf("candidate %s\n", cJSON_Print(candidate));
-            cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItemCaseSensitive(candidate, "title"));
+            cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItemCaseSensitive(candidate, "shared_attribute_display_name"));
             cJSON_AddItemReferenceToObject(matched_credential, "matched_claim_names", matched_claim_names);
             cJSON_AddItemReferenceToArray(matched_credentials, matched_credential);
         }
@@ -85,8 +112,11 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                 cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItemCaseSensitive(candidate, "subtitle"));
                 cJSON_AddItemReferenceToObject(matched_credential, "disclaimer", cJSON_GetObjectItemCaseSensitive(candidate, "disclaimer"));
                 cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItemCaseSensitive(candidate, "icon"));
+                cJSON_AddItemReferenceToObject(matched_credential, "aggregator_consent", aggregator_consent);
+                cJSON_AddItemReferenceToObject(matched_credential, "aggregator_policy_text", aggregator_policy_text);
+                cJSON_AddItemReferenceToObject(matched_credential, "aggregator_policy_url", aggregator_policy_url);
                 cJSON* matched_claim_names = cJSON_CreateArray();
-                cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItemCaseSensitive(candidate, "title"));
+                cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItemCaseSensitive(candidate, "shared_attribute_display_name"));
 
                 cJSON* claim;
                 cJSON* candidate_claims = cJSON_GetObjectItemCaseSensitive(candidate, "paths");
@@ -134,6 +164,9 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                 cJSON_AddItemReferenceToObject(matched_credential, "subtitle", cJSON_GetObjectItemCaseSensitive(candidate, "subtitle"));
                 cJSON_AddItemReferenceToObject(matched_credential, "disclaimer", cJSON_GetObjectItemCaseSensitive(candidate, "disclaimer"));
                 cJSON_AddItemReferenceToObject(matched_credential, "icon", cJSON_GetObjectItemCaseSensitive(candidate, "icon"));
+                cJSON_AddItemReferenceToObject(matched_credential, "aggregator_consent", aggregator_consent);
+                cJSON_AddItemReferenceToObject(matched_credential, "aggregator_policy_text", aggregator_policy_text);
+                cJSON_AddItemReferenceToObject(matched_credential, "aggregator_policy_url", aggregator_policy_url);
                 cJSON* matched_claim_ids = cJSON_CreateObject();
 
                 cJSON* claim;
@@ -179,7 +212,7 @@ cJSON* MatchCredential(cJSON* credential, cJSON* credential_store) {
                         }
                     }
                     if (matched_claim_count == cJSON_GetArraySize(claim_set)) {
-                        cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItemCaseSensitive(candidate, "title"));
+                        cJSON_AddItemReferenceToArray(matched_claim_names, cJSON_GetObjectItemCaseSensitive(candidate, "shared_attribute_display_name"));
                         cJSON_AddItemReferenceToObject(matched_credential, "matched_claim_names", matched_claim_names);
                         cJSON_AddItemReferenceToArray(matched_credentials, matched_credential);
                         break;

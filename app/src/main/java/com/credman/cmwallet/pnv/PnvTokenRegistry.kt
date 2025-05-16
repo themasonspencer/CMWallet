@@ -3,9 +3,13 @@ package com.credman.cmwallet.pnv
 import android.util.Base64
 import android.util.Log
 import androidx.credentials.provider.CallingAppInfo
-import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.CmWalletApplication.Companion.computeClientId
 import com.credman.cmwallet.createJWTES256
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.ICON
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.LENGTH
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.START
+import com.credman.cmwallet.data.repository.CredentialRepository.RegistryIcon
+import com.credman.cmwallet.decodeBase64
 import com.credman.cmwallet.getcred.GetCredentialActivity.DigitalCredentialRequestOptions
 import com.credman.cmwallet.getcred.GetCredentialActivity.DigitalCredentialResult
 import com.credman.cmwallet.jweSerialization
@@ -13,15 +17,11 @@ import com.credman.cmwallet.jwsDeserialization
 import com.credman.cmwallet.loadECPrivateKey
 import com.credman.cmwallet.openid4vp.OpenId4VP
 import com.credman.cmwallet.openid4vp.OpenId4VP.Companion.IDENTIFIERS_1_0
-import com.credman.cmwallet.openid4vp.OpenId4VPMatchedCredential
-import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
-import com.credman.cmwallet.openid4vp.OpenId4VPMatchedSdJwtClaims
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.TEST_PNV_1_GET_PHONE_NUMBER
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.TEST_PNV_1_VERIFY_PHONE_NUMBER
-import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.TEST_PNV_2_GET_PHONE_NUMBER
+import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.TEST_PNV_2_VERIFY_PHONE_NUMBER
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.VCT_GET_PHONE_NUMBER
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.VCT_VERIFY_PHONE_NUMBER
-import com.credman.cmwallet.toJWK
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.json.JSONArray
@@ -30,7 +30,6 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.security.interfaces.ECPrivateKey
-import java.time.Instant
 
 /**
  * A phone number verification entry to be registered with the Credential Manager.
@@ -48,11 +47,14 @@ data class PnvTokenRegistry(
     val tokenId: String,
     val vct: String,
     val title: String,
+    val subtitle: String? = null,
     val providerConsent: String?,
     val subscriptionHint: Int,
     val carrierHint: String,
     val phoneNumberHint: String?,
     val iss: String,
+    val icon: String? = null,
+    val phoneNumberAttributeDisplayName: String, // Should be localized
 ) {
     /** Converts this TS43 entry to the more generic SD-JWT registry item(s). */
     private fun toSdJwtRegistryItems(): SdJwtRegistryItem {
@@ -65,7 +67,7 @@ data class PnvTokenRegistry(
                         RegistryClaim("carrier_hint", null, carrierHint),
                         RegistryClaim("phone_number_hint", null, phoneNumberHint),
                     ),
-                displayData = ItemDisplayData(title = title, subtitle = null, description = providerConsent),
+                displayData = ItemDisplayData(title = title, subtitle = subtitle, description = providerConsent),
             )
     }
 
@@ -82,51 +84,79 @@ data class PnvTokenRegistry(
         internal const val PATHS = "paths"
         internal const val VALUE = "value"
         internal const val DISPLAY = "display"
+        internal const val SHARED_ATTRIBUTE_DISPLAY_NAME = "shared_attribute_display_name"
 
         val TEST_PNV_1_GET_PHONE_NUMBER = PnvTokenRegistry(
             tokenId = "pnv_1",
             vct = VCT_GET_PHONE_NUMBER,
-            title = "Phone Number",
-            providerConsent = "CMWallet will enable your carrier {carrier name} to share your phone number iwth {app/domain name}",
+            title = "Terrific Telecom",
+            subtitle = "+16502154321",
+            providerConsent = "CMWallet will enable your carrier (Terrific Telecom) to share your phone number",
             subscriptionHint = 1,
             carrierHint = "310250",
             phoneNumberHint = "+16502154321",
-            iss = "https://example-carrier2.com",
+            iss = "https://example.terrific-telecom.dev",
+            icon = "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAWCAYAAADwza0nAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACBSURBVHgB7ZTBDUVQEEXvff8VoITfC0YZatABHWiH6IUOaICHBCuReXbEWd1kcmZmMRmGIinhSpABFBDoJpqccSKtA/7wY7C71FQ1NUaUyKIg4Ba8MbiJ3YPnqvcnfuI7xAfdqr0qXjU9FTXTGUnca//NIYGdoflla1BbDsPIqZgBHcEomi+uUHMAAAAASUVORK5CYII=",
+            phoneNumberAttributeDisplayName = "Phone number",
         )
         val TEST_PNV_1_VERIFY_PHONE_NUMBER = TEST_PNV_1_GET_PHONE_NUMBER.copy(
             vct = VCT_VERIFY_PHONE_NUMBER,
         )
-        val TEST_PNV_2_GET_PHONE_NUMBER = PnvTokenRegistry(
+        val TEST_PNV_2_VERIFY_PHONE_NUMBER = PnvTokenRegistry(
             tokenId = "pnv_2",
-            vct = VCT_GET_PHONE_NUMBER,
-            title = "Phone Number",
-            providerConsent = "CMWallet will enable your carrier MOCK-CARRIER-2 to share your phone number",
+            vct = VCT_VERIFY_PHONE_NUMBER,
+            title = "Work Number",
+            subtitle = "Timely Telecom",
+            providerConsent = "CMWallet will enable your carrier (Timely Telecom) to share your phone number",
             subscriptionHint = 2,
             carrierHint = "380250",
             phoneNumberHint = "+16502157890",
-            iss = "https://example-carrier2.com"
+            iss = "https://example.timely-telecom.dev",
+            icon = "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAWCAYAAADwza0nAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACBSURBVHgB7ZTBDUVQEEXvff8VoITfC0YZatABHWiH6IUOaICHBCuReXbEWd1kcmZmMRmGIinhSpABFBDoJpqccSKtA/7wY7C71FQ1NUaUyKIg4Ba8MbiJ3YPnqvcnfuI7xAfdqr0qXjU9FTXTGUnca//NIYGdoflla1BbDsPIqZgBHcEomi+uUHMAAAAASUVORK5CYII=",
+            phoneNumberAttributeDisplayName = "Phone number",
         )
 
         fun buildRegistryDatabase(items: List<PnvTokenRegistry>): ByteArray {
             val out = ByteArrayOutputStream()
 
-            // We don't support icon for phone number tokens, yet
+            val iconMap: Map<String, RegistryIcon> = items.associate {
+                Pair(
+                    it.tokenId,
+                    RegistryIcon(it.icon?.decodeBase64() ?: ByteArray(0))
+                )
+            }
+
             // Write the offset to the json
-            val jsonOffset = 4
+            val jsonOffset = 4 + iconMap.values.sumOf { it.iconValue.size }
             val buffer = ByteBuffer.allocate(4)
             buffer.order(ByteOrder.LITTLE_ENDIAN)
             buffer.putInt(jsonOffset)
             out.write(buffer.array())
 
+            // Write the icons
+            var currIconOffset = 4
+            iconMap.values.forEach {
+                it.iconOffset = currIconOffset
+                out.write(it.iconValue)
+                currIconOffset += it.iconValue.size
+            }
+
             val sdJwtCredentials = JSONObject()
-            for (item in items.map { it.toSdJwtRegistryItems() }) {
+            for (item in items) {
+                val sdJwtRegistryItem = item.toSdJwtRegistryItems()
                 val credJson = JSONObject()
-                credJson.put(ID, item.id)
-                credJson.put(TITLE, item.displayData.title)
-                credJson.putOpt(SUBTITLE, item.displayData.subtitle)
-                credJson.putOpt(DISCLAIMER, item.displayData.description)
+                credJson.put(SHARED_ATTRIBUTE_DISPLAY_NAME, item.phoneNumberAttributeDisplayName)
+                credJson.put(ID, sdJwtRegistryItem.id)
+                credJson.put(TITLE, sdJwtRegistryItem.displayData.title)
+                credJson.putOpt(SUBTITLE, sdJwtRegistryItem.displayData.subtitle)
+                credJson.putOpt(DISCLAIMER, sdJwtRegistryItem.displayData.description)
+                val iconJson = JSONObject().apply {
+                    put(START, iconMap[sdJwtRegistryItem.id]!!.iconOffset)
+                    put(LENGTH, iconMap[sdJwtRegistryItem.id]!!.iconValue.size)
+                }
+                credJson.putOpt(ICON, iconJson)
                 val paths = JSONObject()
-                for (claim in item.claims) {
+                for (claim in sdJwtRegistryItem.claims) {
                     paths.put(claim.path, JSONObject().putOpt(DISPLAY, claim.display).putOpt(VALUE, claim.value))
                 }
 
@@ -153,7 +183,11 @@ private class RegistryClaim(
     val value: Any?,
 )
 
-private class ItemDisplayData(val title: String, val subtitle: String?, val description: String?)
+private class ItemDisplayData(
+    val title: String,
+    val subtitle: String?,
+    val description: String?,
+    )
 
 private class SdJwtRegistryItem(
     val id: String,
@@ -170,7 +204,7 @@ fun maybeHandlePnv(
     origin: String, // Either the web origin or the calling app sha
     callingAppInfo: CallingAppInfo
 ): DigitalCredentialResult? {
-    if (selectedID != TEST_PNV_1_GET_PHONE_NUMBER.tokenId && selectedID != TEST_PNV_2_GET_PHONE_NUMBER.tokenId) {
+    if (selectedID != TEST_PNV_1_GET_PHONE_NUMBER.tokenId && selectedID != TEST_PNV_2_VERIFY_PHONE_NUMBER.tokenId) {
         return null
     }
     val digitalCredentialOptions = DigitalCredentialRequestOptions.createFrom(requestJson)
@@ -199,7 +233,7 @@ fun maybeHandlePnv(
 
     val selectedCred = when (selectedID) {
         TEST_PNV_1_GET_PHONE_NUMBER.tokenId -> if (vct == TEST_PNV_1_GET_PHONE_NUMBER.vct) TEST_PNV_1_GET_PHONE_NUMBER else TEST_PNV_1_VERIFY_PHONE_NUMBER
-        TEST_PNV_2_GET_PHONE_NUMBER.tokenId -> TEST_PNV_2_GET_PHONE_NUMBER
+        TEST_PNV_2_VERIFY_PHONE_NUMBER.tokenId -> TEST_PNV_2_VERIFY_PHONE_NUMBER
         else -> return null
     }
 

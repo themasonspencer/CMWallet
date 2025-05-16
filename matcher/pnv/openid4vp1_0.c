@@ -163,6 +163,9 @@ int main() {
                         char *title = cJSON_GetStringValue(cJSON_GetObjectItem(c, "title"));
                         char *subtitle = cJSON_GetStringValue(cJSON_GetObjectItem(c, "subtitle"));
                         char *disclaimer = cJSON_GetStringValue(cJSON_GetObjectItem(c, "disclaimer"));
+                        char *aggregator_consent = cJSON_GetStringValue(cJSON_GetObjectItem(c, "aggregator_consent"));
+                        char *aggregator_policy_url = cJSON_GetStringValue(cJSON_GetObjectItem(c, "aggregator_policy_url"));
+                        char *aggregator_policy_text = cJSON_GetStringValue(cJSON_GetObjectItem(c, "aggregator_policy_text"));
                         cJSON* icon = cJSON_GetObjectItem(c, "icon");
                         int icon_start_int = 0;
                         int icon_len = 0;
@@ -177,6 +180,7 @@ int main() {
                         }
                         matched = 1;
                         AddStringIdEntry(id, creds_blob + icon_start_int, icon_len, title, subtitle, disclaimer, NULL);
+                        SetAdditionalDisclaimerAndUrlForVerificationEntry(id, aggregator_consent, aggregator_policy_text, aggregator_policy_url);
                         cJSON *matched_claim_names = cJSON_GetObjectItem(c, "matched_claim_names");
                         cJSON *claim;
                         cJSON_ArrayForEach(claim, matched_claim_names) {
