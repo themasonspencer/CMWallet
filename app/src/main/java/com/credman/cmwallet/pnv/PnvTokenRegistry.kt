@@ -90,7 +90,7 @@ data class PnvTokenRegistry(
             tokenId = "pnv_1",
             vct = VCT_GET_PHONE_NUMBER,
             title = "Terrific Telecom",
-            subtitle = "+16502154321",
+            subtitle = "+1 (650) 215-4321",
             providerConsent = "CMWallet will enable your carrier (Terrific Telecom) to share your phone number",
             subscriptionHint = 1,
             carrierHint = "310250",
