@@ -1,7 +1,9 @@
 package com.credman.cmwallet
 
 import android.app.Application
+import android.graphics.Bitmap
 import android.util.Log
+import androidx.core.graphics.drawable.toBitmap
 import androidx.credentials.DigitalCredential
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.provider.CallingAppInfo
@@ -9,6 +11,13 @@ import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegistryManager
 import androidx.room.Room
 import com.credman.cmwallet.data.repository.CredentialRepository
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.ICON
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.ID
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.LENGTH
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.START
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.SUBTITLE
+import com.credman.cmwallet.data.repository.CredentialRepository.Companion.TITLE
+import com.credman.cmwallet.data.repository.CredentialRepository.RegistryIcon
 import com.credman.cmwallet.data.room.CredentialDatabase
 import com.credman.cmwallet.mdoc.MDoc
 import com.google.android.gms.identitycredentials.IdentityCredentialClient
@@ -19,7 +28,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import kotlin.io.encoding.ExperimentalEncodingApi
+
 
 class CmWalletApplication : Application() {
     companion object {
@@ -119,7 +132,7 @@ class CmWalletApplication : Application() {
 
         identityCredentialClient.registerCreationOptions(
             RegisterCreationOptionsRequest(
-                createOptions = ByteArray(0),
+                createOptions = buildIssuanceData(),
                 matcher = loadIssuanceMatcher(),
                 type = DigitalCredential.TYPE_DIGITAL_CREDENTIAL,
                 id = "openid4vci",
@@ -157,8 +170,23 @@ class CmWalletApplication : Application() {
         return readAsset("openid4vp1_0.wasm")
     }
 
+    private fun buildIssuanceData(): ByteArray {
+        val walletIcon = resources.getDrawable(R.mipmap.ic_launcher, theme).toBitmap()
+        val iconBuffer = ByteArrayOutputStream()
+        walletIcon.compress(Bitmap.CompressFormat.PNG, 100, iconBuffer)
+
+        val data = CredentialRepository.IssuanceRegistryData(
+            icon = iconBuffer.toByteArray(),
+            title = resources.getString(R.string.app_name),
+            subtitle = "Save your document to CMWallet",
+            issuerAllowlist = listOf("https://digital-credentials.dev", "http://localhost:8080")
+        )
+
+        return data.toRegistryDatabase()
+    }
+
     private fun loadIssuanceMatcher(): ByteArray {
-        return readAsset("provision_hardcoded.wasm")
+        return readAsset("provision.wasm")
     }
 
     private fun loadPhoneNumberMatcher(): ByteArray {

@@ -1,11 +1,14 @@
 package com.credman.cmwallet.data.repository
 
+import android.graphics.Bitmap
 import android.os.Build
 import android.util.Log
+import androidx.core.graphics.drawable.toBitmap
 import androidx.credentials.DigitalCredential
 import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegistryManager
+import com.credman.cmwallet.R
 import com.credman.cmwallet.data.model.CredentialDisplayData
 import com.credman.cmwallet.data.model.CredentialItem
 import com.credman.cmwallet.data.model.CredentialKeySoftware
@@ -110,6 +113,46 @@ class CredentialRepository {
     suspend fun issueCredential(requestJson: String) {
         val openId4VCI = OpenId4VCI(requestJson)
 
+    }
+
+    class IssuanceRegistryData(
+        val icon: ByteArray, // Entry icon for display
+        val title: String, // Entry subtitle for display
+        val subtitle: String?, // Entry subtitle for display
+        val issuerAllowlist: List<String>,
+    ) {
+        fun toRegistryDatabase(): ByteArray {
+            val out = ByteArrayOutputStream()
+
+            // Write the offset to the json
+            val jsonOffset = 4 + icon.size
+            val buffer = ByteBuffer.allocate(4)
+            buffer.order(ByteOrder.LITTLE_ENDIAN)
+            buffer.putInt(jsonOffset)
+            out.write(buffer.array())
+
+            // Write the icons, currently write just one, being the wallet logo
+            out.write(icon)
+
+            val json = JSONObject().apply {
+                put("display", JSONObject().apply {
+                    put(TITLE, title)
+                    putOpt(SUBTITLE, subtitle)
+                    val iconJson = JSONObject().apply {
+                        put(START, 4)
+                        put(LENGTH, icon.size)
+                    } // Hardcoded for now
+                    put(ICON, iconJson)
+                })
+                val capabilities = JSONObject()
+                for (iss in issuerAllowlist) {
+                    capabilities.put(iss, JSONObject())
+                }
+                put("capabilities", capabilities)
+            }
+            out.write(json.toString().toByteArray())
+            return out.toByteArray()
+        }
     }
 
     class RegistryIcon(
