@@ -1,8 +1,11 @@
 package com.credman.cmwallet.pnv
 
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.util.Base64
 import android.util.Log
 import androidx.credentials.provider.CallingAppInfo
+import com.credman.cmwallet.CmWalletApplication.Companion.TAG
 import com.credman.cmwallet.CmWalletApplication.Companion.computeClientId
 import com.credman.cmwallet.createJWTES256
 import com.credman.cmwallet.data.repository.CredentialRepository.Companion.ICON
@@ -22,6 +25,10 @@ import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.TEST_PNV_1_VERIFY_PHO
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.TEST_PNV_2_VERIFY_PHONE_NUMBER
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.VCT_GET_PHONE_NUMBER
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.VCT_VERIFY_PHONE_NUMBER
+import com.credman.cmwallet.toBase64UrlNoPadding
+import com.credman.cmwallet.toJWK
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.json.JSONArray
@@ -29,7 +36,13 @@ import org.json.JSONObject
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
+import java.security.KeyPair
+import java.security.KeyPairGenerator
+import java.security.KeyStore
+import java.security.MessageDigest
 import java.security.interfaces.ECPrivateKey
+import java.time.Instant
+import java.util.Enumeration
 
 /**
  * A phone number verification entry to be registered with the Credential Manager.
@@ -175,6 +188,7 @@ data class PnvTokenRegistry(
             registryCredentials.put(PNV_CRED_FORMAT, sdJwtCredentials)
             val registryJson = JSONObject()
             registryJson.put(CREDENTIALS, registryCredentials)
+            Log.d(TAG, "Phone Number to be registered:\n$registryJson")
             out.write(registryJson.toString().toByteArray())
             return out.toByteArray()
         }
@@ -199,6 +213,38 @@ private class SdJwtRegistryItem(
     val claims: List<RegistryClaim>,
     val displayData: ItemDisplayData,
 )
+
+private fun getDeviceKey(): KeyPair {
+    val alias = "pnv"
+    val ks: KeyStore = KeyStore.getInstance("AndroidKeyStore").apply {
+        load(null)
+    }
+    if (ks.containsAlias(alias)) {
+        val entry = ks.getEntry(alias, null)
+        if (entry !is KeyStore.PrivateKeyEntry) {
+            throw IllegalStateException("Not an instance of a PrivateKeyEntry")
+        }
+        val private = entry.privateKey
+        val public = ks.getCertificate(alias).publicKey
+        return KeyPair(public, private)
+    } else {
+        val kpg: KeyPairGenerator = KeyPairGenerator.getInstance(
+            KeyProperties.KEY_ALGORITHM_EC,
+            "AndroidKeyStore"
+        )
+        val parameterSpec: KeyGenParameterSpec = KeyGenParameterSpec.Builder(
+            alias,
+            KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY
+        ).run {
+            setDigests(KeyProperties.DIGEST_SHA256)
+            build()
+        }
+        kpg.initialize(parameterSpec)
+
+        val kp = kpg.generateKeyPair()
+        return kp
+    }
+}
 
 fun maybeHandlePnv(
     requestJson: String,
@@ -281,24 +327,47 @@ fun maybeHandlePnv(
     }
     val encryptedTempTokenJwe = jweSerialization(aggregatorEncKey, tempTokenJson.toString())
 
-    val tmpKey =
+    val tmpDeviceTelModuleKey =
         "MIGHAgEAMBMGByqGSM49AgEGCCqGSM49AwEHBG0wawIBAQQg6ef4-enmfQHRWUW40-Soj3aFB0rsEOp3tYMW-HJPBvChRANCAAT5N1NLZcub4bOgWfBwF8MHPGkfJ8Dm300cioatq9XovaLgG205FEXUOuNMEMQuLbrn8oiOC0nTnNIVn-OtSmSb"
-    val privateKey =
-        loadECPrivateKey(Base64.decode(tmpKey, Base64.URL_SAFE)) as ECPrivateKey
-    val tempTokenDcJwt = createJWTES256(
+    val deviceTelModulePrivateKey =
+        loadECPrivateKey(Base64.decode(tmpDeviceTelModuleKey, Base64.URL_SAFE)) as ECPrivateKey
+    val deviceKp = getDeviceKey()
+
+    val deviceTelModuleJwt = createJWTES256(
         header = buildJsonObject {
+            put("alg", "ES256")
+            put("x5c", buildJsonArray {
+                add("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE+TdTS2XLm+GzoFnwcBfDBzxpHyfA5t9NHIqGravV6L2i4BttORRF1DrjTBDELi265/KIjgtJ05zSFZ/jrUpkmw==")
+            })
+        },
+        payload = buildJsonObject {
+            put("cnf", buildJsonObject {
+                put("jwk", deviceKp.public.toJWK())
+            })
+        },
+        privateKey = deviceTelModulePrivateKey
+    )
+    val sdJwt = deviceTelModuleJwt + "~"
+
+    val md = MessageDigest.getInstance("SHA-256")
+    val digest = md.digest(sdJwt.encodeToByteArray()).toBase64UrlNoPadding()
+    val kbJwt = createJWTES256(
+        header = buildJsonObject {
+            put("typ", "kb+jwt") // MUST be kb+jwt
             put("alg", "ES256")
         },
         payload = buildJsonObject {
+            put("iat", Instant.now().epochSecond)
+            put("aud", origin)
             put("nonce", openId4VPRequest.nonce)
-            put("origin", origin)
             put("encrypted_credential", encryptedTempTokenJwe)
+            put("sd_hash", digest)
         },
-        privateKey = privateKey
+        privateKey = deviceKp.private
     )
 
     // We don't use selective disclosure, so the sd-jwt is simply jwt + "~"
-    val tempTokenDcSdJwt = "${tempTokenDcJwt}~"
+    val tempTokenDcSdJwt = "${deviceTelModuleJwt}~${kbJwt}"
 
     val vpToken = JSONObject().apply {
         put(dcqlCredId, tempTokenDcSdJwt)
