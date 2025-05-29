@@ -27,6 +27,7 @@ import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.VCT_GET_PHONE_NUMBER
 import com.credman.cmwallet.pnv.PnvTokenRegistry.Companion.VCT_VERIFY_PHONE_NUMBER
 import com.credman.cmwallet.toBase64UrlNoPadding
 import com.credman.cmwallet.toJWK
+import io.ktor.util.encodeBase64
 import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -295,9 +296,10 @@ fun maybeHandlePnv(
     // TODO: validate the aggregator cert is allowed to request phone number verification for the given carrier
 
     val consentData = credAuthJwtpayload.optString("consent_data")
-    // TODO: when the matcher renders the consent data, create the consent data digest to sign over
-    // and prove that it has been displayed.
-    val consentDataHash: String? = null
+    val md = MessageDigest.getInstance("SHA-256")
+    val consentDataHash: String? =
+        if (consentData.isEmpty()) { null }
+        else { md.digest(consentData.encodeToByteArray()).toBase64UrlNoPadding() }
 
     val aggregatorNonce = credAuthJwtpayload.getString("nonce")
     require(aggregatorNonce == openId4VPRequest.nonce) { "Aggregator nonce should match the verifier nonce" }
@@ -319,11 +321,7 @@ fun maybeHandlePnv(
 
     // Generate the phone number token SD-JWT
     val tempTokenJson = buildJsonObject {
-        put("iss", selectedCred.iss)
-        put("vct", selectedCred.vct)
         put("temp_token", getTempTokenForCredential(selectedCred))
-        put("subscription_hint", selectedCred.subscriptionHint)
-        put("carrier_hint", selectedCred.carrierHint)
     }
     val encryptedTempTokenJwe = jweSerialization(aggregatorEncKey, tempTokenJson.toString())
 
@@ -336,20 +334,25 @@ fun maybeHandlePnv(
     val deviceTelModuleJwt = createJWTES256(
         header = buildJsonObject {
             put("alg", "ES256")
+            put("typ", "dc+sd-jwt-pnv")
             put("x5c", buildJsonArray {
                 add("MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE+TdTS2XLm+GzoFnwcBfDBzxpHyfA5t9NHIqGravV6L2i4BttORRF1DrjTBDELi265/KIjgtJ05zSFZ/jrUpkmw==")
             })
         },
         payload = buildJsonObject {
+            put("iss", "https://example.com/issuer")
+            put("vct", selectedCred.vct)
             put("cnf", buildJsonObject {
                 put("jwk", deviceKp.public.toJWK())
             })
+            put("exp", 1883000000)
+            put("iat", 1683000000)
         },
         privateKey = deviceTelModulePrivateKey
     )
     val sdJwt = deviceTelModuleJwt + "~"
 
-    val md = MessageDigest.getInstance("SHA-256")
+    md.reset()
     val digest = md.digest(sdJwt.encodeToByteArray()).toBase64UrlNoPadding()
     val kbJwt = createJWTES256(
         header = buildJsonObject {
@@ -361,12 +364,15 @@ fun maybeHandlePnv(
             put("aud", origin)
             put("nonce", openId4VPRequest.nonce)
             put("encrypted_credential", encryptedTempTokenJwe)
+            put("consent_data_hash", consentDataHash)
             put("sd_hash", digest)
+            put("subscription_hint", selectedCred.subscriptionHint)
+            put("carrier_hint", selectedCred.carrierHint)
+            put("android_carrier_hint", selectedCred.androidCarrierHint)
         },
         privateKey = deviceKp.private
     )
 
-    // We don't use selective disclosure, so the sd-jwt is simply jwt + "~"
     val tempTokenDcSdJwt = "${deviceTelModuleJwt}~${kbJwt}"
 
     val vpToken = JSONObject().apply {
