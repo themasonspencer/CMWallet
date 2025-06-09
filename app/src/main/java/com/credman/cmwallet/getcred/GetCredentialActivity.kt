@@ -235,8 +235,9 @@ class GetCredentialActivity : FragmentActivity() {
                         return
                     }
                     val selectedEntryId = JSONObject(entryId!!)
-                    val providerIdx = selectedEntryId.getInt("provider_idx")
-                    val selectedId = selectedEntryId.getString("id")
+                    Log.d(TAG, "Selected Entry Info:${entryId}")
+                    val providerIdx = if (selectedEntryId.has("req_idx")) selectedEntryId.getInt("req_idx") else selectedEntryId.getInt("provider_idx")
+                    val selectedId = if (selectedEntryId.has("entry_id")) selectedEntryId.getString("entry_id") else selectedEntryId.getString("id")
                     val dqclCredId = selectedEntryId.getString("dcql_cred_id")
 
                     val pnvResponse = maybeHandlePnv(
