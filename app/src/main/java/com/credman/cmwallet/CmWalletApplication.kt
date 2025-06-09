@@ -186,7 +186,7 @@ class CmWalletApplication : Application() {
     }
 
     private fun loadIssuanceMatcher(): ByteArray {
-        return readAsset("provision.wasm")
+        return readAsset("provision_hardcoded.wasm")
     }
 
     private fun loadPhoneNumberMatcher(): ByteArray {
