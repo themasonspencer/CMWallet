@@ -36,6 +36,8 @@ import com.credman.cmwallet.openid4vci.data.CredentialConfigurationMDoc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationSdJwtVc
 import com.credman.cmwallet.openid4vci.data.CredentialConfigurationUnknownFormat
 import com.credman.cmwallet.openid4vp.OpenId4VP
+import com.credman.cmwallet.openid4vp.OpenId4VP.Companion.IDENTIFIERS_1_0
+import com.credman.cmwallet.openid4vp.OpenId4VP.Companion.IDENTIFIER_DRAFT_24
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedCredential
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedMDocClaims
 import com.credman.cmwallet.openid4vp.OpenId4VPMatchedSdJwtClaims
@@ -44,6 +46,7 @@ import com.credman.cmwallet.sdjwt.SdJwt
 import com.credman.cmwallet.toBase64UrlNoPadding
 import com.google.android.gms.identitycredentials.Credential
 import com.google.android.gms.identitycredentials.IntentHelper
+import org.json.JSONArray
 import org.json.JSONObject
 
 
@@ -57,6 +60,7 @@ fun createOpenID4VPResponse(
     var authenticationSubtitle: CharSequence? = null
     // Create the response
     val vpToken = JSONObject()
+    var credentialResponse: String? = null
     when (selectedCredential.config) {
         is CredentialConfigurationSdJwtVc -> {
             val claims =
@@ -65,14 +69,12 @@ fun createOpenID4VPResponse(
                 selectedCredential.credentials.first().credential,
                 (selectedCredential.credentials.first().key as CredentialKeySoftware).privateKey
             )
-            vpToken.put(
-                matchedCredential.dcqlId,
+            credentialResponse =
                 sdJwtVc.present(
                     claims,
                     nonce = openId4VPRequest.nonce,
                     aud = openId4VPRequest.getSdJwtKbAud(origin)
                 )
-            )
         }
         is CredentialConfigurationMDoc -> {
             val matchedClaims =
@@ -115,13 +117,20 @@ fun createOpenID4VPResponse(
                 deviceNamespaces = deviceNamespaces
 
             )
-            val encodedDeviceResponse = deviceResponse.toBase64UrlNoPadding()
-            vpToken.put(matchedCredential.dcqlId, encodedDeviceResponse)
+            credentialResponse = deviceResponse.toBase64UrlNoPadding()
         }
 
         is CredentialConfigurationUnknownFormat -> TODO()
     }
 
+    vpToken.put(
+        matchedCredential.dcqlId,
+        when (openId4VPRequest.protocolIdentifier) {
+            IDENTIFIER_DRAFT_24 -> credentialResponse
+            in IDENTIFIERS_1_0 -> JSONArray().put(credentialResponse)
+            else -> throw UnsupportedOperationException("Invalid protocol identifier")
+        }
+    )
     // Create the openid4vp result
     val response = openId4VPRequest.generateResponse(vpToken)
     Log.d(TAG, "Returning $response")
