@@ -53,6 +53,26 @@
                 "display": "License number",
                 "display_value": "90001234"
             },
+            "resident_address": {
+                "value": "123 St, Gotham City",
+                "display": "Resident address",
+                "display_value": "123 St, Gotham City"
+            },
+            "resident_city": {
+                "value": "Gotham City",
+                "display": "Resident city",
+                "display_value": "Gotham City"
+            },
+            "resident_state": {
+                "value": "Gotham District",
+                "display": "Resident state",
+                "display_value": "Gotham District"
+            },
+            "resident_postal_code": {
+                "value": "94043",
+                "display": "Resident postal code",
+                "display_value": "94043"
+            },
             "portrait": {
                 "value": "_9j_4AAQSkZJRgABAQAAAQABAAD_2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH_2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH_wAARCAABAAEDASIAAhEBAxEB_8QAHwAAAQUBAQEBAQEAAAAAAAAAAQIDBAUGBwgJCgv_xACMQACAQMDAgYiAgAAAAAAAABgQCAwUDBAcBAgQICQoRFRYf_xAAgEQACAQIEBgEBAAAAAAAAAAABAgMRBAAhBRIgQVFh_xAAiEQACAgIBAwQCAAAAAAAAAAABEQIDABIhMQVBUSNhcf_aAAwDAQACEQMRAD8A_cn+A_iP8OI_+v1f+gH_AD0r_9k===",
                 "display": "Portrait",
