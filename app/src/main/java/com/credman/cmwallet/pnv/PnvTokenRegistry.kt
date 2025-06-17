@@ -70,6 +70,7 @@ data class PnvTokenRegistry(
     val iss: String,
     val icon: String? = null,
     val phoneNumberAttributeDisplayName: String, // Should be localized
+    val supportedAggregatorIssNames: Set<String>?, // If null, allow all and do not perform filtering
 ) {
     /** Converts this TS43 entry to the more generic SD-JWT registry item(s). */
     private fun toSdJwtRegistryItems(): SdJwtRegistryItem {
@@ -101,6 +102,7 @@ data class PnvTokenRegistry(
         internal const val VALUE = "value"
         internal const val DISPLAY = "display"
         internal const val SHARED_ATTRIBUTE_DISPLAY_NAME = "shared_attribute_display_name"
+        internal const val ISS_ALLOWLIST = "iss_allowlist"
 
         val TEST_PNV_1_GET_PHONE_NUMBER = PnvTokenRegistry(
             tokenId = "pnv_1",
@@ -115,6 +117,7 @@ data class PnvTokenRegistry(
             iss = "https://example.terrific-telecom.dev",
             icon = "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAWCAYAAADwza0nAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACBSURBVHgB7ZTBDUVQEEXvff8VoITfC0YZatABHWiH6IUOaICHBCuReXbEWd1kcmZmMRmGIinhSpABFBDoJpqccSKtA/7wY7C71FQ1NUaUyKIg4Ba8MbiJ3YPnqvcnfuI7xAfdqr0qXjU9FTXTGUnca//NIYGdoflla1BbDsPIqZgBHcEomi+uUHMAAAAASUVORK5CYII=",
             phoneNumberAttributeDisplayName = "Phone number",
+            supportedAggregatorIssNames = null
         )
         val TEST_PNV_1_VERIFY_PHONE_NUMBER = TEST_PNV_1_GET_PHONE_NUMBER.copy(
             vct = VCT_VERIFY_PHONE_NUMBER,
@@ -132,6 +135,7 @@ data class PnvTokenRegistry(
             iss = "https://example.timely-telecom.dev",
             icon = "iVBORw0KGgoAAAANSUhEUgAAAA4AAAAWCAYAAADwza0nAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACBSURBVHgB7ZTBDUVQEEXvff8VoITfC0YZatABHWiH6IUOaICHBCuReXbEWd1kcmZmMRmGIinhSpABFBDoJpqccSKtA/7wY7C71FQ1NUaUyKIg4Ba8MbiJ3YPnqvcnfuI7xAfdqr0qXjU9FTXTGUnca//NIYGdoflla1BbDsPIqZgBHcEomi+uUHMAAAAASUVORK5CYII=",
             phoneNumberAttributeDisplayName = "Phone number",
+            supportedAggregatorIssNames = null
         )
 
         fun buildRegistryDatabase(items: List<PnvTokenRegistry>): ByteArray {
@@ -164,6 +168,13 @@ data class PnvTokenRegistry(
                 val sdJwtRegistryItem = item.toSdJwtRegistryItems()
                 val credJson = JSONObject()
                 credJson.put(SHARED_ATTRIBUTE_DISPLAY_NAME, item.phoneNumberAttributeDisplayName)
+                if (item.supportedAggregatorIssNames != null) {
+                    val issAllowlist = JSONObject()
+                    for (issName in item.supportedAggregatorIssNames) {
+                        issAllowlist.put(issName, JSONObject())
+                    }
+                    credJson.put(ISS_ALLOWLIST, issAllowlist)
+                }
                 credJson.put(ID, sdJwtRegistryItem.id)
                 credJson.put(TITLE, sdJwtRegistryItem.displayData.title)
                 credJson.putOpt(SUBTITLE, sdJwtRegistryItem.displayData.subtitle)
